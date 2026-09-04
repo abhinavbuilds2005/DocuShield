@@ -1,0 +1,371 @@
+{
+  "full_text": "Republic of Mockland Unique Identification Authority Mock National Citizen ID Card Name: Priya Verma DOB: 21/05/1996 Gender: Female Address: B-12 Lotus Heights, Sector 15, Mock City 110022 8742 1935 6123",
+  "lines": [
+    {
+      "text": "Republic of Mockland Unique Identification Authority Mock National Citizen ID Card",
+      "confidence": 0.98,
+      "box": [
+        110,
+        42,
+        450,
+        40
+      ]
+    },
+    {
+      "text": "Name: Priya Verma",
+      "confidence": 0.96,
+      "box": [
+        230,
+        138,
+        280,
+        30
+      ]
+    },
+    {
+      "text": "DOB: 21/05/1996",
+      "confidence": 0.97,
+      "box": [
+        230,
+        183,
+        180,
+        30
+      ]
+    },
+    {
+      "text": "Gender: Female",
+      "confidence": 0.95,
+      "box": [
+        230,
+        228,
+        160,
+        30
+      ]
+    },
+    {
+      "text": "Address: B-12 Lotus Heights, Sector 15, Mock City 110022",
+      "confidence": 0.92,
+      "box": [
+        230,
+        273,
+        400,
+        30
+      ]
+    },
+    {
+      "text": "8742 1935 6123",
+      "confidence": 0.99,
+      "box": [
+        210,
+        360,
+        540,
+        65
+      ]
+    }
+  ],
+  "tokens": [
+    {
+      "text": "Republic",
+      "confidence": 0.98,
+      "box": [
+        110,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "of",
+      "confidence": 0.98,
+      "box": [
+        150,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Mockland",
+      "confidence": 0.98,
+      "box": [
+        190,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Unique",
+      "confidence": 0.98,
+      "box": [
+        230,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Identification",
+      "confidence": 0.98,
+      "box": [
+        270,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Authority",
+      "confidence": 0.98,
+      "box": [
+        310,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Mock",
+      "confidence": 0.98,
+      "box": [
+        350,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "National",
+      "confidence": 0.98,
+      "box": [
+        390,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Citizen",
+      "confidence": 0.98,
+      "box": [
+        430,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "ID",
+      "confidence": 0.98,
+      "box": [
+        470,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Card",
+      "confidence": 0.98,
+      "box": [
+        510,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Name:",
+      "confidence": 0.96,
+      "box": [
+        230,
+        138,
+        93,
+        30
+      ]
+    },
+    {
+      "text": "Priya",
+      "confidence": 0.96,
+      "box": [
+        323,
+        138,
+        93,
+        30
+      ]
+    },
+    {
+      "text": "Verma",
+      "confidence": 0.96,
+      "box": [
+        416,
+        138,
+        93,
+        30
+      ]
+    },
+    {
+      "text": "DOB:",
+      "confidence": 0.97,
+      "box": [
+        230,
+        183,
+        90,
+        30
+      ]
+    },
+    {
+      "text": "21/05/1996",
+      "confidence": 0.97,
+      "box": [
+        320,
+        183,
+        90,
+        30
+      ]
+    },
+    {
+      "text": "Gender:",
+      "confidence": 0.95,
+      "box": [
+        230,
+        228,
+        80,
+        30
+      ]
+    },
+    {
+      "text": "Female",
+      "confidence": 0.95,
+      "box": [
+        310,
+        228,
+        80,
+        30
+      ]
+    },
+    {
+      "text": "Address:",
+      "confidence": 0.92,
+      "box": [
+        230,
+        273,
+        44,
+        30
+      ]
+    },
+    {
+      "text": "B-12",
+      "confidence": 0.92,
+      "box": [
+        274,
+        273,
+        44,
+        30
+      ]
+    },
+    {
+      "text": "Lotus",
+      "confidence": 0.92,
+      "box": [
+        318,
+        273,
+        44,
+        30
+      ]
+    },
+    {
+      "text": "Heights,",
+      "confidence": 0.92,
+      "box": [
+        362,
+        273,
+        44,
+        30
+      ]
+    },
+    {
+      "text": "Sector",
+      "confidence": 0.92,
+      "box": [
+        406,
+        273,
+        44,
+        30
+      ]
+    },
+    {
+      "text": "15,",
+      "confidence": 0.92,
+      "box": [
+        450,
+        273,
+        44,
+        30
+      ]
+    },
+    {
+      "text": "Mock",
+      "confidence": 0.92,
+      "box": [
+        494,
+        273,
+        44,
+        30
+      ]
+    },
+    {
+      "text": "City",
+      "confidence": 0.92,
+      "box": [
+        538,
+        273,
+        44,
+        30
+      ]
+    },
+    {
+      "text": "110022",
+      "confidence": 0.92,
+      "box": [
+        582,
+        273,
+        44,
+        30
+      ]
+    },
+    {
+      "text": "8742",
+      "confidence": 0.99,
+      "box": [
+        210,
+        360,
+        180,
+        65
+      ]
+    },
+    {
+      "text": "1935",
+      "confidence": 0.99,
+      "box": [
+        390,
+        360,
+        180,
+        65
+      ]
+    },
+    {
+      "text": "6123",
+      "confidence": 0.99,
+      "box": [
+        570,
+        360,
+        180,
+        65
+      ]
+    }
+  ],
+  "image_dims": [
+    800,
+    500
+  ]
+}

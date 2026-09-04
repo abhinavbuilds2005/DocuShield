@@ -1,0 +1,391 @@
+{
+  "full_text": "UNION OF MOCKLAND MOTOR VEHICLES DEPT DRIVING LICENCE Licence No: KL-0720190054321 Name: Meera Nambiar DOB: 29/09/1998 Issue Date: 15/10/2019 Valid Till: 14/10/2015 Class of Vehicles: LMV (NT) Blood Group: B+ve",
+  "lines": [
+    {
+      "text": "UNION OF MOCKLAND MOTOR VEHICLES DEPT DRIVING LICENCE",
+      "confidence": 0.98,
+      "box": [
+        110,
+        40,
+        500,
+        50
+      ]
+    },
+    {
+      "text": "Licence No: KL-0720190054321",
+      "confidence": 0.99,
+      "box": [
+        220,
+        120,
+        520,
+        45
+      ]
+    },
+    {
+      "text": "Name: Meera Nambiar",
+      "confidence": 0.96,
+      "box": [
+        235,
+        185,
+        250,
+        30
+      ]
+    },
+    {
+      "text": "DOB: 29/09/1998",
+      "confidence": 0.97,
+      "box": [
+        235,
+        225,
+        200,
+        30
+      ]
+    },
+    {
+      "text": "Issue Date: 15/10/2019",
+      "confidence": 0.95,
+      "box": [
+        235,
+        265,
+        200,
+        30
+      ]
+    },
+    {
+      "text": "Valid Till: 14/10/2015",
+      "confidence": 0.95,
+      "box": [
+        500,
+        265,
+        200,
+        30
+      ]
+    },
+    {
+      "text": "Class of Vehicles: LMV (NT)",
+      "confidence": 0.94,
+      "box": [
+        235,
+        305,
+        350,
+        30
+      ]
+    },
+    {
+      "text": "Blood Group: B+ve",
+      "confidence": 0.93,
+      "box": [
+        235,
+        345,
+        180,
+        30
+      ]
+    }
+  ],
+  "tokens": [
+    {
+      "text": "UNION",
+      "confidence": 0.98,
+      "box": [
+        110,
+        40,
+        62,
+        50
+      ]
+    },
+    {
+      "text": "OF",
+      "confidence": 0.98,
+      "box": [
+        172,
+        40,
+        62,
+        50
+      ]
+    },
+    {
+      "text": "MOCKLAND",
+      "confidence": 0.98,
+      "box": [
+        234,
+        40,
+        62,
+        50
+      ]
+    },
+    {
+      "text": "MOTOR",
+      "confidence": 0.98,
+      "box": [
+        296,
+        40,
+        62,
+        50
+      ]
+    },
+    {
+      "text": "VEHICLES",
+      "confidence": 0.98,
+      "box": [
+        358,
+        40,
+        62,
+        50
+      ]
+    },
+    {
+      "text": "DEPT",
+      "confidence": 0.98,
+      "box": [
+        420,
+        40,
+        62,
+        50
+      ]
+    },
+    {
+      "text": "DRIVING",
+      "confidence": 0.98,
+      "box": [
+        482,
+        40,
+        62,
+        50
+      ]
+    },
+    {
+      "text": "LICENCE",
+      "confidence": 0.98,
+      "box": [
+        544,
+        40,
+        62,
+        50
+      ]
+    },
+    {
+      "text": "Licence",
+      "confidence": 0.99,
+      "box": [
+        220,
+        120,
+        173,
+        45
+      ]
+    },
+    {
+      "text": "No:",
+      "confidence": 0.99,
+      "box": [
+        393,
+        120,
+        173,
+        45
+      ]
+    },
+    {
+      "text": "KL-0720190054321",
+      "confidence": 0.99,
+      "box": [
+        566,
+        120,
+        173,
+        45
+      ]
+    },
+    {
+      "text": "Name:",
+      "confidence": 0.96,
+      "box": [
+        235,
+        185,
+        83,
+        30
+      ]
+    },
+    {
+      "text": "Meera",
+      "confidence": 0.96,
+      "box": [
+        318,
+        185,
+        83,
+        30
+      ]
+    },
+    {
+      "text": "Nambiar",
+      "confidence": 0.96,
+      "box": [
+        401,
+        185,
+        83,
+        30
+      ]
+    },
+    {
+      "text": "DOB:",
+      "confidence": 0.97,
+      "box": [
+        235,
+        225,
+        100,
+        30
+      ]
+    },
+    {
+      "text": "29/09/1998",
+      "confidence": 0.97,
+      "box": [
+        335,
+        225,
+        100,
+        30
+      ]
+    },
+    {
+      "text": "Issue",
+      "confidence": 0.95,
+      "box": [
+        235,
+        265,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "Date:",
+      "confidence": 0.95,
+      "box": [
+        301,
+        265,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "15/10/2019",
+      "confidence": 0.95,
+      "box": [
+        367,
+        265,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "Valid",
+      "confidence": 0.95,
+      "box": [
+        500,
+        265,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "Till:",
+      "confidence": 0.95,
+      "box": [
+        566,
+        265,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "14/10/2015",
+      "confidence": 0.95,
+      "box": [
+        632,
+        265,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "Class",
+      "confidence": 0.94,
+      "box": [
+        235,
+        305,
+        70,
+        30
+      ]
+    },
+    {
+      "text": "of",
+      "confidence": 0.94,
+      "box": [
+        305,
+        305,
+        70,
+        30
+      ]
+    },
+    {
+      "text": "Vehicles:",
+      "confidence": 0.94,
+      "box": [
+        375,
+        305,
+        70,
+        30
+      ]
+    },
+    {
+      "text": "LMV",
+      "confidence": 0.94,
+      "box": [
+        445,
+        305,
+        70,
+        30
+      ]
+    },
+    {
+      "text": "(NT)",
+      "confidence": 0.94,
+      "box": [
+        515,
+        305,
+        70,
+        30
+      ]
+    },
+    {
+      "text": "Blood",
+      "confidence": 0.93,
+      "box": [
+        235,
+        345,
+        60,
+        30
+      ]
+    },
+    {
+      "text": "Group:",
+      "confidence": 0.93,
+      "box": [
+        295,
+        345,
+        60,
+        30
+      ]
+    },
+    {
+      "text": "B+ve",
+      "confidence": 0.93,
+      "box": [
+        355,
+        345,
+        60,
+        30
+      ]
+    }
+  ],
+  "image_dims": [
+    800,
+    500
+  ]
+}

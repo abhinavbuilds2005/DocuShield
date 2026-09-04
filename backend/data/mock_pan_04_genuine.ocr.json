@@ -1,0 +1,311 @@
+{
+  "full_text": "INCOME TAX DEPARTMENT GOVERNMENT OF MOCKLAND PERMANENT ACCOUNT NUMBER CARD Name ANANYA SEN Father's Name DEBABRATA SEN Date of Birth 05/03/1994 Permanent Account Number BZXPS5432K",
+  "lines": [
+    {
+      "text": "INCOME TAX DEPARTMENT GOVERNMENT OF MOCKLAND PERMANENT ACCOUNT NUMBER CARD",
+      "confidence": 0.98,
+      "box": [
+        105,
+        42,
+        500,
+        50
+      ]
+    },
+    {
+      "text": "Name ANANYA SEN",
+      "confidence": 0.96,
+      "box": [
+        230,
+        130,
+        300,
+        45
+      ]
+    },
+    {
+      "text": "Father's Name DEBABRATA SEN",
+      "confidence": 0.95,
+      "box": [
+        230,
+        190,
+        300,
+        45
+      ]
+    },
+    {
+      "text": "Date of Birth 05/03/1994",
+      "confidence": 0.97,
+      "box": [
+        230,
+        250,
+        200,
+        45
+      ]
+    },
+    {
+      "text": "Permanent Account Number BZXPS5432K",
+      "confidence": 0.99,
+      "box": [
+        220,
+        320,
+        340,
+        65
+      ]
+    }
+  ],
+  "tokens": [
+    {
+      "text": "INCOME",
+      "confidence": 0.98,
+      "box": [
+        105,
+        42,
+        50,
+        50
+      ]
+    },
+    {
+      "text": "TAX",
+      "confidence": 0.98,
+      "box": [
+        155,
+        42,
+        50,
+        50
+      ]
+    },
+    {
+      "text": "DEPARTMENT",
+      "confidence": 0.98,
+      "box": [
+        205,
+        42,
+        50,
+        50
+      ]
+    },
+    {
+      "text": "GOVERNMENT",
+      "confidence": 0.98,
+      "box": [
+        255,
+        42,
+        50,
+        50
+      ]
+    },
+    {
+      "text": "OF",
+      "confidence": 0.98,
+      "box": [
+        305,
+        42,
+        50,
+        50
+      ]
+    },
+    {
+      "text": "MOCKLAND",
+      "confidence": 0.98,
+      "box": [
+        355,
+        42,
+        50,
+        50
+      ]
+    },
+    {
+      "text": "PERMANENT",
+      "confidence": 0.98,
+      "box": [
+        405,
+        42,
+        50,
+        50
+      ]
+    },
+    {
+      "text": "ACCOUNT",
+      "confidence": 0.98,
+      "box": [
+        455,
+        42,
+        50,
+        50
+      ]
+    },
+    {
+      "text": "NUMBER",
+      "confidence": 0.98,
+      "box": [
+        505,
+        42,
+        50,
+        50
+      ]
+    },
+    {
+      "text": "CARD",
+      "confidence": 0.98,
+      "box": [
+        555,
+        42,
+        50,
+        50
+      ]
+    },
+    {
+      "text": "Name",
+      "confidence": 0.96,
+      "box": [
+        230,
+        130,
+        100,
+        45
+      ]
+    },
+    {
+      "text": "ANANYA",
+      "confidence": 0.96,
+      "box": [
+        330,
+        130,
+        100,
+        45
+      ]
+    },
+    {
+      "text": "SEN",
+      "confidence": 0.96,
+      "box": [
+        430,
+        130,
+        100,
+        45
+      ]
+    },
+    {
+      "text": "Father's",
+      "confidence": 0.95,
+      "box": [
+        230,
+        190,
+        75,
+        45
+      ]
+    },
+    {
+      "text": "Name",
+      "confidence": 0.95,
+      "box": [
+        305,
+        190,
+        75,
+        45
+      ]
+    },
+    {
+      "text": "DEBABRATA",
+      "confidence": 0.95,
+      "box": [
+        380,
+        190,
+        75,
+        45
+      ]
+    },
+    {
+      "text": "SEN",
+      "confidence": 0.95,
+      "box": [
+        455,
+        190,
+        75,
+        45
+      ]
+    },
+    {
+      "text": "Date",
+      "confidence": 0.97,
+      "box": [
+        230,
+        250,
+        50,
+        45
+      ]
+    },
+    {
+      "text": "of",
+      "confidence": 0.97,
+      "box": [
+        280,
+        250,
+        50,
+        45
+      ]
+    },
+    {
+      "text": "Birth",
+      "confidence": 0.97,
+      "box": [
+        330,
+        250,
+        50,
+        45
+      ]
+    },
+    {
+      "text": "05/03/1994",
+      "confidence": 0.97,
+      "box": [
+        380,
+        250,
+        50,
+        45
+      ]
+    },
+    {
+      "text": "Permanent",
+      "confidence": 0.99,
+      "box": [
+        220,
+        320,
+        85,
+        65
+      ]
+    },
+    {
+      "text": "Account",
+      "confidence": 0.99,
+      "box": [
+        305,
+        320,
+        85,
+        65
+      ]
+    },
+    {
+      "text": "Number",
+      "confidence": 0.99,
+      "box": [
+        390,
+        320,
+        85,
+        65
+      ]
+    },
+    {
+      "text": "BZXPS5432K",
+      "confidence": 0.99,
+      "box": [
+        475,
+        320,
+        85,
+        65
+      ]
+    }
+  ],
+  "image_dims": [
+    800,
+    500
+  ]
+}

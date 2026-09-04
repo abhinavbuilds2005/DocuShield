@@ -1,0 +1,277 @@
+{
+  "mock_aadhaar_01_genuine.png": {
+    "label": "GENUINE",
+    "doc_type": "aadhaar",
+    "name": "Aarav Sharma",
+    "id_number": "542891623811",
+    "tampering_types": [],
+    "expected_verdict": "AUTHENTIC"
+  },
+  "mock_aadhaar_01_tampered_photoswap.jpg": {
+    "label": "TAMPERED",
+    "doc_type": "aadhaar",
+    "name": "Aarav Sharma",
+    "id_number": "542891623811",
+    "tampering_types": [
+      "photo_swap",
+      "ela_double_compression"
+    ],
+    "tampered_boxes": [
+      [
+        50,
+        130,
+        150,
+        180
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_aadhaar_02_tampered_checksum.png": {
+    "label": "TAMPERED",
+    "doc_type": "aadhaar",
+    "name": "Aarav Sharma",
+    "id_number": "542891623814",
+    "tampering_types": [
+      "verhoeff_checksum_corruption"
+    ],
+    "tampered_boxes": [
+      [
+        210,
+        360,
+        540,
+        65
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_aadhaar_03_genuine.png": {
+    "label": "GENUINE",
+    "doc_type": "aadhaar",
+    "name": "Priya Verma",
+    "id_number": "874219356123",
+    "tampering_types": [],
+    "expected_verdict": "AUTHENTIC"
+  },
+  "mock_aadhaar_04_tampered_fontsplice.png": {
+    "label": "TAMPERED",
+    "doc_type": "aadhaar",
+    "name": "VIKRAM MALHOTRA",
+    "id_number": "874219356123",
+    "tampering_types": [
+      "font_sharpness_splice",
+      "name_manipulation"
+    ],
+    "tampered_boxes": [
+      [
+        308,
+        135,
+        212,
+        30
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_pan_01_genuine.png": {
+    "label": "GENUINE",
+    "doc_type": "pan",
+    "name": "Rohit Gupta",
+    "pan_number": "ABCPG1234F",
+    "tampering_types": [],
+    "expected_verdict": "AUTHENTIC"
+  },
+  "mock_pan_02_tampered_datesplice.png": {
+    "label": "TAMPERED",
+    "doc_type": "pan",
+    "name": "Rohit Gupta",
+    "pan_number": "ABCPG1234F",
+    "tampering_types": [
+      "invalid_date_logic",
+      "font_anti_aliasing_mismatch"
+    ],
+    "tampered_boxes": [
+      [
+        228,
+        268,
+        152,
+        30
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_pan_03_tampered_copymove.png": {
+    "label": "TAMPERED",
+    "doc_type": "pan",
+    "name": "Rohit Gupta",
+    "pan_number": "ABCPG1234F",
+    "tampering_types": [
+      "copy_move_cloning"
+    ],
+    "tampered_boxes": [
+      [
+        220,
+        395,
+        120,
+        120
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_pan_04_genuine.png": {
+    "label": "GENUINE",
+    "doc_type": "pan",
+    "name": "Ananya Sen",
+    "pan_number": "BZXPS5432K",
+    "tampering_types": [],
+    "expected_verdict": "AUTHENTIC"
+  },
+  "mock_pan_05_tampered_regex.png": {
+    "label": "TAMPERED",
+    "doc_type": "pan",
+    "name": "Ananya Sen",
+    "pan_number": "ABC9999999",
+    "tampering_types": [
+      "regex_format_violation"
+    ],
+    "tampered_boxes": [
+      [
+        220,
+        320,
+        340,
+        65
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_dl_01_genuine.png": {
+    "label": "GENUINE",
+    "doc_type": "dl",
+    "name": "Karan Singhania",
+    "dl_number": "DL-1420110012345",
+    "tampering_types": [],
+    "expected_verdict": "AUTHENTIC"
+  },
+  "mock_dl_02_tampered_photoshop_meta.png": {
+    "label": "TAMPERED",
+    "doc_type": "dl",
+    "name": "Karan Singhania",
+    "dl_number": "DL-1420110012345",
+    "tampering_types": [
+      "photo_swap",
+      "editing_software_metadata"
+    ],
+    "tampered_boxes": [
+      [
+        50,
+        130,
+        150,
+        180
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_dl_03_tampered_categorysplice.png": {
+    "label": "TAMPERED",
+    "doc_type": "dl",
+    "name": "Karan Singhania",
+    "dl_number": "DL-1420110012345",
+    "tampering_types": [
+      "vehicle_category_splice",
+      "font_discrepancy"
+    ],
+    "tampered_boxes": [
+      [
+        378,
+        300,
+        202,
+        30
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_dl_04_genuine.png": {
+    "label": "GENUINE",
+    "doc_type": "dl",
+    "name": "Meera Nambiar",
+    "dl_number": "KL-0720190054321",
+    "tampering_types": [],
+    "expected_verdict": "AUTHENTIC"
+  },
+  "mock_dl_05_tampered_chronology.png": {
+    "label": "TAMPERED",
+    "doc_type": "dl",
+    "name": "Meera Nambiar",
+    "dl_number": "KL-0720190054321",
+    "tampering_types": [
+      "chronological_date_contradiction"
+    ],
+    "tampered_boxes": [
+      [
+        500,
+        265,
+        200,
+        30
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_aadhaar_05_genuine.png": {
+    "label": "GENUINE",
+    "doc_type": "aadhaar",
+    "name": "Devendra Joshi",
+    "id_number": "314592653581",
+    "tampering_types": [],
+    "expected_verdict": "AUTHENTIC"
+  },
+  "mock_aadhaar_06_tampered_copymove.png": {
+    "label": "TAMPERED",
+    "doc_type": "aadhaar",
+    "name": "Devendra Joshi",
+    "id_number": "314592653581",
+    "tampering_types": [
+      "copy_move_cloning"
+    ],
+    "tampered_boxes": [
+      [
+        310,
+        270,
+        120,
+        120
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_pan_06_genuine.png": {
+    "label": "GENUINE",
+    "doc_type": "pan",
+    "name": "Zoya Akhtar",
+    "pan_number": "AZYPA9876Q",
+    "tampering_types": [],
+    "expected_verdict": "AUTHENTIC"
+  },
+  "mock_pan_07_tampered_elacompress.jpg": {
+    "label": "TAMPERED",
+    "doc_type": "pan",
+    "name": "Zoya Akhtar",
+    "pan_number": "AZYPA9876Q",
+    "tampering_types": [
+      "ela_double_compression"
+    ],
+    "tampered_boxes": [
+      [
+        50,
+        125,
+        150,
+        180
+      ]
+    ],
+    "expected_verdict": "FLAGGED / TAMPERED"
+  },
+  "mock_dl_06_genuine.png": {
+    "label": "GENUINE",
+    "doc_type": "dl",
+    "name": "Gurpreet Singh",
+    "dl_number": "PB-0220080078901",
+    "tampering_types": [],
+    "expected_verdict": "AUTHENTIC"
+  }
+}

@@ -1,0 +1,341 @@
+{
+  "full_text": "Republic of Mockland Unique Identification Authority Mock National Citizen ID Card Name: Devendra Joshi DOB: 02/01/1954 Gender: Male Address: 108 Heritage Colony, Mockpur 400050 3145 9265 3581",
+  "lines": [
+    {
+      "text": "Republic of Mockland Unique Identification Authority Mock National Citizen ID Card",
+      "confidence": 0.98,
+      "box": [
+        110,
+        42,
+        450,
+        40
+      ]
+    },
+    {
+      "text": "Name: Devendra Joshi",
+      "confidence": 0.96,
+      "box": [
+        230,
+        138,
+        280,
+        30
+      ]
+    },
+    {
+      "text": "DOB: 02/01/1954",
+      "confidence": 0.97,
+      "box": [
+        230,
+        183,
+        180,
+        30
+      ]
+    },
+    {
+      "text": "Gender: Male",
+      "confidence": 0.95,
+      "box": [
+        230,
+        228,
+        160,
+        30
+      ]
+    },
+    {
+      "text": "Address: 108 Heritage Colony, Mockpur 400050",
+      "confidence": 0.92,
+      "box": [
+        230,
+        273,
+        400,
+        30
+      ]
+    },
+    {
+      "text": "3145 9265 3581",
+      "confidence": 0.99,
+      "box": [
+        210,
+        360,
+        540,
+        65
+      ]
+    }
+  ],
+  "tokens": [
+    {
+      "text": "Republic",
+      "confidence": 0.98,
+      "box": [
+        110,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "of",
+      "confidence": 0.98,
+      "box": [
+        150,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Mockland",
+      "confidence": 0.98,
+      "box": [
+        190,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Unique",
+      "confidence": 0.98,
+      "box": [
+        230,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Identification",
+      "confidence": 0.98,
+      "box": [
+        270,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Authority",
+      "confidence": 0.98,
+      "box": [
+        310,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Mock",
+      "confidence": 0.98,
+      "box": [
+        350,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "National",
+      "confidence": 0.98,
+      "box": [
+        390,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Citizen",
+      "confidence": 0.98,
+      "box": [
+        430,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "ID",
+      "confidence": 0.98,
+      "box": [
+        470,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Card",
+      "confidence": 0.98,
+      "box": [
+        510,
+        42,
+        40,
+        40
+      ]
+    },
+    {
+      "text": "Name:",
+      "confidence": 0.96,
+      "box": [
+        230,
+        138,
+        93,
+        30
+      ]
+    },
+    {
+      "text": "Devendra",
+      "confidence": 0.96,
+      "box": [
+        323,
+        138,
+        93,
+        30
+      ]
+    },
+    {
+      "text": "Joshi",
+      "confidence": 0.96,
+      "box": [
+        416,
+        138,
+        93,
+        30
+      ]
+    },
+    {
+      "text": "DOB:",
+      "confidence": 0.97,
+      "box": [
+        230,
+        183,
+        90,
+        30
+      ]
+    },
+    {
+      "text": "02/01/1954",
+      "confidence": 0.97,
+      "box": [
+        320,
+        183,
+        90,
+        30
+      ]
+    },
+    {
+      "text": "Gender:",
+      "confidence": 0.95,
+      "box": [
+        230,
+        228,
+        80,
+        30
+      ]
+    },
+    {
+      "text": "Male",
+      "confidence": 0.95,
+      "box": [
+        310,
+        228,
+        80,
+        30
+      ]
+    },
+    {
+      "text": "Address:",
+      "confidence": 0.92,
+      "box": [
+        230,
+        273,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "108",
+      "confidence": 0.92,
+      "box": [
+        296,
+        273,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "Heritage",
+      "confidence": 0.92,
+      "box": [
+        362,
+        273,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "Colony,",
+      "confidence": 0.92,
+      "box": [
+        428,
+        273,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "Mockpur",
+      "confidence": 0.92,
+      "box": [
+        494,
+        273,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "400050",
+      "confidence": 0.92,
+      "box": [
+        560,
+        273,
+        66,
+        30
+      ]
+    },
+    {
+      "text": "3145",
+      "confidence": 0.99,
+      "box": [
+        210,
+        360,
+        180,
+        65
+      ]
+    },
+    {
+      "text": "9265",
+      "confidence": 0.99,
+      "box": [
+        390,
+        360,
+        180,
+        65
+      ]
+    },
+    {
+      "text": "3581",
+      "confidence": 0.99,
+      "box": [
+        570,
+        360,
+        180,
+        65
+      ]
+    }
+  ],
+  "image_dims": [
+    800,
+    500
+  ]
+}

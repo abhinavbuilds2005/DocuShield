@@ -1,0 +1,2245 @@
+{
+  "total_documents": 20,
+  "elapsed_seconds": 86.49,
+  "benchmark_mode": "real_ocr",
+  "dataset_composition": {
+    "genuine": 9,
+    "tampered": 11,
+    "total": 20
+  },
+  "qualification": "Results from 20-document synthetic benchmark (with real OCR engine). This is NOT a claim of real-world accuracy.",
+  "metrics": {
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1_score": 100.0,
+    "true_positives": 11,
+    "true_negatives": 9,
+    "false_positives": 0,
+    "false_negatives": 0
+  },
+  "confusion_matrix": {
+    "TP": 11,
+    "TN": 9,
+    "FP": 0,
+    "FN": 0
+  },
+  "details": [
+    {
+      "document_id": "mock_aadhaar_01_genuine.png",
+      "filename": "mock_aadhaar_01_genuine.png",
+      "ground_truth_label": "GENUINE",
+      "final_prediction": "AUTHENTIC",
+      "final_risk_fraud_score": 0.5,
+      "authenticity_score": 99.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6677,
+      "field_validation_checksum_results": {
+        "document_type": "aadhaar",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Aadhaar / National ID Number",
+            "value": "5426 9182 3811",
+            "status": "PASS",
+            "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 3)]",
+            "field_ocr_confidence": 0.508,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 3.44,
+          "std_error": 9.44,
+          "max_error": 141.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 99.5,
+        "penalties_applied": [
+          "All forensic layers clean and consistent -> AUTHENTIC"
+        ],
+        "diagnostic_status": "CLEAN"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_GENUINE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_aadhaar_01_tampered_photoswap.jpg",
+      "filename": "mock_aadhaar_01_tampered_photoswap.jpg",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 33.9,
+      "authenticity_score": 66.1,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6502,
+      "field_validation_checksum_results": {
+        "document_type": "aadhaar",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Aadhaar / National ID Number",
+            "value": "5426 9182 3811",
+            "status": "PASS",
+            "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 3)]",
+            "field_ocr_confidence": 0.684,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 64.3,
+        "evidence_strength": "STRONG",
+        "hotspot_count": 1,
+        "metrics": {
+          "mean_error": 5.52,
+          "std_error": 12.69,
+          "max_error": 182.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 64.3,
+          "weighted_score": 16.07,
+          "evidence_strength": "STRONG"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 91.08,
+        "penalties_applied": [
+          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+        ],
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "photo_swap",
+        "ela_double_compression"
+      ],
+      "flagged_regions_count": 1,
+      "critical_triggers": [
+        "Portrait boundary cut seam identified"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_aadhaar_02_tampered_checksum.png",
+      "filename": "mock_aadhaar_02_tampered_checksum.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 39.0,
+      "authenticity_score": 61.0,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6849,
+      "field_validation_checksum_results": {
+        "document_type": "aadhaar",
+        "score": 55,
+        "evidence_strength": "STRONG",
+        "fields": [
+          {
+            "field": "Aadhaar / National ID Number",
+            "value": "542891823814",
+            "status": "FAIL",
+            "details": "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.89), but fails mathematical validation even with optical character confusion tolerance.",
+            "field_ocr_confidence": 0.886,
+            "is_deterministic": true,
+            "evidence_level": "STRONG"
+          }
+        ],
+        "reasons": [
+          "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.89), but fails mathematical validation even with optical character confusion tolerance."
+        ]
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 3.44,
+          "std_error": 9.45,
+          "max_error": 148.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 55,
+          "weighted_score": 16.5,
+          "evidence_strength": "STRONG"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 86.0,
+        "penalties_applied": [
+          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+        ],
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "verhoeff_checksum_corruption"
+      ],
+      "flagged_regions_count": 1,
+      "critical_triggers": [
+        "Deterministic Field Validation Failure (mathematically invalid checksum/format with confident OCR)"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_aadhaar_03_genuine.png",
+      "filename": "mock_aadhaar_03_genuine.png",
+      "ground_truth_label": "GENUINE",
+      "final_prediction": "AUTHENTIC",
+      "final_risk_fraud_score": 0.5,
+      "authenticity_score": 99.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6943,
+      "field_validation_checksum_results": {
+        "document_type": "aadhaar",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Aadhaar / National ID Number",
+            "value": "6742 1935 8123",
+            "status": "PASS",
+            "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 0)]",
+            "field_ocr_confidence": 0.724,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "21/05/1998",
+            "status": "PASS",
+            "details": "Parsed 1 chronological date(s) successfully"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.72,
+          "std_error": 7.15,
+          "max_error": 109.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 99.5,
+        "penalties_applied": [
+          "All forensic layers clean and consistent -> AUTHENTIC"
+        ],
+        "diagnostic_status": "CLEAN"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_GENUINE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_aadhaar_04_tampered_fontsplice.png",
+      "filename": "mock_aadhaar_04_tampered_fontsplice.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 39.5,
+      "authenticity_score": 60.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.7089,
+      "field_validation_checksum_results": {
+        "document_type": "aadhaar",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Aadhaar / National ID Number",
+            "value": "6742 1935 8123",
+            "status": "PASS",
+            "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 0)]",
+            "field_ocr_confidence": 0.724,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "21/05/1998",
+            "status": "PASS",
+            "details": "Parsed 1 chronological date(s) successfully"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.75,
+          "std_error": 7.16,
+          "max_error": 109.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 30.0,
+        "evidence_strength": "STRONG",
+        "details": "Detected 2 fields with abnormal typographical rendering or edge gradients."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 30.0,
+          "weighted_score": 6.0,
+          "evidence_strength": "STRONG"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 85.5,
+        "penalties_applied": [
+          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+        ],
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "font_sharpness_splice",
+        "name_manipulation"
+      ],
+      "flagged_regions_count": 2,
+      "critical_triggers": [
+        "Typography cut-seam boundary discontinuity identified"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_pan_01_genuine.png",
+      "filename": "mock_pan_01_genuine.png",
+      "ground_truth_label": "GENUINE",
+      "final_prediction": "AUTHENTIC",
+      "final_risk_fraud_score": 7.0,
+      "authenticity_score": 93.0,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.7618,
+      "field_validation_checksum_results": {
+        "document_type": "pan",
+        "score": 95,
+        "evidence_strength": "WEAK",
+        "fields": [
+          {
+            "field": "Permanent Account Number (PAN)",
+            "value": "ABCPG1234F",
+            "status": "PASS",
+            "details": "Valid 10-character Tax ID structure (Entity code verified)",
+            "field_ocr_confidence": 0.657,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "OCR Confidence Consistency",
+            "value": "Avg: 76.2%",
+            "status": "WARNING",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.76)",
+            "is_deterministic": false,
+            "evidence_level": "WEAK"
+          }
+        ],
+        "reasons": [
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.76)"
+        ]
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.16,
+          "std_error": 6.74,
+          "max_error": 86.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 95,
+          "weighted_score": 28.5,
+          "evidence_strength": "WEAK"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 98.0,
+        "penalties_applied": [
+          "Isolated weak anomaly observed; insufficient independent corroboration for tampering verdict -> Retains AUTHENTIC"
+        ],
+        "diagnostic_status": "ANOMALY_DETECTED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_GENUINE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_pan_02_tampered_datesplice.png",
+      "filename": "mock_pan_02_tampered_datesplice.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "FLAGGED / TAMPERED",
+      "final_risk_fraud_score": 58.0,
+      "authenticity_score": 42.0,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.7576,
+      "field_validation_checksum_results": {
+        "document_type": "pan",
+        "score": 50,
+        "evidence_strength": "MODERATE",
+        "fields": [
+          {
+            "field": "Permanent Account Number (PAN)",
+            "value": "ABCPG1234F",
+            "status": "PASS",
+            "details": "Valid 10-character Tax ID structure (Entity code verified)",
+            "field_ocr_confidence": 0.657,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Date Entry",
+            "value": "31/02/1988",
+            "status": "FAIL",
+            "details": "Unrecognized date structure: '31/02/1988'"
+          },
+          {
+            "field": "OCR Confidence Consistency",
+            "value": "Avg: 75.8%",
+            "status": "WARNING",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.76)",
+            "is_deterministic": false,
+            "evidence_level": "WEAK"
+          }
+        ],
+        "reasons": [
+          "Invalid date format or impossible date: 31/02/1988 (Unrecognized date structure: '31/02/1988')",
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.76)"
+        ]
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.17,
+          "std_error": 6.74,
+          "max_error": 86.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 65.0,
+        "evidence_strength": "STRONG",
+        "details": "Detected 1 fields with abnormal typographical rendering or edge gradients."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 50,
+          "weighted_score": 15.0,
+          "evidence_strength": "MODERATE"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 65.0,
+          "weighted_score": 13.0,
+          "evidence_strength": "STRONG"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 77.5,
+        "penalties_applied": [
+          "Multiple corroborated strong/moderate tampering signals -> Score capped at FLAGGED / TAMPERED"
+        ],
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "invalid_date_logic",
+        "font_anti_aliasing_mismatch"
+      ],
+      "flagged_regions_count": 1,
+      "critical_triggers": [
+        "Typography cut-seam boundary discontinuity identified",
+        "Field validation / chronology mismatch"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_pan_03_tampered_copymove.png",
+      "filename": "mock_pan_03_tampered_copymove.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "FLAGGED / TAMPERED",
+      "final_risk_fraud_score": 58.0,
+      "authenticity_score": 42.0,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.7449,
+      "field_validation_checksum_results": {
+        "document_type": "pan",
+        "score": 95,
+        "evidence_strength": "WEAK",
+        "fields": [
+          {
+            "field": "Permanent Account Number (PAN)",
+            "value": "ABCPG1234F",
+            "status": "PASS",
+            "details": "Valid 10-character Tax ID structure (Entity code verified)",
+            "field_ocr_confidence": 0.657,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "OCR Confidence Consistency",
+            "value": "Avg: 74.5%",
+            "status": "WARNING",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.74)",
+            "is_deterministic": false,
+            "evidence_level": "WEAK"
+          }
+        ],
+        "reasons": [
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.74)"
+        ]
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.09,
+          "std_error": 6.56,
+          "max_error": 86.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 30.0,
+        "evidence_strength": "STRONG",
+        "detected": true,
+        "details": "Detected 2 duplicated image regions with high spatial keypoint coherence"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 65.0,
+        "evidence_strength": "STRONG",
+        "details": "Detected 1 fields with abnormal typographical rendering or edge gradients."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 95,
+          "weighted_score": 28.5,
+          "evidence_strength": "WEAK"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 65.0,
+          "weighted_score": 13.0,
+          "evidence_strength": "STRONG"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 30.0,
+          "weighted_score": 4.5,
+          "evidence_strength": "STRONG"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 80.5,
+        "penalties_applied": [
+          "Multiple corroborated strong/moderate tampering signals -> Score capped at FLAGGED / TAMPERED"
+        ],
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "copy_move_cloning"
+      ],
+      "flagged_regions_count": 3,
+      "critical_triggers": [
+        "Typography cut-seam boundary discontinuity identified",
+        "Verified duplicate image region / cloned graphic patch (RANSAC verified)"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_pan_04_genuine.png",
+      "filename": "mock_pan_04_genuine.png",
+      "ground_truth_label": "GENUINE",
+      "final_prediction": "AUTHENTIC",
+      "final_risk_fraud_score": 7.0,
+      "authenticity_score": 93.0,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.7851,
+      "field_validation_checksum_results": {
+        "document_type": "pan",
+        "score": 95,
+        "evidence_strength": "WEAK",
+        "fields": [
+          {
+            "field": "Permanent Account Number (PAN)",
+            "value": "BZXPS5432K",
+            "status": "PASS",
+            "details": "Valid 10-character Tax ID structure (Entity code verified)",
+            "field_ocr_confidence": 0.938,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "05/03/1994",
+            "status": "PASS",
+            "details": "Parsed 1 chronological date(s) successfully"
+          },
+          {
+            "field": "OCR Confidence Consistency",
+            "value": "Avg: 78.5%",
+            "status": "WARNING",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.79)",
+            "is_deterministic": false,
+            "evidence_level": "WEAK"
+          }
+        ],
+        "reasons": [
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.79)"
+        ]
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.09,
+          "std_error": 6.6,
+          "max_error": 86.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 95,
+          "weighted_score": 28.5,
+          "evidence_strength": "WEAK"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 98.0,
+        "penalties_applied": [
+          "Isolated weak anomaly observed; insufficient independent corroboration for tampering verdict -> Retains AUTHENTIC"
+        ],
+        "diagnostic_status": "ANOMALY_DETECTED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_GENUINE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_pan_05_tampered_regex.png",
+      "filename": "mock_pan_05_tampered_regex.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 30.5,
+      "authenticity_score": 69.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.7859,
+      "field_validation_checksum_results": {
+        "document_type": "pan",
+        "score": 60,
+        "evidence_strength": "MODERATE",
+        "fields": [
+          {
+            "field": "Permanent Account Number (PAN)",
+            "value": "Missing / Malformed",
+            "status": "FAIL",
+            "details": "Expected 10-digit PAN alphanumeric identifier not found or regex pattern invalid",
+            "field_ocr_confidence": 0.0,
+            "is_deterministic": false,
+            "evidence_level": "MODERATE"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "05/03/1994",
+            "status": "PASS",
+            "details": "Parsed 1 chronological date(s) successfully"
+          },
+          {
+            "field": "OCR Confidence Consistency",
+            "value": "Avg: 78.6%",
+            "status": "WARNING",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.79)",
+            "is_deterministic": false,
+            "evidence_level": "WEAK"
+          }
+        ],
+        "reasons": [
+          "Expected 10-digit PAN alphanumeric identifier not found or regex pattern invalid",
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.79)"
+        ]
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.09,
+          "std_error": 6.6,
+          "max_error": 86.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 60,
+          "weighted_score": 18.0,
+          "evidence_strength": "MODERATE"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 87.5,
+        "penalties_applied": [
+          "Single unconfirmed moderate anomaly -> Secondary manual review recommended"
+        ],
+        "diagnostic_status": "ANOMALY_DETECTED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "regex_format_violation"
+      ],
+      "flagged_regions_count": 0,
+      "critical_triggers": [
+        "Field validation / chronology mismatch"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_dl_01_genuine.png",
+      "filename": "mock_dl_01_genuine.png",
+      "ground_truth_label": "GENUINE",
+      "final_prediction": "AUTHENTIC",
+      "final_risk_fraud_score": 0.5,
+      "authenticity_score": 99.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6157,
+      "field_validation_checksum_results": {
+        "document_type": "dl",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Driving Licence Number",
+            "value": "DL-1420110012345",
+            "status": "PASS",
+            "details": "Standard state code & series pattern valid"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "18/07/1985, 12/03/2011, 11/03/2031",
+            "status": "PASS",
+            "details": "Parsed 3 chronological date(s) successfully"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 3.36,
+          "std_error": 8.8,
+          "max_error": 104.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 99.5,
+        "penalties_applied": [
+          "All forensic layers clean and consistent -> AUTHENTIC"
+        ],
+        "diagnostic_status": "CLEAN"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_GENUINE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_dl_02_tampered_photoshop_meta.png",
+      "filename": "mock_dl_02_tampered_photoshop_meta.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "FLAGGED / TAMPERED",
+      "final_risk_fraud_score": 58.0,
+      "authenticity_score": 42.0,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6157,
+      "field_validation_checksum_results": {
+        "document_type": "dl",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Driving Licence Number",
+            "value": "DL-1420110012345",
+            "status": "PASS",
+            "details": "Standard state code & series pattern valid"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "18/07/1985, 12/03/2011, 11/03/2031",
+            "status": "PASS",
+            "details": "Parsed 3 chronological date(s) successfully"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 64.3,
+        "evidence_strength": "STRONG",
+        "hotspot_count": 1,
+        "metrics": {
+          "mean_error": 2.37,
+          "std_error": 7.86,
+          "max_error": 90.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 30.0,
+        "evidence_strength": "STRONG",
+        "detected_software": "Software: Adobe Photoshop 24.1 (Windows)",
+        "reasons": [
+          "Image header contains 'PHOTOSHOP' metadata signature (Software)",
+          "Image header contains 'ADOBE' metadata signature (Software)"
+        ]
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 64.3,
+          "weighted_score": 16.07,
+          "evidence_strength": "STRONG"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 30.0,
+          "weighted_score": 3.0,
+          "evidence_strength": "STRONG"
+        },
+        "base_weighted_sum": 84.08,
+        "penalties_applied": [
+          "Multiple corroborated strong/moderate tampering signals -> Score capped at FLAGGED / TAMPERED"
+        ],
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "photo_swap",
+        "editing_software_metadata"
+      ],
+      "flagged_regions_count": 1,
+      "critical_triggers": [
+        "Portrait boundary cut seam identified",
+        "Editing software signature identified (Software: Adobe Photoshop 24.1 (Windows))"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_dl_03_tampered_categorysplice.png",
+      "filename": "mock_dl_03_tampered_categorysplice.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 39.5,
+      "authenticity_score": 60.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6032,
+      "field_validation_checksum_results": {
+        "document_type": "dl",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Driving Licence Number",
+            "value": "DL-1420110012345",
+            "status": "PASS",
+            "details": "Standard state code & series pattern valid"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "18/07/1985, 12/03/2011, 11/03/2031",
+            "status": "PASS",
+            "details": "Parsed 3 chronological date(s) successfully"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 3.39,
+          "std_error": 8.81,
+          "max_error": 104.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 30.0,
+        "evidence_strength": "STRONG",
+        "details": "Detected 3 fields with abnormal typographical rendering or edge gradients."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 30.0,
+          "weighted_score": 6.0,
+          "evidence_strength": "STRONG"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 85.5,
+        "penalties_applied": [
+          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+        ],
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "vehicle_category_splice",
+        "font_discrepancy"
+      ],
+      "flagged_regions_count": 3,
+      "critical_triggers": [
+        "Typography cut-seam boundary discontinuity identified"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_dl_04_genuine.png",
+      "filename": "mock_dl_04_genuine.png",
+      "ground_truth_label": "GENUINE",
+      "final_prediction": "AUTHENTIC",
+      "final_risk_fraud_score": 0.5,
+      "authenticity_score": 99.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6273,
+      "field_validation_checksum_results": {
+        "document_type": "dl",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Driving Licence Number",
+            "value": "KL-0720190054321",
+            "status": "PASS",
+            "details": "Standard state code & series pattern valid"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "15/10/2019, 14/10/2039",
+            "status": "PASS",
+            "details": "Parsed 2 chronological date(s) successfully"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 4.21,
+          "std_error": 11.67,
+          "max_error": 150.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 99.5,
+        "penalties_applied": [
+          "All forensic layers clean and consistent -> AUTHENTIC"
+        ],
+        "diagnostic_status": "CLEAN"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_GENUINE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_dl_05_tampered_chronology.png",
+      "filename": "mock_dl_05_tampered_chronology.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 33.5,
+      "authenticity_score": 66.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6241,
+      "field_validation_checksum_results": {
+        "document_type": "dl",
+        "score": 50,
+        "evidence_strength": "MODERATE",
+        "fields": [
+          {
+            "field": "Driving Licence Number",
+            "value": "KL-0720190054321",
+            "status": "PASS",
+            "details": "Standard state code & series pattern valid"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "15/10/2019, 14/10/2015",
+            "status": "PASS",
+            "details": "Parsed 2 chronological date(s) successfully"
+          },
+          {
+            "field": "Date Chronology",
+            "value": "15/10/2019 -> 14/10/2015",
+            "status": "FAIL",
+            "details": "Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)"
+          }
+        ],
+        "reasons": [
+          "Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)"
+        ]
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 4.21,
+          "std_error": 11.67,
+          "max_error": 150.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 50,
+          "weighted_score": 15.0,
+          "evidence_strength": "MODERATE"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 84.5,
+        "penalties_applied": [
+          "Single unconfirmed moderate anomaly -> Secondary manual review recommended"
+        ],
+        "diagnostic_status": "ANOMALY_DETECTED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "chronological_date_contradiction"
+      ],
+      "flagged_regions_count": 1,
+      "critical_triggers": [
+        "Field validation / chronology mismatch"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_aadhaar_05_genuine.png",
+      "filename": "mock_aadhaar_05_genuine.png",
+      "ground_truth_label": "GENUINE",
+      "final_prediction": "AUTHENTIC",
+      "final_risk_fraud_score": 0.5,
+      "authenticity_score": 99.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.7019,
+      "field_validation_checksum_results": {
+        "document_type": "aadhaar",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Aadhaar / National ID Number",
+            "value": "3145 9265 3581",
+            "status": "PASS",
+            "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 6)]",
+            "field_ocr_confidence": 0.832,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.73,
+          "std_error": 7.16,
+          "max_error": 108.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 99.5,
+        "penalties_applied": [
+          "All forensic layers clean and consistent -> AUTHENTIC"
+        ],
+        "diagnostic_status": "CLEAN"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_GENUINE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_aadhaar_06_tampered_copymove.png",
+      "filename": "mock_aadhaar_06_tampered_copymove.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 36.0,
+      "authenticity_score": 64.0,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.7084,
+      "field_validation_checksum_results": {
+        "document_type": "aadhaar",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Aadhaar / National ID Number",
+            "value": "3145 9265 3581",
+            "status": "PASS",
+            "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 6)]",
+            "field_ocr_confidence": 0.65,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.77,
+          "std_error": 7.18,
+          "max_error": 108.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 30.0,
+        "evidence_strength": "STRONG",
+        "detected": true,
+        "details": "Detected 2 duplicated image regions with high spatial keypoint coherence"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 30.0,
+          "weighted_score": 4.5,
+          "evidence_strength": "STRONG"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 89.0,
+        "penalties_applied": [
+          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+        ],
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "copy_move_cloning"
+      ],
+      "flagged_regions_count": 2,
+      "critical_triggers": [
+        "Verified duplicate image region / cloned graphic patch (RANSAC verified)"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_pan_06_genuine.png",
+      "filename": "mock_pan_06_genuine.png",
+      "ground_truth_label": "GENUINE",
+      "final_prediction": "AUTHENTIC",
+      "final_risk_fraud_score": 7.0,
+      "authenticity_score": 93.0,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.7664,
+      "field_validation_checksum_results": {
+        "document_type": "pan",
+        "score": 95,
+        "evidence_strength": "WEAK",
+        "fields": [
+          {
+            "field": "Permanent Account Number (PAN)",
+            "value": "AZYPA98780",
+            "status": "PASS",
+            "details": "Valid 10-character Tax ID structure (Entity code verified)",
+            "field_ocr_confidence": 0.977,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "OCR Confidence Consistency",
+            "value": "Avg: 76.6%",
+            "status": "WARNING",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.77)",
+            "is_deterministic": false,
+            "evidence_level": "WEAK"
+          }
+        ],
+        "reasons": [
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.77)"
+        ]
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.14,
+          "std_error": 6.71,
+          "max_error": 86.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 95,
+          "weighted_score": 28.5,
+          "evidence_strength": "WEAK"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 98.0,
+        "penalties_applied": [
+          "Isolated weak anomaly observed; insufficient independent corroboration for tampering verdict -> Retains AUTHENTIC"
+        ],
+        "diagnostic_status": "ANOMALY_DETECTED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_GENUINE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_pan_07_tampered_elacompress.jpg",
+      "filename": "mock_pan_07_tampered_elacompress.jpg",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 33.9,
+      "authenticity_score": 66.1,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6194,
+      "field_validation_checksum_results": {
+        "document_type": "pan",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Permanent Account Number (PAN)",
+            "value": "AZYPA98760",
+            "status": "PASS",
+            "details": "Valid 10-character Tax ID structure (Entity code verified)",
+            "field_ocr_confidence": 0.518,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 64.3,
+        "evidence_strength": "STRONG",
+        "hotspot_count": 1,
+        "metrics": {
+          "mean_error": 5.02,
+          "std_error": 11.0,
+          "max_error": 155.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 64.3,
+          "weighted_score": 16.07,
+          "evidence_strength": "STRONG"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 91.08,
+        "penalties_applied": [
+          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+        ],
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_DETECTION",
+      "tampering_types": [
+        "ela_double_compression"
+      ],
+      "flagged_regions_count": 1,
+      "critical_triggers": [
+        "Portrait boundary cut seam identified"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_dl_06_genuine.png",
+      "filename": "mock_dl_06_genuine.png",
+      "ground_truth_label": "GENUINE",
+      "final_prediction": "AUTHENTIC",
+      "final_risk_fraud_score": 0.5,
+      "authenticity_score": 99.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6206,
+      "field_validation_checksum_results": {
+        "document_type": "dl",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Driving Licence Number",
+            "value": "PB0220080078901",
+            "status": "PASS",
+            "details": "Standard state code & series pattern valid"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "20/05/2008, 19/05/2028",
+            "status": "PASS",
+            "details": "Parsed 2 chronological date(s) successfully"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 4.16,
+          "std_error": 11.56,
+          "max_error": 150.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 99.5,
+        "penalties_applied": [
+          "All forensic layers clean and consistent -> AUTHENTIC"
+        ],
+        "diagnostic_status": "CLEAN"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "CORRECT_GENUINE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
+      "ocr_engine": "easyocr"
+    }
+  ],
+  "errors": []
+}

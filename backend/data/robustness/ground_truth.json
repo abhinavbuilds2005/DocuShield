@@ -1,0 +1,68 @@
+{
+  "unseen_01_genuine_original.png": {
+    "label": "GENUINE",
+    "doc_type": "aadhaar",
+    "expected_verdict": "AUTHENTIC",
+    "type": "original"
+  },
+  "unseen_02_genuine_jpeg_compressed.jpg": {
+    "label": "GENUINE",
+    "doc_type": "aadhaar",
+    "expected_verdict": "AUTHENTIC",
+    "type": "jpeg_compression"
+  },
+  "unseen_03_genuine_resized.png": {
+    "label": "GENUINE",
+    "doc_type": "pan",
+    "expected_verdict": "AUTHENTIC",
+    "type": "resized"
+  },
+  "unseen_04_genuine_screenshot.png": {
+    "label": "GENUINE",
+    "doc_type": "dl",
+    "expected_verdict": "AUTHENTIC",
+    "type": "screenshot"
+  },
+  "unseen_05_genuine_perspective_lighting.png": {
+    "label": "GENUINE",
+    "doc_type": "aadhaar",
+    "expected_verdict": "AUTHENTIC",
+    "type": "perspective_lighting"
+  },
+  "unseen_06_tampered_checksum.png": {
+    "label": "TAMPERED",
+    "doc_type": "aadhaar",
+    "expected_verdict": "FLAGGED / TAMPERED",
+    "type": "checksum_alteration"
+  },
+  "unseen_07_tampered_textsplice.png": {
+    "label": "TAMPERED",
+    "doc_type": "pan",
+    "expected_verdict": "FLAGGED / TAMPERED",
+    "type": "text_splice"
+  },
+  "unseen_08_tampered_copymove.png": {
+    "label": "TAMPERED",
+    "doc_type": "aadhaar",
+    "expected_verdict": "FLAGGED / TAMPERED",
+    "type": "copy_move"
+  },
+  "unseen_09_tampered_fontsplice.png": {
+    "label": "TAMPERED",
+    "doc_type": "aadhaar",
+    "expected_verdict": "FLAGGED / TAMPERED",
+    "type": "font_splice"
+  },
+  "unseen_10_tampered_categorysplice.png": {
+    "label": "TAMPERED",
+    "doc_type": "dl",
+    "expected_verdict": "FLAGGED / TAMPERED",
+    "type": "category_splice"
+  },
+  "unseen_11_tampered_realistic_photoswap.jpg": {
+    "label": "TAMPERED",
+    "doc_type": "aadhaar",
+    "expected_verdict": "FLAGGED / TAMPERED",
+    "type": "realistic_photoswap"
+  }
+}
