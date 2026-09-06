@@ -1,0 +1,118 @@
+================================================================
+DOCUSHIELD AI — REAL WORLD BATCH BENCHMARK
+================================================================
+Timestamp:        2026-09-07 02:19:16
+Genuine folder:   D:\original test data
+Tampered folder:  D:\fake data
+Total Processing: 82.19s across 14 documents
+
+Total Documents:  14
+Genuine:          8
+Tampered:         6
+
+TP: 6
+TN: 8
+FP: 0
+FN: 0
+
+Accuracy:  100.0% on evaluated batch dataset of 14 documents
+Precision: 100.0%
+Recall:    100.0%
+F1 Score:  100.0%
+
+False Positive Rate: 0.0%
+False Negative Rate: 0.0%
+
+Genuine Detection Accuracy:  100.0%
+Tampered Detection Accuracy: 100.0%
+
+----------------------------------------------------------------
+CONFUSION MATRIX
+----------------------------------------------------------------
+                     Predicted AUTHENTIC    Predicted TAMPERED
+Actual AUTHENTIC:              8 (TN)               0 (FP)
+Actual TAMPERED:               0 (FN)               6 (TP)
+
+----------------------------------------------------------------
+TRI-STATE VERDICT BREAKDOWN (Review-Aware)
+----------------------------------------------------------------
+Genuine Documents (8 total):
+  - AUTHENTIC (Directly Cleared):              8 (100.0%)
+  - SUSPICIOUS (Routed to Human Review):       0 (0.0%)
+  - FLAGGED / TAMPERED (Directly Rejected):    0 (0.0%)
+
+Tampered Documents (6 total):
+  - FLAGGED / TAMPERED (Directly Caught):      0 (0.0%)
+  - SUSPICIOUS (Caught / Review Mandated):      6 (100.0%)
+  - AUTHENTIC (Missed / False Negative):       0 (0.0%)
+
+----------------------------------------------------------------
+DETECTOR STATUS DISTRIBUTION
+----------------------------------------------------------------
+ELA:
+  CLEAN   : 12
+  WEAK    :  1
+  MODERATE:  0
+  STRONG  :  1
+TYPOGRAPHY:
+  CLEAN   : 14
+  WEAK    :  0
+  MODERATE:  0
+  STRONG  :  0
+COPY_MOVE:
+  CLEAN   : 14
+  WEAK    :  0
+  MODERATE:  0
+  STRONG  :  0
+METADATA:
+  CLEAN   : 14
+  WEAK    :  0
+  MODERATE:  0
+  STRONG  :  0
+FIELD_VALIDATION:
+  CLEAN   :  6
+  WEAK    :  4
+  MODERATE:  0
+  STRONG  :  4
+OCR:
+  CLEAN   :  1
+  WEAK    :  7
+  MODERATE:  6
+  STRONG  :  0
+================================================================
+FAILED / UNCERTAIN CASES: 6
+================================================================
+1. Screenshot 2026-09-03 224537.png -> Expected: TAMPERED, Verdict: SUSPICIOUS (Score: 58.0%)
+   Category: None (Correct)
+   Strongest Detector: NLP/Checksum (STRONG)
+   Deciding Rationale: Document exhibits localized anomalies or format discrepancies. Secondary manual review recommended.
+   Triggers: Deterministic checksum/format failure: Aadhaar / National ID Number: Consistent Verhoeff Checksum Failure: 12-digit UID was extracted with moderate field confidence (0.63) and consistently fails mathematical validation across optical candidate readings. Forensic review required.
+
+2. Screenshot 2026-09-03 224551.png -> Expected: TAMPERED, Verdict: SUSPICIOUS (Score: 58.0%)
+   Category: None (Correct)
+   Strongest Detector: NLP/Checksum (STRONG)
+   Deciding Rationale: Document exhibits localized anomalies or format discrepancies. Secondary manual review recommended.
+   Triggers: Deterministic checksum/format failure: Aadhaar / National ID Number: Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.74), but fails mathematical validation even with optical character confusion tolerance.
+
+3. Screenshot 2026-09-03 224616.png -> Expected: TAMPERED, Verdict: SUSPICIOUS (Score: 52.0%)
+   Category: None (Correct)
+   Strongest Detector: ELA (STRONG)
+   Deciding Rationale: Document exhibits localized anomalies or format discrepancies. Secondary manual review recommended.
+   Triggers: Portrait boundary cut seam identified (photo-swap indicator)
+
+4. Screenshot 2026-09-03 225315.png -> Expected: TAMPERED, Verdict: SUSPICIOUS (Score: 58.0%)
+   Category: None (Correct)
+   Strongest Detector: NLP/Checksum (STRONG)
+   Deciding Rationale: Document exhibits localized anomalies or format discrepancies. Secondary manual review recommended.
+   Triggers: Deterministic checksum/format failure: Permanent Account Number (PAN): Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.56). Forensic review required.
+
+5. Screenshot 2026-09-06 163221.png -> Expected: TAMPERED, Verdict: SUSPICIOUS (Score: 58.0%)
+   Category: None (Correct)
+   Strongest Detector: NLP/Checksum (STRONG)
+   Deciding Rationale: Document exhibits localized anomalies or format discrepancies. Secondary manual review recommended.
+   Triggers: Deterministic checksum/format failure: Issuer Template Integrity: Official Issuer Header Forgery: Detected misspelled template text ('LNCOHE' (counterfeit misspelling of 'INCOME'), 'DEPARTMEMT' (counterfeit misspelling of 'DEPARTMENT'), 'INDLA' (counterfeit misspelling of 'INDIA')) characteristic of amateur digital card fabrication.
+
+6. Screenshot 2026-09-06 163254.png -> Expected: TAMPERED, Verdict: SUSPICIOUS (Score: 65.0%)
+   Category: None (Correct)
+   Strongest Detector: ELA (CLEAN)
+   Deciding Rationale: Document exhibits localized anomalies or format discrepancies. Secondary manual review recommended.

@@ -1,6 +1,6 @@
 {
   "total_documents": 20,
-  "elapsed_seconds": 2.53,
+  "elapsed_seconds": 1.68,
   "benchmark_mode": "sidecar_ocr",
   "dataset_composition": {
     "genuine": 9,
@@ -44,7 +44,7 @@
             "value": "5428 9162 3811",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm)",
-            "field_ocr_confidence": 0.9725,
+            "field_ocr_confidence": 0.99,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
@@ -138,8 +138,8 @@
       "filename": "mock_aadhaar_01_tampered_photoswap.jpg",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_fraud_score": 33.9,
-      "authenticity_score": 66.1,
+      "final_risk_fraud_score": 48.0,
+      "authenticity_score": 52.0,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9583,
       "field_validation_checksum_results": {
@@ -152,7 +152,7 @@
             "value": "5428 9162 3811",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm)",
-            "field_ocr_confidence": 0.9725,
+            "field_ocr_confidence": 0.99,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
@@ -166,7 +166,7 @@
         "reasons": []
       },
       "ela_score_evidence": {
-        "score": 64.3,
+        "score": 85.0,
         "evidence_strength": "STRONG",
         "hotspot_count": 1,
         "metrics": {
@@ -201,8 +201,8 @@
         },
         "ela": {
           "weight": 0.25,
-          "raw_score": 64.3,
-          "weighted_score": 16.07,
+          "raw_score": 85.0,
+          "weighted_score": 21.25,
           "evidence_strength": "STRONG"
         },
         "font": {
@@ -223,9 +223,9 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 91.08,
+        "base_weighted_sum": 96.25,
         "penalties_applied": [
-          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+          "Verified structural splice / portrait seam detected -> Document strongly suspected tampered"
         ],
         "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
       },
@@ -242,7 +242,7 @@
       ],
       "flagged_regions_count": 1,
       "critical_triggers": [
-        "Portrait boundary cut seam identified"
+        "Portrait boundary cut seam identified (photo-swap indicator)"
       ],
       "ocr_engine": "sidecar"
     },
@@ -250,24 +250,24 @@
       "document_id": "mock_aadhaar_02_tampered_checksum.png",
       "filename": "mock_aadhaar_02_tampered_checksum.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "AUTHENTIC",
-      "final_risk_fraud_score": 0.5,
-      "authenticity_score": 99.5,
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 42.0,
+      "authenticity_score": 58.0,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9583,
       "field_validation_checksum_results": {
         "document_type": "aadhaar",
-        "score": 100,
-        "evidence_strength": "CLEAN",
+        "score": 55,
+        "evidence_strength": "STRONG",
         "fields": [
           {
             "field": "Aadhaar / National ID Number",
-            "value": "5426 9162 3814",
-            "status": "PASS",
-            "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 3)]",
-            "field_ocr_confidence": 0.9725,
+            "value": "542891623814",
+            "status": "FAIL",
+            "details": "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.99), but fails mathematical validation even with optical character confusion tolerance.",
+            "field_ocr_confidence": 0.99,
             "is_deterministic": true,
-            "evidence_level": "CLEAN"
+            "evidence_level": "STRONG"
           },
           {
             "field": "Detected Dates",
@@ -276,7 +276,9 @@
             "details": "Parsed 1 chronological date(s) successfully"
           }
         ],
-        "reasons": []
+        "reasons": [
+          "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.99), but fails mathematical validation even with optical character confusion tolerance."
+        ]
       },
       "ela_score_evidence": {
         "score": 98.0,
@@ -308,9 +310,9 @@
       "fusion_contributions": {
         "nlp": {
           "weight": 0.3,
-          "raw_score": 100,
-          "weighted_score": 30.0,
-          "evidence_strength": "CLEAN"
+          "raw_score": 55,
+          "weighted_score": 16.5,
+          "evidence_strength": "STRONG"
         },
         "ela": {
           "weight": 0.25,
@@ -336,11 +338,11 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 99.5,
+        "base_weighted_sum": 86.0,
         "penalties_applied": [
-          "All forensic layers clean and consistent -> AUTHENTIC"
+          "Single deterministic integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
         ],
-        "diagnostic_status": "CLEAN"
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
       },
       "final_decision_threshold": {
         "authenticity_threshold": 80.0,
@@ -348,12 +350,14 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "FALSE_NEGATIVE",
+      "classification_status": "CORRECT_DETECTION",
       "tampering_types": [
         "verhoeff_checksum_corruption"
       ],
-      "flagged_regions_count": 0,
-      "critical_triggers": [],
+      "flagged_regions_count": 1,
+      "critical_triggers": [
+        "Deterministic checksum/format failure: Aadhaar / National ID Number: Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.99), but fails mathematical validation even with optical character confusion tolerance."
+      ],
       "ocr_engine": "sidecar"
     },
     {
@@ -469,8 +473,8 @@
       "filename": "mock_aadhaar_04_tampered_fontsplice.png",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_fraud_score": 39.5,
-      "authenticity_score": 60.5,
+      "final_risk_fraud_score": 38.0,
+      "authenticity_score": 62.0,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9143,
       "field_validation_checksum_results": {
@@ -513,9 +517,9 @@
         "details": "No cloned texture or copy-move forgery patterns identified"
       },
       "typography_rendering_anomaly_score_evidence": {
-        "score": 30.0,
+        "score": 50.0,
         "evidence_strength": "STRONG",
-        "details": "Detected 2 fields with abnormal typographical rendering or edge gradients."
+        "details": "Detected 2 fields with abnormal typographical rendering or edge cut seams."
       },
       "metadata_anomaly_score_evidence": {
         "score": 100.0,
@@ -538,8 +542,8 @@
         },
         "font": {
           "weight": 0.2,
-          "raw_score": 30.0,
-          "weighted_score": 6.0,
+          "raw_score": 50.0,
+          "weighted_score": 10.0,
           "evidence_strength": "STRONG"
         },
         "copy_move": {
@@ -554,11 +558,11 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 85.5,
+        "base_weighted_sum": 89.5,
         "penalties_applied": [
-          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS / REVIEW NEEDED"
         ],
-        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+        "diagnostic_status": "ANOMALY_DETECTED"
       },
       "final_decision_threshold": {
         "authenticity_threshold": 80.0,
@@ -573,7 +577,7 @@
       ],
       "flagged_regions_count": 2,
       "critical_triggers": [
-        "Typography cut-seam boundary discontinuity identified"
+        "Significant typographical rendering discontinuity on 2 token(s)"
       ],
       "ocr_engine": "sidecar"
     },
@@ -689,15 +693,15 @@
       "document_id": "mock_pan_02_tampered_datesplice.png",
       "filename": "mock_pan_02_tampered_datesplice.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "FLAGGED / TAMPERED",
-      "final_risk_fraud_score": 63.0,
-      "authenticity_score": 37.0,
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 38.0,
+      "authenticity_score": 62.0,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.904,
       "field_validation_checksum_results": {
         "document_type": "pan",
-        "score": 55,
-        "evidence_strength": "MODERATE",
+        "score": 92,
+        "evidence_strength": "WEAK",
         "fields": [
           {
             "field": "Permanent Account Number (PAN)",
@@ -711,12 +715,15 @@
           {
             "field": "Date Entry",
             "value": "31/02/1988",
-            "status": "FAIL",
-            "details": "Unrecognized date structure: '31/02/1988'"
+            "status": "UNCERTAIN",
+            "details": "Unrecognized date structure: '31/02/1988' (OCR confidence 0.54 indicates compression/blur distortion)",
+            "field_ocr_confidence": 0.54,
+            "is_deterministic": false,
+            "evidence_level": "WEAK"
           }
         ],
         "reasons": [
-          "Invalid date format or impossible date: 31/02/1988 (Unrecognized date structure: '31/02/1988')"
+          "Uncertain date entry: '31/02/1988' has low OCR clarity (0.54 < 0.65)"
         ]
       },
       "ela_score_evidence": {
@@ -736,9 +743,9 @@
         "details": "No cloned texture or copy-move forgery patterns identified"
       },
       "typography_rendering_anomaly_score_evidence": {
-        "score": 30.0,
+        "score": 50.0,
         "evidence_strength": "STRONG",
-        "details": "Detected 3 fields with abnormal typographical rendering or edge gradients."
+        "details": "Detected 2 fields with abnormal typographical rendering or edge cut seams."
       },
       "metadata_anomaly_score_evidence": {
         "score": 100.0,
@@ -749,9 +756,9 @@
       "fusion_contributions": {
         "nlp": {
           "weight": 0.3,
-          "raw_score": 55,
-          "weighted_score": 16.5,
-          "evidence_strength": "MODERATE"
+          "raw_score": 92,
+          "weighted_score": 27.6,
+          "evidence_strength": "WEAK"
         },
         "ela": {
           "weight": 0.25,
@@ -761,8 +768,8 @@
         },
         "font": {
           "weight": 0.2,
-          "raw_score": 30.0,
-          "weighted_score": 6.0,
+          "raw_score": 50.0,
+          "weighted_score": 10.0,
           "evidence_strength": "STRONG"
         },
         "copy_move": {
@@ -777,11 +784,11 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 72.0,
+        "base_weighted_sum": 87.1,
         "penalties_applied": [
-          "Multiple corroborated strong/moderate tampering signals -> Score capped at FLAGGED / TAMPERED"
+          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS / REVIEW NEEDED"
         ],
-        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+        "diagnostic_status": "ANOMALY_DETECTED"
       },
       "final_decision_threshold": {
         "authenticity_threshold": 80.0,
@@ -794,10 +801,9 @@
         "invalid_date_logic",
         "font_anti_aliasing_mismatch"
       ],
-      "flagged_regions_count": 4,
+      "flagged_regions_count": 2,
       "critical_triggers": [
-        "Typography cut-seam boundary discontinuity identified",
-        "Field validation / chronology mismatch"
+        "Significant typographical rendering discontinuity on 2 token(s)"
       ],
       "ocr_engine": "sidecar"
     },
@@ -805,9 +811,9 @@
       "document_id": "mock_pan_03_tampered_copymove.png",
       "filename": "mock_pan_03_tampered_copymove.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "SUSPICIOUS",
-      "final_risk_fraud_score": 36.0,
-      "authenticity_score": 64.0,
+      "final_prediction": "AUTHENTIC",
+      "final_risk_fraud_score": 0.5,
+      "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
@@ -844,10 +850,10 @@
         }
       },
       "copy_move_score_evidence": {
-        "score": 30.0,
-        "evidence_strength": "STRONG",
-        "detected": true,
-        "details": "Detected 2 duplicated image regions with high spatial keypoint coherence"
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
       },
       "typography_rendering_anomaly_score_evidence": {
         "score": 100.0,
@@ -881,9 +887,9 @@
         },
         "copy_move": {
           "weight": 0.15,
-          "raw_score": 30.0,
-          "weighted_score": 4.5,
-          "evidence_strength": "STRONG"
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
         },
         "metadata": {
           "weight": 0.1,
@@ -891,11 +897,11 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 89.0,
+        "base_weighted_sum": 99.5,
         "penalties_applied": [
-          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+          "All forensic layers clean and consistent -> AUTHENTIC"
         ],
-        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+        "diagnostic_status": "CLEAN"
       },
       "final_decision_threshold": {
         "authenticity_threshold": 80.0,
@@ -903,14 +909,12 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_DETECTION",
+      "classification_status": "FALSE_NEGATIVE",
       "tampering_types": [
         "copy_move_cloning"
       ],
-      "flagged_regions_count": 2,
-      "critical_triggers": [
-        "Verified duplicate image region / cloned graphic patch (RANSAC verified)"
-      ],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
       "ocr_engine": "sidecar"
     },
     {
@@ -1026,22 +1030,22 @@
       "filename": "mock_pan_05_tampered_regex.png",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_fraud_score": 29.0,
-      "authenticity_score": 71.0,
+      "final_risk_fraud_score": 42.0,
+      "authenticity_score": 58.0,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
         "document_type": "pan",
         "score": 65,
-        "evidence_strength": "MODERATE",
+        "evidence_strength": "STRONG",
         "fields": [
           {
             "field": "Permanent Account Number (PAN)",
-            "value": "Missing / Malformed",
+            "value": "Missing / Unresolvable",
             "status": "FAIL",
-            "details": "Expected 10-digit PAN alphanumeric identifier not found or regex pattern invalid",
-            "field_ocr_confidence": 0.0,
-            "is_deterministic": false,
+            "details": "Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.97). Forensic review required.",
+            "field_ocr_confidence": 0.9728,
+            "is_deterministic": true,
             "evidence_level": "MODERATE"
           },
           {
@@ -1052,7 +1056,7 @@
           }
         ],
         "reasons": [
-          "Expected 10-digit PAN alphanumeric identifier not found or regex pattern invalid"
+          "Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.97). Forensic review required."
         ]
       },
       "ela_score_evidence": {
@@ -1087,7 +1091,7 @@
           "weight": 0.3,
           "raw_score": 65,
           "weighted_score": 19.5,
-          "evidence_strength": "MODERATE"
+          "evidence_strength": "STRONG"
         },
         "ela": {
           "weight": 0.25,
@@ -1115,9 +1119,9 @@
         },
         "base_weighted_sum": 89.0,
         "penalties_applied": [
-          "Single unconfirmed moderate anomaly -> Secondary manual review recommended"
+          "Single deterministic integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
         ],
-        "diagnostic_status": "ANOMALY_DETECTED"
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
       },
       "final_decision_threshold": {
         "authenticity_threshold": 80.0,
@@ -1131,7 +1135,7 @@
       ],
       "flagged_regions_count": 0,
       "critical_triggers": [
-        "Field validation / chronology mismatch"
+        "Deterministic checksum/format failure: Permanent Account Number (PAN): Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.97). Forensic review required."
       ],
       "ocr_engine": "sidecar"
     },
@@ -1270,7 +1274,7 @@
         "reasons": []
       },
       "ela_score_evidence": {
-        "score": 64.3,
+        "score": 85.0,
         "evidence_strength": "STRONG",
         "hotspot_count": 1,
         "metrics": {
@@ -1308,8 +1312,8 @@
         },
         "ela": {
           "weight": 0.25,
-          "raw_score": 64.3,
-          "weighted_score": 16.07,
+          "raw_score": 85.0,
+          "weighted_score": 21.25,
           "evidence_strength": "STRONG"
         },
         "font": {
@@ -1330,9 +1334,9 @@
           "weighted_score": 3.0,
           "evidence_strength": "STRONG"
         },
-        "base_weighted_sum": 84.08,
+        "base_weighted_sum": 89.25,
         "penalties_applied": [
-          "Multiple corroborated strong/moderate tampering signals -> Score capped at FLAGGED / TAMPERED"
+          "Multiple independent strong/deterministic signals across families -> FLAGGED / TAMPERED"
         ],
         "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
       },
@@ -1349,8 +1353,8 @@
       ],
       "flagged_regions_count": 1,
       "critical_triggers": [
-        "Portrait boundary cut seam identified",
-        "Editing software signature identified (Software: Adobe Photoshop 24.1 (Windows))"
+        "Image editing software signature identified in metadata (Software: Adobe Photoshop 24.1 (Windows))",
+        "Portrait boundary cut seam identified (photo-swap indicator)"
       ],
       "ocr_engine": "sidecar"
     },
@@ -1572,14 +1576,14 @@
       "filename": "mock_dl_05_tampered_chronology.png",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_fraud_score": 33.5,
-      "authenticity_score": 66.5,
+      "final_risk_fraud_score": 38.0,
+      "authenticity_score": 62.0,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9607,
       "field_validation_checksum_results": {
         "document_type": "dl",
         "score": 50,
-        "evidence_strength": "MODERATE",
+        "evidence_strength": "STRONG",
         "fields": [
           {
             "field": "Driving Licence Number",
@@ -1636,7 +1640,7 @@
           "weight": 0.3,
           "raw_score": 50,
           "weighted_score": 15.0,
-          "evidence_strength": "MODERATE"
+          "evidence_strength": "STRONG"
         },
         "ela": {
           "weight": 0.25,
@@ -1664,7 +1668,7 @@
         },
         "base_weighted_sum": 84.5,
         "penalties_applied": [
-          "Single unconfirmed moderate anomaly -> Secondary manual review recommended"
+          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS / REVIEW NEEDED"
         ],
         "diagnostic_status": "ANOMALY_DETECTED"
       },
@@ -1680,7 +1684,7 @@
       ],
       "flagged_regions_count": 1,
       "critical_triggers": [
-        "Field validation / chronology mismatch"
+        "Field validation mismatch: Date Chronology: Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)"
       ],
       "ocr_engine": "sidecar"
     },
@@ -1796,9 +1800,9 @@
       "document_id": "mock_aadhaar_06_tampered_copymove.png",
       "filename": "mock_aadhaar_06_tampered_copymove.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "FLAGGED / TAMPERED",
-      "final_risk_fraud_score": 60.0,
-      "authenticity_score": 40.0,
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 49.0,
+      "authenticity_score": 51.0,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9626,
       "field_validation_checksum_results": {
@@ -1841,9 +1845,9 @@
         "details": "Detected 2 duplicated image regions with high spatial keypoint coherence"
       },
       "typography_rendering_anomaly_score_evidence": {
-        "score": 30.0,
+        "score": 50.0,
         "evidence_strength": "STRONG",
-        "details": "Detected 2 fields with abnormal typographical rendering or edge gradients."
+        "details": "Detected 2 fields with abnormal typographical rendering or edge cut seams."
       },
       "metadata_anomaly_score_evidence": {
         "score": 100.0,
@@ -1866,8 +1870,8 @@
         },
         "font": {
           "weight": 0.2,
-          "raw_score": 30.0,
-          "weighted_score": 6.0,
+          "raw_score": 50.0,
+          "weighted_score": 10.0,
           "evidence_strength": "STRONG"
         },
         "copy_move": {
@@ -1882,9 +1886,9 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 75.0,
+        "base_weighted_sum": 79.0,
         "penalties_applied": [
-          "Multiple corroborated strong/moderate tampering signals -> Score capped at FLAGGED / TAMPERED"
+          "Verified structural splice / portrait seam detected -> Document strongly suspected tampered"
         ],
         "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
       },
@@ -1900,8 +1904,8 @@
       ],
       "flagged_regions_count": 4,
       "critical_triggers": [
-        "Typography cut-seam boundary discontinuity identified",
-        "Verified duplicate image region / cloned graphic patch (RANSAC verified)"
+        "Verified duplicated image region / cloned patch (2 matched regions with RANSAC verification)",
+        "Significant typographical rendering discontinuity on 2 token(s)"
       ],
       "ocr_engine": "sidecar"
     },
@@ -2018,8 +2022,8 @@
       "filename": "mock_pan_07_tampered_elacompress.jpg",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_fraud_score": 33.9,
-      "authenticity_score": 66.1,
+      "final_risk_fraud_score": 48.0,
+      "authenticity_score": 52.0,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
@@ -2046,7 +2050,7 @@
         "reasons": []
       },
       "ela_score_evidence": {
-        "score": 64.3,
+        "score": 85.0,
         "evidence_strength": "STRONG",
         "hotspot_count": 1,
         "metrics": {
@@ -2081,8 +2085,8 @@
         },
         "ela": {
           "weight": 0.25,
-          "raw_score": 64.3,
-          "weighted_score": 16.07,
+          "raw_score": 85.0,
+          "weighted_score": 21.25,
           "evidence_strength": "STRONG"
         },
         "font": {
@@ -2103,9 +2107,9 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 91.08,
+        "base_weighted_sum": 96.25,
         "penalties_applied": [
-          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+          "Verified structural splice / portrait seam detected -> Document strongly suspected tampered"
         ],
         "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
       },
@@ -2121,7 +2125,7 @@
       ],
       "flagged_regions_count": 1,
       "critical_triggers": [
-        "Portrait boundary cut seam identified"
+        "Portrait boundary cut seam identified (photo-swap indicator)"
       ],
       "ocr_engine": "sidecar"
     },

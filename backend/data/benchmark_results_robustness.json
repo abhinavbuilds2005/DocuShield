@@ -1,7 +1,7 @@
 {
   "benchmark_name": "HELD_OUT_GENERALIZATION_AND_ROBUSTNESS",
   "total_documents": 11,
-  "elapsed_seconds": 46.11,
+  "elapsed_seconds": 29.65,
   "dataset_composition": {
     "genuine": 5,
     "tampered": 6,
@@ -44,6 +44,26 @@
           "token_count": 45,
           "line_count": 18
         },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 3467.3,
+          "is_blurry": false,
+          "compression_level": "MODERATE",
+          "blockiness_ratio": 1.106,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.68,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [],
+          "recommended_sensitivity": "standard"
+        },
         "checksum_result": {
           "status": "PASS",
           "deterministic": false,
@@ -53,7 +73,7 @@
               "value": "6152 9384 7123",
               "status": "PASS",
               "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 0)]",
-              "field_ocr_confidence": 0.8732,
+              "field_ocr_confidence": 0.847,
               "is_deterministic": true,
               "evidence_level": "CLEAN"
             }
@@ -134,6 +154,7 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
+        "cautions": [],
         "weak_or_uncertain_signals": [],
         "is_anomaly_detected": false,
         "is_strongly_suspected_tampered": false
@@ -159,6 +180,26 @@
           "token_count": 41,
           "line_count": 15
         },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 3249.0,
+          "is_blurry": false,
+          "compression_level": "MODERATE",
+          "blockiness_ratio": 1.179,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.682,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [],
+          "recommended_sensitivity": "standard"
+        },
         "checksum_result": {
           "status": "PASS",
           "deterministic": false,
@@ -168,7 +209,7 @@
               "value": "7821 9463 5200",
               "status": "PASS",
               "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 6)]",
-              "field_ocr_confidence": 0.491,
+              "field_ocr_confidence": 0.829,
               "is_deterministic": true,
               "evidence_level": "CLEAN"
             }
@@ -249,6 +290,7 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
+        "cautions": [],
         "weak_or_uncertain_signals": [],
         "is_anomaly_detected": false,
         "is_strongly_suspected_tampered": false
@@ -258,13 +300,13 @@
       "filename": "unseen_03_genuine_resized.png",
       "ground_truth_label": "GENUINE",
       "final_prediction": "AUTHENTIC",
-      "final_risk_score": 8.5,
-      "authenticity_score": 91.5,
+      "final_risk_score": 7.5,
+      "authenticity_score": 92.5,
       "diagnostic_status": "ANOMALY_DETECTED",
       "classification_status": "CORRECT_GENUINE",
       "forensic_decision_debug": {
         "final_verdict": "AUTHENTIC",
-        "final_risk_score": 8.5,
+        "final_risk_score": 7.5,
         "confidence": 0.1649,
         "diagnostic_status": "ANOMALY_DETECTED",
         "ocr_status_and_confidence": {
@@ -274,8 +316,30 @@
           "token_count": 37,
           "line_count": 15
         },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 561.7,
+          "is_blurry": false,
+          "compression_level": "LOW",
+          "blockiness_ratio": 1.052,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.722,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [
+            "uniform_recompression_artifact"
+          ],
+          "recommended_sensitivity": "standard"
+        },
         "checksum_result": {
-          "status": "PASS",
+          "status": "N/A",
           "deterministic": false,
           "fields": []
         },
@@ -340,15 +404,15 @@
           },
           "base_weighted_sum": 96.5,
           "penalties_applied": [
-            "Isolated weak anomaly observed; insufficient independent corroboration for tampering verdict -> Retains AUTHENTIC"
+            "Natural image artifacts observed; insufficient independent corroboration for tampering -> Retains AUTHENTIC"
           ],
           "diagnostic_status": "ANOMALY_DETECTED"
         },
         "triggered_signals": [
-          "NLP ambiguity / low field OCR confidence"
+          "Field validation inconclusive due to low OCR clarity (Permanent Account Number (PAN): Permanent Account Number could not be confidently resolved due to degraded OCR clarity (baseline: 0.16))"
         ],
         "rules_triggered": [
-          "Isolated weak anomaly observed; insufficient independent corroboration for tampering verdict -> Retains AUTHENTIC"
+          "Natural image artifacts observed; insufficient independent corroboration for tampering -> Retains AUTHENTIC"
         ],
         "decision_threshold": {
           "authenticity_threshold": 80.0,
@@ -356,8 +420,11 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
+        "cautions": [
+          "Field validation inconclusive due to low OCR clarity (Permanent Account Number (PAN): Permanent Account Number could not be confidently resolved due to degraded OCR clarity (baseline: 0.16))"
+        ],
         "weak_or_uncertain_signals": [
-          "NLP: field validation inconclusive due to low OCR confidence or minor token outlier"
+          "Field validation inconclusive due to low OCR clarity (Permanent Account Number (PAN): Permanent Account Number could not be confidently resolved due to degraded OCR clarity (baseline: 0.16))"
         ],
         "is_anomaly_detected": true,
         "is_strongly_suspected_tampered": false
@@ -383,8 +450,30 @@
           "token_count": 48,
           "line_count": 22
         },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 2765.6,
+          "is_blurry": false,
+          "compression_level": "LOW",
+          "blockiness_ratio": 1.051,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.789,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [
+            "uniform_recompression_artifact"
+          ],
+          "recommended_sensitivity": "tolerant_compression"
+        },
         "checksum_result": {
-          "status": "PASS",
+          "status": "N/A",
           "deterministic": false,
           "fields": []
         },
@@ -463,6 +552,7 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
+        "cautions": [],
         "weak_or_uncertain_signals": [],
         "is_anomaly_detected": false,
         "is_strongly_suspected_tampered": false
@@ -488,6 +578,28 @@
           "token_count": 46,
           "line_count": 15
         },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 1501.6,
+          "is_blurry": false,
+          "compression_level": "LOW",
+          "blockiness_ratio": 0.917,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.73,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [
+            "uniform_recompression_artifact"
+          ],
+          "recommended_sensitivity": "standard"
+        },
         "checksum_result": {
           "status": "PASS",
           "deterministic": false,
@@ -497,7 +609,7 @@
               "value": "3948 1726 5030",
               "status": "PASS",
               "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 7)]",
-              "field_ocr_confidence": 0.5993,
+              "field_ocr_confidence": 0.572,
               "is_deterministic": true,
               "evidence_level": "CLEAN"
             }
@@ -578,6 +690,7 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
+        "cautions": [],
         "weak_or_uncertain_signals": [],
         "is_anomaly_detected": false,
         "is_strongly_suspected_tampered": false
@@ -603,16 +716,36 @@
           "token_count": 42,
           "line_count": 17
         },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 3391.3,
+          "is_blurry": false,
+          "compression_level": "MODERATE",
+          "blockiness_ratio": 1.109,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.677,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [],
+          "recommended_sensitivity": "standard"
+        },
         "checksum_result": {
-          "status": "PASS",
+          "status": "FAIL",
           "deterministic": true,
           "fields": [
             {
               "field": "Aadhaar / National ID Number",
               "value": "819273845014",
               "status": "FAIL",
-              "details": "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.70), but fails mathematical validation even with optical character confusion tolerance.",
-              "field_ocr_confidence": 0.6958,
+              "details": "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.76), but fails mathematical validation even with optical character confusion tolerance.",
+              "field_ocr_confidence": 0.755,
               "is_deterministic": true,
               "evidence_level": "STRONG"
             }
@@ -626,8 +759,8 @@
               "field": "Aadhaar / National ID Number",
               "value": "819273845014",
               "status": "FAIL",
-              "details": "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.70), but fails mathematical validation even with optical character confusion tolerance.",
-              "field_ocr_confidence": 0.6958,
+              "details": "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.76), but fails mathematical validation even with optical character confusion tolerance.",
+              "field_ocr_confidence": 0.755,
               "is_deterministic": true,
               "evidence_level": "STRONG"
             }
@@ -689,15 +822,15 @@
           },
           "base_weighted_sum": 86.0,
           "penalties_applied": [
-            "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+            "Single deterministic integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
           ],
           "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
         },
         "triggered_signals": [
-          "Deterministic Field Validation Failure (mathematically invalid checksum/format with confident OCR)"
+          "Deterministic checksum/format failure: Aadhaar / National ID Number: Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.76), but fails mathematical validation even with optical character confusion tolerance."
         ],
         "rules_triggered": [
-          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+          "Single deterministic integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
         ],
         "decision_threshold": {
           "authenticity_threshold": 80.0,
@@ -705,6 +838,7 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
+        "cautions": [],
         "weak_or_uncertain_signals": [],
         "is_anomaly_detected": false,
         "is_strongly_suspected_tampered": true
@@ -714,15 +848,15 @@
       "filename": "unseen_07_tampered_textsplice.png",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_score": 34.0,
-      "authenticity_score": 66.0,
-      "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
+      "final_risk_score": 28.0,
+      "authenticity_score": 72.0,
+      "diagnostic_status": "ANOMALY_DETECTED",
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
         "final_verdict": "SUSPICIOUS",
-        "final_risk_score": 34.0,
+        "final_risk_score": 28.0,
         "confidence": 0.7448,
-        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
+        "diagnostic_status": "ANOMALY_DETECTED",
         "ocr_status_and_confidence": {
           "status": "SUCCESS",
           "engine": "easyocr",
@@ -730,8 +864,30 @@
           "token_count": 43,
           "line_count": 20
         },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 4213.4,
+          "is_blurry": false,
+          "compression_level": "MODERATE",
+          "blockiness_ratio": 1.171,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.722,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [
+            "uniform_recompression_artifact"
+          ],
+          "recommended_sensitivity": "standard"
+        },
         "checksum_result": {
-          "status": "PASS",
+          "status": "N/A",
           "deterministic": false,
           "fields": []
         },
@@ -752,7 +908,7 @@
           "detected": false
         },
         "typography_rendering_result_and_score": {
-          "score": 65.0,
+          "score": 70.0,
           "evidence_strength": "STRONG",
           "anomalies_detected": true,
           "flagged_count": 1
@@ -778,8 +934,8 @@
           },
           "font": {
             "weight": 0.2,
-            "raw_score": 65.0,
-            "weighted_score": 13.0,
+            "raw_score": 70.0,
+            "weighted_score": 14.0,
             "evidence_strength": "STRONG"
           },
           "copy_move": {
@@ -794,18 +950,18 @@
             "weighted_score": 10.0,
             "evidence_strength": "CLEAN"
           },
-          "base_weighted_sum": 91.0,
+          "base_weighted_sum": 92.0,
           "penalties_applied": [
-            "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+            "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
           ],
-          "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+          "diagnostic_status": "ANOMALY_DETECTED"
         },
         "triggered_signals": [
-          "Typography cut-seam boundary discontinuity or high sharpness disparity",
-          "NLP ambiguity / low field OCR confidence"
+          "Significant typographical rendering discontinuity on 1 token(s)",
+          "Field validation inconclusive due to low OCR clarity (OCR Confidence Consistency: Minor OCR confidence disparity on 1 word(s): 'MO' (0.13) contrast with baseline (0.74))"
         ],
         "rules_triggered": [
-          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
         ],
         "decision_threshold": {
           "authenticity_threshold": 80.0,
@@ -813,24 +969,27 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
-        "weak_or_uncertain_signals": [
-          "NLP: field validation inconclusive due to low OCR confidence or minor token outlier"
+        "cautions": [
+          "Field validation inconclusive due to low OCR clarity (OCR Confidence Consistency: Minor OCR confidence disparity on 1 word(s): 'MO' (0.13) contrast with baseline (0.74))"
         ],
-        "is_anomaly_detected": false,
-        "is_strongly_suspected_tampered": true
+        "weak_or_uncertain_signals": [
+          "Field validation inconclusive due to low OCR clarity (OCR Confidence Consistency: Minor OCR confidence disparity on 1 word(s): 'MO' (0.13) contrast with baseline (0.74))"
+        ],
+        "is_anomaly_detected": true,
+        "is_strongly_suspected_tampered": false
       }
     },
     {
       "filename": "unseen_08_tampered_copymove.png",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_score": 36.0,
-      "authenticity_score": 64.0,
+      "final_risk_score": 48.0,
+      "authenticity_score": 52.0,
       "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
         "final_verdict": "SUSPICIOUS",
-        "final_risk_score": 36.0,
+        "final_risk_score": 48.0,
         "confidence": 0.7193,
         "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
         "ocr_status_and_confidence": {
@@ -839,6 +998,26 @@
           "confidence": 0.7193,
           "token_count": 36,
           "line_count": 18
+        },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 4034.2,
+          "is_blurry": false,
+          "compression_level": "MODERATE",
+          "blockiness_ratio": 1.167,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.682,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [],
+          "recommended_sensitivity": "standard"
         },
         "checksum_result": {
           "status": "PASS",
@@ -849,7 +1028,7 @@
               "value": "5182 9374 6105",
               "status": "PASS",
               "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm)",
-              "field_ocr_confidence": 0.751,
+              "field_ocr_confidence": 0.64,
               "is_deterministic": true,
               "evidence_level": "CLEAN"
             }
@@ -916,15 +1095,15 @@
           },
           "base_weighted_sum": 89.0,
           "penalties_applied": [
-            "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+            "Verified structural splice / portrait seam detected -> Document strongly suspected tampered"
           ],
           "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
         },
         "triggered_signals": [
-          "Verified duplicate image region / cloned graphic patch (RANSAC verified)"
+          "Verified duplicated image region / cloned patch (2 matched regions with RANSAC verification)"
         ],
         "rules_triggered": [
-          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+          "Verified structural splice / portrait seam detected -> Document strongly suspected tampered"
         ],
         "decision_threshold": {
           "authenticity_threshold": 80.0,
@@ -932,6 +1111,7 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
+        "cautions": [],
         "weak_or_uncertain_signals": [],
         "is_anomaly_detected": false,
         "is_strongly_suspected_tampered": true
@@ -941,21 +1121,41 @@
       "filename": "unseen_09_tampered_fontsplice.png",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_score": 39.5,
-      "authenticity_score": 60.5,
-      "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
+      "final_risk_score": 28.0,
+      "authenticity_score": 72.0,
+      "diagnostic_status": "ANOMALY_DETECTED",
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
         "final_verdict": "SUSPICIOUS",
-        "final_risk_score": 39.5,
+        "final_risk_score": 28.0,
         "confidence": 0.6962,
-        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
+        "diagnostic_status": "ANOMALY_DETECTED",
         "ocr_status_and_confidence": {
           "status": "SUCCESS",
           "engine": "easyocr",
           "confidence": 0.6962,
           "token_count": 41,
           "line_count": 17
+        },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 3600.4,
+          "is_blurry": false,
+          "compression_level": "LOW",
+          "blockiness_ratio": 1.031,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.7,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [],
+          "recommended_sensitivity": "standard"
         },
         "checksum_result": {
           "status": "PASS",
@@ -966,7 +1166,7 @@
               "value": "9381 7264 5015",
               "status": "PASS",
               "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 6)]",
-              "field_ocr_confidence": 0.6268,
+              "field_ocr_confidence": 0.714,
               "is_deterministic": true,
               "evidence_level": "CLEAN"
             }
@@ -989,10 +1189,10 @@
           "detected": false
         },
         "typography_rendering_result_and_score": {
-          "score": 30.0,
+          "score": 70.0,
           "evidence_strength": "STRONG",
           "anomalies_detected": true,
-          "flagged_count": 2
+          "flagged_count": 1
         },
         "metadata_result": {
           "score": 100.0,
@@ -1015,8 +1215,8 @@
           },
           "font": {
             "weight": 0.2,
-            "raw_score": 30.0,
-            "weighted_score": 6.0,
+            "raw_score": 70.0,
+            "weighted_score": 14.0,
             "evidence_strength": "STRONG"
           },
           "copy_move": {
@@ -1031,17 +1231,17 @@
             "weighted_score": 10.0,
             "evidence_strength": "CLEAN"
           },
-          "base_weighted_sum": 85.5,
+          "base_weighted_sum": 93.5,
           "penalties_applied": [
-            "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+            "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
           ],
-          "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+          "diagnostic_status": "ANOMALY_DETECTED"
         },
         "triggered_signals": [
-          "Typography cut-seam boundary discontinuity or high sharpness disparity"
+          "Significant typographical rendering discontinuity on 1 token(s)"
         ],
         "rules_triggered": [
-          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
         ],
         "decision_threshold": {
           "authenticity_threshold": 80.0,
@@ -1049,24 +1249,25 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
+        "cautions": [],
         "weak_or_uncertain_signals": [],
-        "is_anomaly_detected": false,
-        "is_strongly_suspected_tampered": true
+        "is_anomaly_detected": true,
+        "is_strongly_suspected_tampered": false
       }
     },
     {
       "filename": "unseen_10_tampered_categorysplice.png",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_score": 39.5,
-      "authenticity_score": 60.5,
-      "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
+      "final_risk_score": 28.0,
+      "authenticity_score": 72.0,
+      "diagnostic_status": "ANOMALY_DETECTED",
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
         "final_verdict": "SUSPICIOUS",
-        "final_risk_score": 39.5,
+        "final_risk_score": 28.0,
         "confidence": 0.6039,
-        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
+        "diagnostic_status": "ANOMALY_DETECTED",
         "ocr_status_and_confidence": {
           "status": "SUCCESS",
           "engine": "easyocr",
@@ -1074,8 +1275,30 @@
           "token_count": 48,
           "line_count": 21
         },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 2953.5,
+          "is_blurry": false,
+          "compression_level": "LOW",
+          "blockiness_ratio": 0.991,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.782,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [
+            "uniform_recompression_artifact"
+          ],
+          "recommended_sensitivity": "tolerant_compression"
+        },
         "checksum_result": {
-          "status": "PASS",
+          "status": "N/A",
           "deterministic": false,
           "fields": []
         },
@@ -1096,10 +1319,10 @@
           "detected": false
         },
         "typography_rendering_result_and_score": {
-          "score": 30.0,
+          "score": 70.0,
           "evidence_strength": "STRONG",
           "anomalies_detected": true,
-          "flagged_count": 2
+          "flagged_count": 1
         },
         "metadata_result": {
           "score": 100.0,
@@ -1122,8 +1345,8 @@
           },
           "font": {
             "weight": 0.2,
-            "raw_score": 30.0,
-            "weighted_score": 6.0,
+            "raw_score": 70.0,
+            "weighted_score": 14.0,
             "evidence_strength": "STRONG"
           },
           "copy_move": {
@@ -1138,17 +1361,17 @@
             "weighted_score": 10.0,
             "evidence_strength": "CLEAN"
           },
-          "base_weighted_sum": 85.5,
+          "base_weighted_sum": 93.5,
           "penalties_applied": [
-            "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+            "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
           ],
-          "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+          "diagnostic_status": "ANOMALY_DETECTED"
         },
         "triggered_signals": [
-          "Typography cut-seam boundary discontinuity or high sharpness disparity"
+          "Significant typographical rendering discontinuity on 1 token(s)"
         ],
         "rules_triggered": [
-          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
         ],
         "decision_threshold": {
           "authenticity_threshold": 80.0,
@@ -1156,22 +1379,23 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
+        "cautions": [],
         "weak_or_uncertain_signals": [],
-        "is_anomaly_detected": false,
-        "is_strongly_suspected_tampered": true
+        "is_anomaly_detected": true,
+        "is_strongly_suspected_tampered": false
       }
     },
     {
       "filename": "unseen_11_tampered_realistic_photoswap.jpg",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "SUSPICIOUS",
-      "final_risk_score": 33.9,
-      "authenticity_score": 66.1,
+      "final_prediction": "FLAGGED / TAMPERED",
+      "final_risk_score": 58.0,
+      "authenticity_score": 42.0,
       "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
-        "final_verdict": "SUSPICIOUS",
-        "final_risk_score": 33.9,
+        "final_verdict": "FLAGGED / TAMPERED",
+        "final_risk_score": 58.0,
         "confidence": 0.6566,
         "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
         "ocr_status_and_confidence": {
@@ -1181,28 +1405,58 @@
           "token_count": 41,
           "line_count": 15
         },
+        "condition_assessment": {
+          "resolution": {
+            "width": 800,
+            "height": 500,
+            "megapixels": 0.4
+          },
+          "blur_level": "LOW",
+          "blur_score": 3466.8,
+          "is_blurry": false,
+          "compression_level": "LOW",
+          "blockiness_ratio": 0.949,
+          "is_heavily_compressed": false,
+          "compression_uniformity": 0.686,
+          "orientation": 0,
+          "orientation_confidence": 0.95,
+          "is_camera_photo": false,
+          "is_low_res": false,
+          "condition_flags": [],
+          "recommended_sensitivity": "standard"
+        },
         "checksum_result": {
-          "status": "PASS",
-          "deterministic": false,
+          "status": "FAIL",
+          "deterministic": true,
           "fields": [
             {
               "field": "Aadhaar / National ID Number",
-              "value": "7291 8463 5018",
-              "status": "PASS",
-              "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 6)]",
-              "field_ocr_confidence": 0.7312,
+              "value": "729184835018",
+              "status": "FAIL",
+              "details": "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.96), but fails mathematical validation even with optical character confusion tolerance.",
+              "field_ocr_confidence": 0.963,
               "is_deterministic": true,
-              "evidence_level": "CLEAN"
+              "evidence_level": "STRONG"
             }
           ]
         },
         "regex_field_validation_result": {
           "document_type": "aadhaar",
           "fields_checked": 1,
-          "failed_fields": []
+          "failed_fields": [
+            {
+              "field": "Aadhaar / National ID Number",
+              "value": "729184835018",
+              "status": "FAIL",
+              "details": "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.96), but fails mathematical validation even with optical character confusion tolerance.",
+              "field_ocr_confidence": 0.963,
+              "is_deterministic": true,
+              "evidence_level": "STRONG"
+            }
+          ]
         },
         "ela_result_and_score": {
-          "score": 64.3,
+          "score": 85.0,
           "evidence_strength": "STRONG",
           "hotspot_count": 1,
           "is_suspicious": true
@@ -1227,14 +1481,14 @@
         "detector_contributions": {
           "nlp": {
             "weight": 0.3,
-            "raw_score": 100,
-            "weighted_score": 30.0,
-            "evidence_strength": "CLEAN"
+            "raw_score": 55,
+            "weighted_score": 16.5,
+            "evidence_strength": "STRONG"
           },
           "ela": {
             "weight": 0.25,
-            "raw_score": 64.3,
-            "weighted_score": 16.07,
+            "raw_score": 85.0,
+            "weighted_score": 21.25,
             "evidence_strength": "STRONG"
           },
           "font": {
@@ -1255,17 +1509,18 @@
             "weighted_score": 10.0,
             "evidence_strength": "CLEAN"
           },
-          "base_weighted_sum": 91.08,
+          "base_weighted_sum": 82.75,
           "penalties_applied": [
-            "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+            "Multiple independent strong/deterministic signals across families -> FLAGGED / TAMPERED"
           ],
           "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
         },
         "triggered_signals": [
-          "Portrait boundary cut seam or high-error recompression hotspot"
+          "Deterministic checksum/format failure: Aadhaar / National ID Number: Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.96), but fails mathematical validation even with optical character confusion tolerance.",
+          "Portrait boundary cut seam identified (photo-swap indicator)"
         ],
         "rules_triggered": [
-          "Single deterministic/high-confidence integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+          "Multiple independent strong/deterministic signals across families -> FLAGGED / TAMPERED"
         ],
         "decision_threshold": {
           "authenticity_threshold": 80.0,
@@ -1273,6 +1528,7 @@
           "suspicious_threshold": 50.0,
           "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
         },
+        "cautions": [],
         "weak_or_uncertain_signals": [],
         "is_anomaly_detected": false,
         "is_strongly_suspected_tampered": true

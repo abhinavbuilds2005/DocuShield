@@ -28,9 +28,10 @@ from typing import Optional
 
 import cv2
 from PIL import Image as PILImage
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Query
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend.fusion import DocumentScreeningPipeline
 from backend.nlp.ocr_engine import OCRUnavailableError, get_ocr_status
@@ -62,18 +63,30 @@ app = FastAPI(
     version="2.0.0"
 )
 
-ALLOWED_ORIGINS = os.environ.get(
-    "ALLOWED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173"
-).split(",")
+ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get(
+        "ALLOWED_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173"
+    ).split(",")
+    if o.strip()
+]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if "*" in ALLOWED_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=ALLOWED_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 # ---------------------------------------------------------------------------
 # Data paths & Ground truth whitelist
@@ -197,8 +210,23 @@ def _validate_uploaded_image(content: bytes, filename: str) -> str:
 # Endpoints
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Frontend Static Files Setup
+# ---------------------------------------------------------------------------
+FRONTEND_DIST = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "dist")
+FRONTEND_INDEX = os.path.join(FRONTEND_DIST, "index.html")
+FRONTEND_ASSETS = os.path.join(FRONTEND_DIST, "assets")
+
+if os.path.exists(FRONTEND_ASSETS):
+    app.mount("/assets", StaticFiles(directory=FRONTEND_ASSETS), name="assets")
+
+
 @app.get("/")
-def root():
+def root(request: Request):
+    # When accessed from a web browser, serve the interactive React frontend
+    accept_header = request.headers.get("accept", "")
+    if "text/html" in accept_header and os.path.exists(FRONTEND_INDEX):
+        return FileResponse(FRONTEND_INDEX)
     return {
         "system": "AI-Based Fake Identity & Document Screening System",
         "problem_statement": "SIH 2026 SIH26188",
@@ -371,6 +399,34 @@ def get_benchmark(real_ocr: bool = Query(default=False)):
             content={
                 "error": "BENCHMARK_FAILED",
                 "message": f"Benchmark evaluation failed: {str(e)}"
+            }
+        )
+
+
+@app.get("/api/benchmark/batch")
+@app.post("/api/benchmark/batch")
+def get_batch_benchmark(rerun: bool = Query(default=False)):
+    r"""
+    Executes or returns cached results of the automated batch test on user datasets
+    (D:\original test data and D:\fake data).
+    """
+    report_file = os.path.join("reports", "batch_test", "batch_results.json")
+    if not rerun and os.path.exists(report_file):
+        try:
+            with open(report_file, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    try:
+        from backend.scripts.run_batch_test import run_batch_test
+        return run_batch_test(real_ocr=True)
+    except Exception as e:
+        print(f"[BATCH BENCHMARK ERROR] {traceback.format_exc()}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "BATCH_BENCHMARK_FAILED",
+                "message": f"Batch benchmark failed: {str(e)}"
             }
         )
 

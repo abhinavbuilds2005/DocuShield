@@ -1,13 +1,90 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Shield, ShieldAlert, ShieldCheck, AlertTriangle, FileText,
   UploadCloud, RefreshCw, BarChart3, Layers, Search, Eye,
   CheckCircle2, XCircle, ChevronRight, Info, ExternalLink, Cpu,
-  Sparkles, Sliders, Image as ImageIcon, ZoomIn, FileSearch
+  Sparkles, Image as ImageIcon, ZoomIn, FileSearch, Activity,
+  X, ChevronDown, ArrowRight, Lock, Fingerprint, ScanLine,
+  AlertCircle, Monitor, Database, Settings
 } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '';
 
+const DOC_TYPE_NAMES = { aadhaar: 'Aadhaar', pan: 'PAN', dl: 'Driving License' };
+
+const STATUS_CLASSES = {
+  CLEAN: 'status-clean',
+  WEAK: 'status-weak',
+  MODERATE: 'status-moderate',
+  STRONG: 'status-strong',
+};
+
+const DETECTOR_META = {
+  ocr: { name: 'OCR Text Extraction', icon: FileText, desc: 'EasyOCR-based text recognition' },
+  ela: { name: 'Error Level Analysis', icon: Layers, desc: 'Compression anomaly detection' },
+  copy_move: { name: 'Copy-Move Detection', icon: ScanLine, desc: 'Cloned region detection via ORB+RANSAC' },
+  typography: { name: 'Typography Analysis', icon: Fingerprint, desc: 'Stroke sharpness & font consistency' },
+  metadata: { name: 'Metadata / EXIF', icon: Database, desc: 'File metadata & editing software traces' },
+  field_validation: { name: 'Field Validation', icon: Lock, desc: 'Checksum, format & date verification' },
+};
+
+// ─── Helper: Verdict Badge Config ───
+function getVerdictConfig(verdict) {
+  switch (verdict) {
+    case 'AUTHENTIC':
+      return { cls: 'verdict-authentic', icon: ShieldCheck, label: 'AUTHENTIC', color: '#34d399' };
+    case 'SUSPICIOUS':
+      return { cls: 'verdict-suspicious', icon: AlertTriangle, label: 'SUSPICIOUS', color: '#fbbf24' };
+    default:
+      return { cls: 'verdict-tampered', icon: ShieldAlert, label: 'FLAGGED / TAMPERED', color: '#fb7185' };
+  }
+}
+
+// ─── Detector Card Component ───
+function DetectorCard({ detKey, data }) {
+  const meta = DETECTOR_META[detKey] || { name: detKey, icon: Info, desc: '' };
+  const IconComp = meta.icon;
+  const status = data?.status || 'CLEAN';
+  const confidence = data?.confidence || 0;
+  const explanation = data?.explanation || '';
+
+  return (
+    <div className="detector-card animate-fadeIn">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <IconComp style={{ width: 16, height: 16, color: 'var(--text-muted)', flexShrink: 0 }} />
+          <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)' }}>{meta.name}</span>
+        </div>
+        <span className={`detector-status ${STATUS_CLASSES[status] || 'status-clean'}`}>{status}</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+        <div className="progress-bar" style={{ flex: 1 }}>
+          <div className="progress-fill" style={{
+            width: `${Math.round(confidence * 100)}%`,
+            background: status === 'CLEAN' ? '#10b981' : status === 'WEAK' ? '#f59e0b' : status === 'MODERATE' ? '#fb923c' : '#f43f5e',
+          }} />
+        </div>
+        <span className="font-mono" style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', minWidth: 36, textAlign: 'right' }}>
+          {Math.round(confidence * 100)}%
+        </span>
+      </div>
+      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.5 }} className="line-clamp-2">{explanation}</p>
+    </div>
+  );
+}
+
+// ─── Score Ring Component ───
+function ScoreRing({ score, color, size = 88 }) {
+  const pct = Math.max(0, Math.min(100, score));
+  return (
+    <div className="score-ring" style={{ width: size, height: size, '--ring-color': color, '--ring-pct': pct }}>
+      <span className="font-mono" style={{ fontSize: size * 0.28, fontWeight: 900, color }}>{pct.toFixed(1)}%</span>
+      <span style={{ fontSize: size * 0.1, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Score</span>
+    </div>
+  );
+}
+
+// ─── Main App ───
 export default function App() {
   const [samples, setSamples] = useState([]);
   const [selectedSample, setSelectedSample] = useState(null);
@@ -15,930 +92,666 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
   const [error, setError] = useState(null);
-  
-  // View Controls
-  const [activeView, setActiveView] = useState('annotated'); // 'annotated', 'ela', 'edge', 'raw'
-  const [hoveredBox, setHoveredBox] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'nlp', 'forensics', 'fields'
-  
-  // Benchmark Modal
+  const [activeView, setActiveView] = useState('annotated');
   const [showBenchmark, setShowBenchmark] = useState(false);
+  const [benchmarkMode, setBenchmarkMode] = useState('batch');
   const [benchmarkData, setBenchmarkData] = useState(null);
+  const [batchBenchmarkData, setBatchBenchmarkData] = useState(null);
   const [benchmarkLoading, setBenchmarkLoading] = useState(false);
-
+  const [backendHealth, setBackendHealth] = useState('checking');
   const fileInputRef = useRef(null);
 
-  // Load sample documents on mount
+  // Health check
   useEffect(() => {
-    fetchSamples();
+    const check = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/samples`);
+        setBackendHealth(res.ok ? 'online' : 'offline');
+        if (res.ok) {
+          const data = await res.json();
+          setSamples(data.samples || []);
+        }
+      } catch { setBackendHealth('offline'); }
+    };
+    check();
+    const iv = setInterval(check, 30000);
+    return () => clearInterval(iv);
   }, []);
 
-  const fetchSamples = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/samples`);
-      if (!res.ok) throw new Error('Could not fetch mock dataset catalog');
-      const data = await res.json();
-      setSamples(data.samples || []);
-      // Pre-select first genuine Aadhaar by default
-      if (data.samples?.length > 0) {
-        handleSelectSample(data.samples[0]);
-      }
-    } catch (err) {
-      console.error(err);
-      setError('Backend connection error. Please ensure FastAPI server is running on port 8008.');
-    }
-  };
-
-  const handleSelectSample = async (sample) => {
+  const handleSelectSample = useCallback(async (sample) => {
     setSelectedSample(sample);
     setLoading(true);
-    setLoadingStatus('Sending to screening pipeline...');
+    setLoadingStatus('Initializing screening pipeline...');
     setError(null);
+    setScreeningResult(null);
     try {
       const formData = new FormData();
       formData.append('sample_id', sample.id);
       setLoadingStatus('Running OCR & forensic analysis...');
-      const res = await fetch(`${API_BASE}/api/screen`, {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await fetch(`${API_BASE}/api/screen`, { method: 'POST', body: formData });
       const result = await res.json();
-      if (!res.ok) {
-        throw new Error(result.message || result.detail || 'Screening failed on sample document');
-      }
+      if (!res.ok) throw new Error(result.message || result.detail || 'Screening failed');
       setScreeningResult(result);
       setActiveView('annotated');
-      setLoadingStatus('');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-      setLoadingStatus('');
-    }
-  };
+    } catch (err) { setError(err.message); } finally { setLoading(false); setLoadingStatus(''); }
+  }, []);
 
-  const MAX_UPLOAD_MB = 10;
-  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-
-  const handleFileUpload = async (e) => {
+  const handleFileUpload = useCallback(async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Client-side validation
-    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
-      setError(`File too large (${(file.size / (1024*1024)).toFixed(1)} MB). Maximum is ${MAX_UPLOAD_MB} MB.`);
-      return;
-    }
-    if (!ALLOWED_TYPES.includes(file.type) && !file.name.match(/\.(jpe?g|png|webp)$/i)) {
-      setError('Unsupported format. Please upload a JPEG, PNG, or WebP image.');
-      return;
-    }
-
+    if (file.size > 10 * 1024 * 1024) { setError('File exceeds 10MB limit.'); return; }
     setSelectedSample({ id: 'custom_upload', filename: file.name, label: 'USER_UPLOAD' });
     setLoading(true);
     setLoadingStatus('Uploading document...');
     setError(null);
-
+    setScreeningResult(null);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      setLoadingStatus('Running OCR extraction...');
-      const res = await fetch(`${API_BASE}/api/screen`, {
-        method: 'POST',
-        body: formData,
-      });
-      setLoadingStatus('Processing forensic analysis...');
+      setLoadingStatus('Running OCR & forensic analysis...');
+      const res = await fetch(`${API_BASE}/api/screen`, { method: 'POST', body: formData });
       const result = await res.json();
-      if (!res.ok) {
-        throw new Error(result.message || result.detail || 'Screening analysis failed on uploaded document');
-      }
+      if (!res.ok) throw new Error(result.message || result.detail || 'Screening failed');
       setScreeningResult(result);
       setActiveView('annotated');
-      setLoadingStatus('');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-      setLoadingStatus('');
-    }
-  };
+    } catch (err) { setError(err.message); } finally { setLoading(false); setLoadingStatus(''); }
+  }, []);
 
-  const runBenchmarkEvaluation = async () => {
+  const runBatchBenchmark = useCallback(async (forceRerun = false) => {
     setShowBenchmark(true);
+    setBenchmarkMode('batch');
     setBenchmarkLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/benchmark`);
-      if (!res.ok) throw new Error('Benchmark failed to execute');
-      const data = await res.json();
-      setBenchmarkData(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setBenchmarkLoading(false);
-    }
-  };
+      const res = await fetch(`${API_BASE}/api/benchmark/batch${forceRerun ? '?rerun=true' : ''}`);
+      if (!res.ok) throw new Error('Batch benchmark failed');
+      setBatchBenchmarkData(await res.json());
+    } catch (err) { console.error(err); } finally { setBenchmarkLoading(false); }
+  }, []);
 
-  const getVerdictBadge = (verdict) => {
-    switch (verdict) {
-      case 'AUTHENTIC':
-        return {
-          bg: 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400',
-          glow: 'glow-emerald',
-          icon: <ShieldCheck className="w-6 h-6 text-emerald-400" />,
-          label: 'AUTHENTIC DOCUMENT'
-        };
-      case 'SUSPICIOUS':
-        return {
-          bg: 'bg-amber-500/10 border-amber-500/40 text-amber-400',
-          glow: 'glow-amber',
-          icon: <AlertTriangle className="w-6 h-6 text-amber-400" />,
-          label: 'SUSPICIOUS / REVIEW NEEDED'
-        };
-      default:
-        return {
-          bg: 'bg-rose-500/10 border-rose-500/40 text-rose-400',
-          glow: 'glow-rose',
-          icon: <ShieldAlert className="w-6 h-6 text-rose-400" />,
-          label: 'FLAGGED / TAMPERED'
-        };
-    }
-  };
+  const runStandardBenchmark = useCallback(async () => {
+    setShowBenchmark(true);
+    setBenchmarkMode('standard');
+    setBenchmarkLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/benchmark?real_ocr=true`);
+      if (!res.ok) throw new Error('Benchmark failed');
+      setBenchmarkData(await res.json());
+    } catch (err) { console.error(err); } finally { setBenchmarkLoading(false); }
+  }, []);
 
-  const verdictBadge = screeningResult ? getVerdictBadge(screeningResult.verdict) : null;
+  const r = screeningResult;
+  const why = r?.why_this_verdict;
+  const detExps = why?.detector_explanations || {};
+  const vConf = r ? getVerdictConfig(r.verdict) : null;
+  const VerdictIcon = vConf?.icon;
+
+  // Canvas image source
+  const canvasImg = useMemo(() => {
+    if (!r) return null;
+    switch (activeView) {
+      case 'ela': return r.visualizations?.ela_heatmap;
+      case 'edge': return r.visualizations?.edge_gradient_map;
+      case 'copymove': return r.visualizations?.copy_move_matches;
+      default: return r.original_image_b64 || r.visualizations?.ela_heatmap;
+    }
+  }, [r, activeView]);
 
   return (
-    <div className="min-h-screen pb-16">
-      {/* Top Notification Bar & Header */}
-      <header className="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-500/20">
-              <Shield className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-                  DocuShield AI
-                </span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-800/60 text-cyan-300 font-mono">
-                  SIH26188
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 hidden sm:block">
-                AI-Based Fake Identity & Document Screening System (NLP + Image Forensics Fusion)
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={runBenchmarkEvaluation}
-              className="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 hover:text-indigo-200 text-xs font-semibold transition"
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span>Dataset Benchmark (20 Docs)</span>
-            </button>
-
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-semibold shadow-md shadow-cyan-500/25 transition"
-            >
-              <UploadCloud className="w-4 h-4" />
-              <span>Upload Document</span>
-            </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              accept=".jpg,.jpeg,.png,.webp"
-              className="hidden"
-            />
-            <span className="text-xs text-slate-500 hidden sm:block">JPG / PNG / WebP · Max 10 MB</span>
-          </div>
+    <div style={{ minHeight: '100vh' }}>
+      {/* ═══ Navbar ═══ */}
+      <nav className="navbar">
+        <div className="navbar-brand">
+          <div className="brand-icon"><Shield style={{ width: 16, height: 16, color: 'white' }} /></div>
+          <span>DocuShield AI</span>
+          <span style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--text-muted)', marginLeft: 4 }}>SIH 2026</span>
         </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
-        
-        {/* Error Alert */}
-        {error && (
-          <div className="p-4 rounded-xl bg-rose-950/50 border border-rose-800/50 text-rose-300 flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-3">
-              <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
-              <span>{error}</span>
-            </div>
-            <button onClick={fetchSamples} className="px-3 py-1 bg-rose-900/60 rounded text-xs hover:bg-rose-800">
-              Retry
-            </button>
-          </div>
-        )}
-
-        {/* Quick Test Sample Selector Grid */}
-        <section className="glass-panel rounded-2xl p-4 sm:p-5 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center space-x-2">
-                <FileSearch className="w-4 h-4 text-cyan-400" />
-                <span>Quick Test Synthetic Dataset (Pre-Loaded Baseline & Tampered Pairs)</span>
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Click any mock card below to test the fused detection pipeline in real time (Watermarked mock identities)
-              </p>
-            </div>
-            <span className="text-xs text-slate-400 font-mono self-start sm:self-auto bg-slate-900/90 px-2.5 py-1 rounded-md border border-slate-800">
-              {samples.length} Paired Cards
+        <div className="navbar-actions">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginRight: 8 }}>
+            <div className={`health-dot ${backendHealth === 'online' ? 'online' : 'offline'}`} />
+            <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+              {backendHealth === 'online' ? 'API Connected' : backendHealth === 'checking' ? 'Connecting...' : 'API Offline'}
             </span>
           </div>
+          <button className="btn btn-sm" onClick={() => runBatchBenchmark(false)}>
+            <BarChart3 style={{ width: 14, height: 14 }} /> Batch Test
+          </button>
+          <button className="btn btn-sm" onClick={runStandardBenchmark}>
+            <Activity style={{ width: 14, height: 14 }} /> Benchmark
+          </button>
+        </div>
+      </nav>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2.5 max-h-48 overflow-y-auto pr-1">
-            {samples.map((s) => {
-              const isSelected = selectedSample?.id === s.id;
-              const isGenuine = s.label === 'GENUINE';
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => handleSelectSample(s)}
-                  className={`text-left p-2 rounded-xl border transition-all relative flex flex-col justify-between overflow-hidden group ${
-                    isSelected
-                      ? 'bg-cyan-950/40 border-cyan-400 shadow-md shadow-cyan-500/20'
-                      : 'bg-slate-900/60 hover:bg-slate-800/60 border-slate-800/80 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="aspect-[16/10] w-full rounded-lg overflow-hidden bg-slate-950/80 mb-2 relative border border-slate-800/40">
-                    {s.thumbnail_b64 ? (
-                      <img
-                        src={s.thumbnail_b64}
-                        alt={s.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-600">
-                        <ImageIcon className="w-6 h-6" />
+      {/* ═══ Error Banner ═══ */}
+      {error && (
+        <div style={{ background: 'rgba(244, 63, 94, 0.08)', borderBottom: '1px solid rgba(244, 63, 94, 0.2)', padding: '0.625rem 1.5rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <AlertCircle style={{ width: 16, height: 16, color: '#fb7185', flexShrink: 0 }} />
+          <span style={{ fontSize: '0.8125rem', color: '#fda4af', flex: 1 }}>{error}</span>
+          <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', color: '#fb7185', cursor: 'pointer' }}>
+            <X style={{ width: 14, height: 14 }} />
+          </button>
+        </div>
+      )}
+
+      {/* ═══ Upload Bar ═══ */}
+      <div style={{ padding: '0.75rem 1.5rem', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(6, 10, 19, 0.4)' }}>
+        <button className="btn btn-primary btn-sm" onClick={() => fileInputRef.current?.click()}>
+          <UploadCloud style={{ width: 14, height: 14 }} /> Upload Document
+        </button>
+        <input ref={fileInputRef} type="file" accept=".jpg,.jpeg,.png,.webp" style={{ display: 'none' }} onChange={handleFileUpload} />
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>or select a test sample below</span>
+        {loading && (
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <RefreshCw style={{ width: 14, height: 14, color: 'var(--accent-cyan)', animation: 'spin 1s linear infinite' }} />
+            <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>{loadingStatus}</span>
+          </div>
+        )}
+      </div>
+
+      {/* ═══ Main Content ═══ */}
+      {!r && !loading ? (
+        /* ─── Landing: Sample Gallery ─── */
+        <div style={{ padding: '2rem 1.5rem', maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '0.5rem' }}>
+              <span style={{ background: 'linear-gradient(135deg, #06b6d4, #6366f1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Document Forensic Screening
+              </span>
+            </h1>
+            <p style={{ color: 'var(--text-muted)', maxWidth: 560, margin: '0 auto', fontSize: '0.9375rem' }}>
+              AI-powered multimodal identity document authentication system for Aadhaar, PAN, and Driving Licence.
+            </p>
+          </div>
+
+          {/* Upload Zone */}
+          <div className="upload-zone" onClick={() => fileInputRef.current?.click()} style={{ maxWidth: 480, margin: '0 auto 2rem' }}>
+            <UploadCloud style={{ width: 36, height: 36, color: 'var(--text-muted)', margin: '0 auto 0.75rem' }} />
+            <p style={{ fontWeight: 600, marginBottom: 4, color: 'var(--text-secondary)' }}>Drop your document here or click to browse</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Supports JPEG, PNG, WebP up to 10MB</p>
+          </div>
+
+          {/* Test Samples Grid */}
+          {samples.length > 0 && (
+            <>
+              <h2 style={{ fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                Synthetic Test Dataset ({samples.length} documents)
+              </h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.75rem' }}>
+                {samples.map(s => (
+                  <div key={s.id}
+                    className="detector-card"
+                    style={{ cursor: 'pointer', transition: 'all 0.15s' }}
+                    onClick={() => handleSelectSample(s)}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <span className={`detector-status ${s.label === 'GENUINE' ? 'status-clean' : 'status-strong'}`}>
+                        {s.label === 'GENUINE' ? '✓ GENUINE' : '⚠ TAMPERED'}
+                      </span>
+                      <span style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--accent-cyan)', letterSpacing: '0.06em' }}>
+                        {DOC_TYPE_NAMES[s.doc_type] || s.doc_type}
+                      </span>
+                    </div>
+                    {s.thumbnail_b64 && (
+                      <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', marginBottom: 6, aspectRatio: '16/10', background: 'var(--bg-surface)' }}>
+                        <img src={s.thumbnail_b64} alt={s.filename} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </div>
                     )}
-                    <span
-                      className={`absolute top-1 right-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                        isGenuine
-                          ? 'bg-emerald-500/90 text-slate-950'
-                          : 'bg-rose-500/90 text-white'
-                      }`}
-                    >
-                      {isGenuine ? 'GENUINE' : 'TAMPERED'}
-                    </span>
+                    <p className="truncate" style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono', monospace" }}>{s.filename}</p>
                   </div>
-
-                  <div>
-                    <div className="text-[11px] font-semibold text-slate-200 truncate">{s.name}</div>
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">
-                      {s.doc_type}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Screening Results Workspace */}
-        {screeningResult && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left Column: Visual Document Canvas & Layer Toggles (7 cols) */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="glass-panel rounded-2xl p-4 sm:p-5 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
-                  <div>
-                    <h3 className="text-base font-bold text-white flex items-center space-x-2">
-                      <Eye className="w-4 h-4 text-cyan-400" />
-                      <span>Document Forensic Canvas</span>
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Inspecting: <span className="font-mono text-slate-300">{screeningResult.filename}</span>
-                    </p>
-                  </div>
-
-                  {/* View Mode Switcher */}
-                  <div className="flex items-center space-x-1 p-1 bg-slate-950/80 rounded-xl border border-slate-800 text-xs">
-                    <button
-                      onClick={() => setActiveView('annotated')}
-                      className={`px-3 py-1 rounded-lg transition font-medium ${
-                        activeView === 'annotated'
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-sm'
-                          : 'text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      Annotated BBoxes ({screeningResult.flagged_regions?.length || 0})
-                    </button>
-                    <button
-                      onClick={() => setActiveView('ela')}
-                      className={`px-3 py-1 rounded-lg transition font-medium ${
-                        activeView === 'ela'
-                          ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30 shadow-sm'
-                          : 'text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      ELA Heatmap
-                    </button>
-                    <button
-                      onClick={() => setActiveView('edge')}
-                      className={`px-3 py-1 rounded-lg transition font-medium ${
-                        activeView === 'edge'
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm'
-                          : 'text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      Edge Discontinuity
-                    </button>
-                    <button
-                      onClick={() => setActiveView('raw')}
-                      className={`px-3 py-1 rounded-lg transition font-medium ${
-                        activeView === 'raw'
-                          ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-sm'
-                          : 'text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      Raw
-                    </button>
-                  </div>
-                </div>
-
-                {/* Document Display Canvas */}
-                <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-slate-950 border border-slate-800/80 flex items-center justify-center">
-                  {loading && (
-                    <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-30 flex flex-col items-center justify-center space-y-3">
-                      <RefreshCw className="w-8 h-8 text-cyan-400 animate-spin" />
-                      <p className="text-xs text-cyan-300 font-mono animate-pulse">{loadingStatus || 'Running Fused Forensics Pipeline...'}</p>
-                    </div>
-                  )}
-
-                  {/* Scanline Effect */}
-                  <div className="scanline-effect" />
-
-                  {/* Render based on selected View Mode */}
-                  {activeView === 'annotated' && (
-                    <div className="relative w-full h-full flex items-center justify-center">
-                      <img
-                        src={screeningResult.original_image_data_uri}
-                        alt="Document View"
-                        className="max-w-full max-h-full object-contain"
-                      />
-
-                      {/* Flagged Bounding Boxes SVG Overlay */}
-                      <svg
-                        className="absolute inset-0 w-full h-full pointer-events-auto"
-                        viewBox={`0 0 ${screeningResult.image_dimensions?.width || 800} ${screeningResult.image_dimensions?.height || 500}`}
-                        preserveAspectRatio="xMidYMid meet"
-                      >
-                        {screeningResult.flagged_regions?.map((reg, idx) => {
-                          const [bx, by, bw, bh] = reg.box;
-                          const isHovered = hoveredBox === idx;
-                          return (
-                            <g
-                              key={idx}
-                              onMouseEnter={() => setHoveredBox(idx)}
-                              onMouseLeave={() => setHoveredBox(null)}
-                              className="cursor-pointer transition duration-150"
-                            >
-                              <rect
-                                x={bx}
-                                y={by}
-                                width={bw}
-                                height={bh}
-                                fill={reg.color ? `${reg.color}25` : 'rgba(239, 68, 68, 0.2)'}
-                                stroke={reg.color || '#ef4444'}
-                                strokeWidth={isHovered ? 4 : 2.5}
-                                strokeDasharray={isHovered ? 'none' : '4 2'}
-                                className="transition-all"
-                              />
-                              <rect
-                                x={bx}
-                                y={Math.max(0, by - 22)}
-                                width={Math.min(bw, 180)}
-                                height={22}
-                                fill={reg.color || '#ef4444'}
-                                rx={3}
-                              />
-                              <text
-                                x={bx + 6}
-                                y={Math.max(14, by - 7)}
-                                fill="#ffffff"
-                                fontSize="11"
-                                fontWeight="bold"
-                                fontFamily="sans-serif"
-                              >
-                                {reg.label?.slice(0, 24)}
-                              </text>
-                            </g>
-                          );
-                        })}
-                      </svg>
-                    </div>
-                  )}
-
-                  {activeView === 'ela' && (
-                    <img
-                      src={screeningResult.visualizations?.ela_heatmap || screeningResult.original_image_data_uri}
-                      alt="ELA Heatmap"
-                      className="max-w-full max-h-full object-contain"
-                    />
-                  )}
-
-                  {activeView === 'edge' && (
-                    <img
-                      src={screeningResult.visualizations?.edge_gradient_map || screeningResult.original_image_data_uri}
-                      alt="Edge Gradient Map"
-                      className="max-w-full max-h-full object-contain"
-                    />
-                  )}
-
-                  {activeView === 'raw' && (
-                    <img
-                      src={screeningResult.original_image_data_uri}
-                      alt="Raw Document"
-                      className="max-w-full max-h-full object-contain"
-                    />
-                  )}
-                </div>
-
-                {/* Hovered / Selected Region Inspector Card */}
-                {hoveredBox !== null && screeningResult.flagged_regions?.[hoveredBox] && (
-                  <div className="p-3 rounded-xl bg-slate-900/95 border border-cyan-500/40 text-xs space-y-1 animate-in fade-in zoom-in-95 duration-150">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-cyan-300">
-                        {screeningResult.flagged_regions[hoveredBox].label}
-                      </span>
-                      <span className="font-mono text-slate-400">
-                        Confidence: {(screeningResult.flagged_regions[hoveredBox].score * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                    <p className="text-slate-300 text-[11px]">
-                      {screeningResult.flagged_regions[hoveredBox].reason}
-                    </p>
-                    <div className="text-[10px] text-slate-500">
-                      Layer Attribution: {screeningResult.flagged_regions[hoveredBox].layer}
-                    </div>
-                  </div>
-                )}
-
-                {/* Flagged Regions Quick Summary Bar */}
-                <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
-                  <span>
-                    Detected Anomalies: <strong className="text-slate-200">{screeningResult.flagged_regions?.length || 0}</strong>
-                  </span>
-                  <span>
-                    Resolution: <strong className="text-slate-200">{screeningResult.image_dimensions?.width}x{screeningResult.image_dimensions?.height}</strong>
-                  </span>
-                </div>
+                ))}
               </div>
-            </div>
-
-            {/* Right Column: Authenticity Scorecard, Verdict & Multimodal Signals (5 cols) */}
-            <div className="lg:col-span-5 space-y-4">
-              
-              {/* Authenticity Gauge Card */}
-              <div className={`glass-panel rounded-2xl p-5 border ${verdictBadge?.bg} ${verdictBadge?.glow} space-y-4`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    {verdictBadge?.icon}
-                    <div>
-                      <h3 className="text-base font-extrabold tracking-tight">
-                        {verdictBadge?.label}
-                      </h3>
-                      <p className="text-xs text-slate-400">Fused Dual-Layer Authenticity Verdict</p>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-3xl font-black font-mono tracking-tight text-white">
-                      {screeningResult.authenticity_score}%
-                    </div>
-                    <div className="text-[10px] uppercase font-bold text-slate-400">Authenticity Score</div>
-                  </div>
-                </div>
-
-                {/* Score Progress Bar */}
-                <div className="w-full bg-slate-900/80 rounded-full h-2.5 overflow-hidden border border-slate-800">
-                  <div
-                    className={`h-full transition-all duration-700 ${
-                      screeningResult.authenticity_score >= 80
-                        ? 'bg-emerald-500'
-                        : screeningResult.authenticity_score >= 50
-                        ? 'bg-amber-500'
-                        : 'bg-rose-500'
-                    }`}
-                    style={{ width: `${screeningResult.authenticity_score}%` }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-800/80">
-                  <span className="text-slate-400">Diagnostic Status:</span>
-                  <span className={`px-2 py-0.5 rounded font-mono font-bold text-[11px] ${
-                    screeningResult.diagnostic_status === 'DOCUMENT_STRONGLY_SUSPECTED_TAMPERED'
-                      ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
-                      : screeningResult.diagnostic_status === 'ANOMALY_DETECTED'
-                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                      : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                  }`}>
-                    {screeningResult.diagnostic_status || 'CLEAN'}
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  {screeningResult.summary_explanation}
-                </p>
-
-                {/* Critical Triggers Alert list */}
-                {screeningResult.critical_triggers?.length > 0 && (
-                  <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-rose-400 flex items-center space-x-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      <span>Critical Triggers Triggered:</span>
-                    </div>
-                    <ul className="space-y-1">
-                      {screeningResult.critical_triggers.map((trig, idx) => (
-                        <li key={idx} className="text-xs text-slate-300 flex items-start space-x-2">
-                          <span className="text-rose-500 font-bold">•</span>
-                          <span>{trig}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+            </>
+          )}
+        </div>
+      ) : (
+        /* ─── Results: Two-Column Layout ─── */
+        <div className="main-grid animate-fadeIn">
+          {/* ═══ LEFT: Forensic Canvas ═══ */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Canvas */}
+            <div className="canvas-container">
+              <div className="canvas-tabs">
+                {[
+                  { key: 'annotated', label: 'Annotated' },
+                  { key: 'ela', label: 'ELA Heatmap' },
+                  { key: 'edge', label: 'Edge Map' },
+                  { key: 'copymove', label: 'Copy-Move' },
+                  { key: 'raw', label: 'Raw Image' },
+                ].map(tab => (
+                  <button key={tab.key} className={`canvas-tab ${activeView === tab.key ? 'active' : ''}`} onClick={() => setActiveView(tab.key)}>
+                    {tab.label}
+                  </button>
+                ))}
               </div>
-
-              {/* Multimodal Signal Tabs */}
-              <div className="glass-panel rounded-2xl p-4 sm:p-5 space-y-4">
-                <div className="flex border-b border-slate-800 pb-2 space-x-1 text-xs">
-                  <button
-                    onClick={() => setActiveTab('overview')}
-                    className={`px-3 py-1.5 rounded-lg font-semibold transition ${
-                      activeTab === 'overview'
-                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    Signals Breakdown
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('nlp')}
-                    className={`px-3 py-1.5 rounded-lg font-semibold transition ${
-                      activeTab === 'nlp'
-                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    NLP / OCR Layer
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('fields')}
-                    className={`px-3 py-1.5 rounded-lg font-semibold transition ${
-                      activeTab === 'fields'
-                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    Field Verification
-                  </button>
-                </div>
-
-                {/* Tab Content: Overview Breakdown */}
-                {activeTab === 'overview' && (
-                  <div className="space-y-3">
-                    {/* Signal 1: NLP Validation */}
-                    <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/80 flex items-center justify-between">
-                      <div>
-                        <div className="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
-                          <FileText className="w-3.5 h-3.5 text-cyan-400" />
-                          <span>Text & NLP Field Validation</span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Checksums, regex formats, chronological consistency
-                        </p>
-                      </div>
-                      <div className="text-right flex items-center space-x-2">
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase ${
-                          screeningResult.evidence_strengths?.nlp === 'STRONG'
-                            ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                            : screeningResult.evidence_strengths?.nlp === 'MODERATE'
-                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                            : screeningResult.evidence_strengths?.nlp === 'WEAK'
-                            ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                            : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        }`}>
-                          {screeningResult.evidence_strengths?.nlp || 'CLEAN'}
-                        </span>
-                        <span className="text-sm font-bold font-mono text-white">
-                          {screeningResult.signals?.nlp_validation?.score}%
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Signal 2: ELA Forensics */}
-                    <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/80 flex items-center justify-between">
-                      <div>
-                        <div className="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
-                          <Layers className="w-3.5 h-3.5 text-rose-400" />
-                          <span>Error Level Analysis (ELA)</span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          JPEG recompression variance & photo hotspots
-                        </p>
-                      </div>
-                      <div className="text-right flex items-center space-x-2">
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase ${
-                          screeningResult.evidence_strengths?.ela === 'STRONG'
-                            ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                            : screeningResult.evidence_strengths?.ela === 'MODERATE'
-                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                            : screeningResult.evidence_strengths?.ela === 'WEAK'
-                            ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                            : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        }`}>
-                          {screeningResult.evidence_strengths?.ela || 'CLEAN'}
-                        </span>
-                        <span className="text-sm font-bold font-mono text-white">
-                          {screeningResult.signals?.ela_forensics?.score}%
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Signal 3: Typography & Font Alignment */}
-                    <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/80 flex items-center justify-between">
-                      <div>
-                        <div className="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
-                          <Cpu className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Typography & Font Alignment</span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Anti-aliasing consistency & edge gradients
-                        </p>
-                      </div>
-                      <div className="text-right flex items-center space-x-2">
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase ${
-                          screeningResult.evidence_strengths?.font === 'STRONG'
-                            ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                            : screeningResult.evidence_strengths?.font === 'MODERATE'
-                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                            : screeningResult.evidence_strengths?.font === 'WEAK'
-                            ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                            : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        }`}>
-                          {screeningResult.evidence_strengths?.font || 'CLEAN'}
-                        </span>
-                        <span className="text-sm font-bold font-mono text-white">
-                          {screeningResult.signals?.font_typography?.score}%
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Signal 4: Copy-Move Cloned Texture */}
-                    <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/80 flex items-center justify-between">
-                      <div>
-                        <div className="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
-                          <Sliders className="w-3.5 h-3.5 text-indigo-400" />
-                          <span>Copy-Move Forgery Detection</span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Keypoint spatial displacement & cloned stamps
-                        </p>
-                      </div>
-                      <div className="text-right flex items-center space-x-2">
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase ${
-                          screeningResult.evidence_strengths?.copy_move === 'STRONG'
-                            ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                            : screeningResult.evidence_strengths?.copy_move === 'MODERATE'
-                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                            : screeningResult.evidence_strengths?.copy_move === 'WEAK'
-                            ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                            : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        }`}>
-                          {screeningResult.evidence_strengths?.copy_move || 'CLEAN'}
-                        </span>
-                        <span className="text-sm font-bold font-mono text-white">
-                          {screeningResult.signals?.copy_move?.score}%
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Signal 5: Metadata & EXIF */}
-                    <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/80 flex items-center justify-between">
-                      <div>
-                        <div className="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
-                          <Info className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Metadata & EXIF Inspection</span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Editing software signatures (Photoshop, GIMP)
-                        </p>
-                      </div>
-                      <div className="text-right flex items-center space-x-2">
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase ${
-                          screeningResult.evidence_strengths?.metadata === 'STRONG'
-                            ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                            : screeningResult.evidence_strengths?.metadata === 'MODERATE'
-                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                            : screeningResult.evidence_strengths?.metadata === 'WEAK'
-                            ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                            : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        }`}>
-                          {screeningResult.evidence_strengths?.metadata || 'CLEAN'}
-                        </span>
-                        <span className="text-sm font-bold font-mono text-white">
-                          {screeningResult.signals?.metadata_forensics?.score}%
-                        </span>
-                      </div>
-                    </div>
+              <div style={{ position: 'relative', background: 'var(--bg-surface)', minHeight: 300 }}>
+                {loading && (
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 5, background: 'rgba(6, 10, 19, 0.85)' }}>
+                    <div className="scanline-effect" />
+                    <RefreshCw style={{ width: 32, height: 32, color: 'var(--accent-cyan)', animation: 'spin 1s linear infinite', marginBottom: 12 }} />
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--accent-cyan)' }}>{loadingStatus || 'Analyzing...'}</span>
                   </div>
                 )}
-
-                {/* Tab Content: NLP / OCR */}
-                {activeTab === 'nlp' && (
-                  <div className="space-y-3 text-xs">
-                    <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-                      <div className="text-slate-400 text-[11px]">Detected Document Family:</div>
-                      <div className="font-bold text-white uppercase font-mono">
-                        {screeningResult.signals?.nlp_validation?.document_type || 'Unknown'}
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1 max-h-44 overflow-y-auto font-mono text-[11px] text-slate-300 leading-relaxed">
-                      <div className="text-slate-400 font-sans text-[11px] mb-1">OCR Extracted Text:</div>
-                      {screeningResult.signals?.nlp_validation?.extracted_full_text || 'No text extracted.'}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab Content: Extracted Fields */}
-                {activeTab === 'fields' && (
-                  <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                    {screeningResult.signals?.nlp_validation?.field_checks?.map((field, idx) => {
-                      const isPass = field.status === 'PASS';
+                {canvasImg ? (
+                  <div style={{ position: 'relative' }}>
+                    <img src={canvasImg} alt="Forensic View" style={{ width: '100%', display: 'block' }} />
+                    {/* Bounding box overlays for annotated view */}
+                    {activeView === 'annotated' && r?.flagged_regions?.map((reg, i) => {
+                      const [bx, by, bw, bh] = reg.box;
+                      const iw = r.image_dimensions?.width || 1;
+                      const ih = r.image_dimensions?.height || 1;
                       return (
-                        <div
-                          key={idx}
-                          className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-start justify-between text-xs"
-                        >
-                          <div className="space-y-0.5">
-                            <div className="font-semibold text-slate-200">{field.field}</div>
-                            <div className="font-mono text-cyan-300 text-[11px]">{field.value}</div>
-                            <div className="text-[10px] text-slate-400">{field.details}</div>
-                          </div>
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider shrink-0 ${
-                              field.status === 'PASS'
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                : field.status === 'UNCERTAIN'
-                                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                                : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                            }`}
-                          >
-                            {field.status}
-                          </span>
-                        </div>
+                        <div key={i} title={`${reg.label}: ${reg.reason}`} style={{
+                          position: 'absolute',
+                          left: `${(bx / iw) * 100}%`, top: `${(by / ih) * 100}%`,
+                          width: `${(bw / iw) * 100}%`, height: `${(bh / ih) * 100}%`,
+                          border: `2px solid ${reg.color || '#ef4444'}`,
+                          borderRadius: 4,
+                          background: `${reg.color || '#ef4444'}15`,
+                          cursor: 'pointer',
+                          transition: 'all 0.15s',
+                        }} />
                       );
                     })}
                   </div>
-                )}
+                ) : !loading ? (
+                  <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                    <ImageIcon style={{ width: 48, height: 48 }} />
+                  </div>
+                ) : null}
               </div>
             </div>
-          </div>
-        )}
-      </main>
 
-      {/* Benchmark Evaluation Modal */}
-      {showBenchmark && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="glass-panel max-w-4xl w-full max-h-[90vh] rounded-3xl p-6 overflow-y-auto space-y-6 border border-slate-700 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-xl bg-indigo-600/30 text-indigo-400 border border-indigo-500/40">
-                  <BarChart3 className="w-6 h-6" />
+            {/* Flagged Regions Table */}
+            {r?.flagged_regions?.length > 0 && (
+              <div className="panel">
+                <div className="panel-header">
+                  <AlertTriangle style={{ width: 14, height: 14, color: '#fbbf24' }} />
+                  Flagged Regions ({r.flagged_regions.length})
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">
-                    SIH 2026 Dataset Benchmark Evaluation
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    20-Document Synthetic Baseline & Tampering Test Suite (Ground-Truth Evaluated)
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setShowBenchmark(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-900 border border-slate-800"
-              >
-                ✕
-              </button>
-            </div>
-
-            {benchmarkLoading ? (
-              <div className="py-20 flex flex-col items-center justify-center space-y-3">
-                <RefreshCw className="w-10 h-10 text-indigo-400 animate-spin" />
-                <p className="text-sm font-mono text-indigo-300 animate-pulse">
-                  Screening all 20 documents through dual-layer fusion engine...
-                </p>
-              </div>
-            ) : benchmarkData ? (
-              <div className="space-y-6">
-                {/* Metric Summary Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
-                    <div className="text-2xl font-black font-mono text-emerald-400">
-                      {benchmarkData.metrics?.accuracy}%
-                    </div>
-                    <div className="text-xs text-slate-400 mt-1 uppercase font-semibold">Overall Accuracy</div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
-                    <div className="text-2xl font-black font-mono text-cyan-400">
-                      {benchmarkData.metrics?.precision}%
-                    </div>
-                    <div className="text-xs text-slate-400 mt-1 uppercase font-semibold">Precision</div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
-                    <div className="text-2xl font-black font-mono text-indigo-400">
-                      {benchmarkData.metrics?.recall}%
-                    </div>
-                    <div className="text-xs text-slate-400 mt-1 uppercase font-semibold">Recall</div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
-                    <div className="text-2xl font-black font-mono text-amber-400">
-                      {benchmarkData.metrics?.f1_score}%
-                    </div>
-                    <div className="text-xs text-slate-400 mt-1 uppercase font-semibold">F1 Score</div>
-                  </div>
-                </div>
-
-                {/* Confusion Matrix Visual */}
-                <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                    Confusion Matrix (20 Documents)
-                  </h4>
-                  <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-                    <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-800/40 text-emerald-300">
-                      <div className="text-base font-bold">{benchmarkData.metrics?.true_positives}</div>
-                      <div>True Positives (Tampered Correctly Flagged)</div>
-                    </div>
-                    <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-800/40 text-cyan-300">
-                      <div className="text-base font-bold">{benchmarkData.metrics?.true_negatives}</div>
-                      <div>True Negatives (Genuine Verified Authentic)</div>
-                    </div>
-                    <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800 text-slate-400">
-                      <div className="text-base font-bold">{benchmarkData.metrics?.false_positives}</div>
-                      <div>False Positives (Genuine Incorrectly Flagged)</div>
-                    </div>
-                    <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800 text-slate-400">
-                      <div className="text-base font-bold">{benchmarkData.metrics?.false_negatives}</div>
-                      <div>False Negatives (Tampered Missed)</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Detailed Table */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                    Per-Document Benchmark Results
-                  </h4>
-                  <div className="border border-slate-800 rounded-xl overflow-hidden max-h-56 overflow-y-auto">
-                    <table className="w-full text-left text-xs font-mono">
-                      <thead className="bg-slate-900 text-slate-400 border-b border-slate-800 sticky top-0">
-                        <tr>
-                          <th className="p-2.5">Document</th>
-                          <th className="p-2.5">Actual</th>
-                          <th className="p-2.5">Verdict</th>
-                          <th className="p-2.5">Score</th>
-                          <th className="p-2.5">Status</th>
+                <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                  <table className="data-table">
+                    <thead><tr><th>Layer</th><th>Label</th><th>Confidence</th></tr></thead>
+                    <tbody>
+                      {r.flagged_regions.map((reg, i) => (
+                        <tr key={i}>
+                          <td style={{ color: reg.color }}>{reg.layer}</td>
+                          <td>{reg.label}</td>
+                          <td className="font-mono">{(reg.score * 100).toFixed(0)}%</td>
                         </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-800/60">
-                        {benchmarkData.details?.map((item, idx) => (
-                          <tr key={idx} className="hover:bg-slate-900/40">
-                            <td className="p-2.5 font-sans font-medium text-slate-300">{item.filename}</td>
-                            <td className="p-2.5 text-slate-400">{item.actual_label}</td>
-                            <td className="p-2.5">
-                              <span className={item.predicted_verdict === 'AUTHENTIC' ? 'text-emerald-400' : 'text-rose-400'}>
-                                {item.predicted_verdict}
-                              </span>
-                            </td>
-                            <td className="p-2.5 text-white font-bold">{item.authenticity_score}%</td>
-                            <td className="p-2.5">
-                              <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">
-                                {item.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            ) : null}
+            )}
+
+            {/* OCR Text Extraction Panel */}
+            {r?.signals?.nlp_validation?.extracted_full_text && (
+              <div className="panel">
+                <div className="panel-header"><FileText style={{ width: 14, height: 14 }} /> Extracted OCR Text</div>
+                <div className="panel-body">
+                  <pre className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.6, maxHeight: 200, overflowY: 'auto' }}>
+                    {r.signals.nlp_validation.extracted_full_text}
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {/* Back button */}
+            <button className="btn" onClick={() => { setScreeningResult(null); setSelectedSample(null); }} style={{ alignSelf: 'flex-start' }}>
+              <ArrowRight style={{ width: 14, height: 14, transform: 'rotate(180deg)' }} /> Back to Gallery
+            </button>
           </div>
+
+          {/* ═══ RIGHT: Results Panel ═══ */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {r && !loading && (
+              <>
+                {/* Verdict Banner */}
+                <div className={`verdict-badge ${vConf.cls} animate-slideUp`}>
+                  <VerdictIcon style={{ width: 24, height: 24 }} />
+                  <div style={{ flex: 1 }}>
+                    <div>{vConf.label}</div>
+                    <div style={{ fontSize: '0.6875rem', fontWeight: 500, opacity: 0.8, textTransform: 'none', letterSpacing: 0 }}>
+                      {r.summary_explanation}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Score Cards Row */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+                  <div className="stat-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <ScoreRing score={r.authenticity_score} color={vConf.color} size={72} />
+                    <div className="stat-label" style={{ marginTop: 6 }}>Authenticity</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value font-mono" style={{ color: r.risk_score > 40 ? '#fb7185' : r.risk_score > 15 ? '#fbbf24' : '#34d399' }}>
+                      {r.risk_score}%
+                    </div>
+                    <div className="stat-label">Risk Score</div>
+                    <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                      <span className={`detector-status ${why?.human_review_required ? 'status-moderate' : 'status-clean'}`}>
+                        {why?.human_review_required ? '⚑ REVIEW' : '✓ AUTO'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value font-mono" style={{ color: 'var(--accent-cyan)', fontSize: '1rem' }}>
+                      {DOC_TYPE_NAMES[r.signals?.nlp_validation?.document_type] || 'Unknown'}
+                    </div>
+                    <div className="stat-label">Document Type</div>
+                    <div style={{ marginTop: 4, fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+                      {r.ocr_extraction?.token_count || 0} tokens • {r.ocr_extraction?.line_count || 0} lines
+                    </div>
+                  </div>
+                </div>
+
+                {/* WHY THIS VERDICT */}
+                <div className="panel">
+                  <div className="panel-header"><Info style={{ width: 14, height: 14, color: 'var(--accent-cyan)' }} /> Why This Verdict?</div>
+                  <div className="panel-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {/* Positive Checks */}
+                    {why?.positive_checks?.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#34d399', marginBottom: 6 }}>
+                          ✓ Positive Verifications
+                        </div>
+                        {why.positive_checks.map((c, i) => (
+                          <div key={i} className="evidence-item">
+                            <CheckCircle2 className="evidence-icon" style={{ color: '#34d399' }} />
+                            <span>{c}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Cautions */}
+                    {why?.cautions?.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#fbbf24', marginBottom: 6 }}>
+                          ⚠ Quality Cautions
+                        </div>
+                        {why.cautions.map((c, i) => (
+                          <div key={i} className="evidence-item">
+                            <AlertTriangle className="evidence-icon" style={{ color: '#fbbf24' }} />
+                            <span>{c}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Critical Evidence */}
+                    {why?.critical_evidence?.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#fb7185', marginBottom: 6 }}>
+                          ✕ Critical / Deterministic Evidence
+                        </div>
+                        {why.critical_evidence.map((c, i) => (
+                          <div key={i} className="evidence-item">
+                            <XCircle className="evidence-icon" style={{ color: '#fb7185' }} />
+                            <span style={{ color: '#fda4af' }}>{c}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 6 Detector Cards */}
+                <div>
+                  <div style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+                    Detector Analysis
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
+                    {Object.keys(DETECTOR_META).map(key => (
+                      <DetectorCard key={key} detKey={key} data={detExps[key]} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Field Validation Detail */}
+                {r.signals?.nlp_validation?.field_checks?.length > 0 && (
+                  <div className="panel">
+                    <div className="panel-header"><Lock style={{ width: 14, height: 14 }} /> Field Validation Results</div>
+                    <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+                      <table className="data-table">
+                        <thead><tr><th>Field</th><th>Value</th><th>Status</th></tr></thead>
+                        <tbody>
+                          {r.signals.nlp_validation.field_checks.map((f, i) => (
+                            <tr key={i}>
+                              <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{f.field}</td>
+                              <td className="font-mono truncate" style={{ maxWidth: 180 }}>{f.value || '—'}</td>
+                              <td>
+                                <span className={`detector-status ${f.status === 'PASS' ? 'status-clean' : f.status === 'FAIL' ? 'status-strong' : 'status-weak'}`}>
+                                  {f.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Condition Assessment */}
+                {r.condition_assessment && (
+                  <div className="panel">
+                    <div className="panel-header"><Monitor style={{ width: 14, height: 14 }} /> Image Condition</div>
+                    <div className="panel-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', fontSize: '0.75rem' }}>
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontWeight: 600, marginBottom: 2 }}>Resolution</div>
+                        <div className="font-mono" style={{ color: 'var(--text-primary)' }}>
+                          {r.condition_assessment.resolution?.width}×{r.condition_assessment.resolution?.height}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontWeight: 600, marginBottom: 2 }}>Blur</div>
+                        <div className="font-mono" style={{ color: r.condition_assessment.is_blurry ? '#fbbf24' : '#34d399' }}>
+                          {r.condition_assessment.blur_level || 'N/A'}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontWeight: 600, marginBottom: 2 }}>Compression</div>
+                        <div className="font-mono" style={{ color: r.condition_assessment.is_heavily_compressed ? '#fbbf24' : '#34d399' }}>
+                          {r.condition_assessment.compression_level || 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Fusion Contributions */}
+                {r.fusion_contributions && (
+                  <div className="panel">
+                    <div className="panel-header"><Layers style={{ width: 14, height: 14 }} /> Fusion Contributions</div>
+                    <div className="panel-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {['nlp', 'ela', 'font', 'copy_move', 'metadata'].map(k => {
+                        const fc = r.fusion_contributions[k];
+                        if (!fc) return null;
+                        const label = k === 'nlp' ? 'NLP / Fields' : k === 'ela' ? 'ELA' : k === 'font' ? 'Typography' : k === 'copy_move' ? 'Copy-Move' : 'Metadata';
+                        return (
+                          <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', minWidth: 80 }}>{label}</span>
+                            <div className="progress-bar" style={{ flex: 1 }}>
+                              <div className="progress-fill" style={{
+                                width: `${fc.raw_score}%`,
+                                background: fc.raw_score >= 90 ? '#10b981' : fc.raw_score >= 70 ? '#f59e0b' : '#f43f5e',
+                              }} />
+                            </div>
+                            <span className="font-mono" style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', minWidth: 36, textAlign: 'right' }}>{fc.raw_score}%</span>
+                            <span style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>×{fc.weight}</span>
+                          </div>
+                        );
+                      })}
+                      <div style={{ marginTop: 4, fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        {r.fusion_contributions.penalties_applied?.map((p, i) => <div key={i}>→ {p}</div>)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Benchmark Modal ═══ */}
+      {showBenchmark && (
+        <div className="modal-backdrop" onClick={(e) => { if (e.target === e.currentTarget) setShowBenchmark(false); }}>
+          <div className="modal-content animate-slideUp">
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <BarChart3 style={{ width: 20, height: 20, color: 'var(--accent-cyan)' }} />
+                <h2 style={{ fontSize: '1.125rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
+                  {benchmarkMode === 'batch' ? 'Real-World Batch Benchmark' : 'Synthetic Benchmark'}
+                </h2>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className={`btn btn-sm ${benchmarkMode === 'batch' ? 'btn-primary' : ''}`} onClick={() => { setBenchmarkMode('batch'); if (!batchBenchmarkData) runBatchBenchmark(false); }}>
+                  Batch (D:\)
+                </button>
+                <button className={`btn btn-sm ${benchmarkMode === 'standard' ? 'btn-primary' : ''}`} onClick={() => { setBenchmarkMode('standard'); if (!benchmarkData) runStandardBenchmark(); }}>
+                  Synthetic
+                </button>
+                <button className="btn btn-sm btn-icon" onClick={() => setShowBenchmark(false)}>
+                  <X style={{ width: 16, height: 16 }} />
+                </button>
+              </div>
+            </div>
+            <div className="modal-body">
+              {benchmarkLoading ? (
+                <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+                  <RefreshCw style={{ width: 32, height: 32, color: 'var(--accent-cyan)', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }} />
+                  <p style={{ color: 'var(--text-muted)' }}>Running benchmark pipeline...</p>
+                </div>
+              ) : benchmarkMode === 'batch' && batchBenchmarkData ? (
+                <BenchmarkResults data={batchBenchmarkData} onRerun={() => runBatchBenchmark(true)} />
+              ) : benchmarkMode === 'standard' && benchmarkData ? (
+                <BenchmarkResults data={benchmarkData} onRerun={runStandardBenchmark} />
+              ) : (
+                <div style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-muted)' }}>
+                  <p>No benchmark data available. Click a benchmark mode above to run.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Benchmark Results Component ───
+function BenchmarkResults({ data, onRerun }) {
+  const m = data?.metrics || {};
+  const hasFailures = (data?.failures?.length || 0) > 0;
+  const allRecords = data?.all_records || data?.details || [];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* Action bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+          {data?.total_documents || allRecords.length} documents evaluated
+          {data?.benchmark_timestamp ? ` • ${new Date(data.benchmark_timestamp).toLocaleString()}` : ''}
+        </span>
+        <button className="btn btn-sm" onClick={onRerun}>
+          <RefreshCw style={{ width: 14, height: 14 }} /> Re-run
+        </button>
+      </div>
+
+      {/* Metrics Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
+        <div className="stat-card"><div className="stat-value" style={{ color: '#34d399' }}>{m.accuracy ?? m.accuracy_pct ?? '—'}%</div><div className="stat-label">Accuracy</div></div>
+        <div className="stat-card"><div className="stat-value" style={{ color: '#22d3ee' }}>{m.precision ?? '—'}%</div><div className="stat-label">Precision</div></div>
+        <div className="stat-card"><div className="stat-value" style={{ color: '#818cf8' }}>{m.recall ?? '—'}%</div><div className="stat-label">Recall</div></div>
+        <div className="stat-card"><div className="stat-value" style={{ color: '#fbbf24' }}>{m.f1_score ?? m.f1 ?? '—'}%</div><div className="stat-label">F1 Score</div></div>
+      </div>
+
+      {/* Confusion Matrix */}
+      <div>
+        <div style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 8 }}>
+          Confusion Matrix
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', maxWidth: 400 }}>
+          <div className="cm-cell cm-tp">
+            <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{m.tp ?? m.true_positives ?? 0}</div>
+            <div style={{ fontSize: '0.6875rem' }}>True Positive</div>
+          </div>
+          <div className="cm-cell cm-fp">
+            <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{m.fp ?? m.false_positives ?? 0}</div>
+            <div style={{ fontSize: '0.6875rem' }}>False Positive</div>
+          </div>
+          <div className="cm-cell cm-fn">
+            <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{m.fn ?? m.false_negatives ?? 0}</div>
+            <div style={{ fontSize: '0.6875rem' }}>False Negative</div>
+          </div>
+          <div className="cm-cell cm-tn">
+            <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{m.tn ?? m.true_negatives ?? 0}</div>
+            <div style={{ fontSize: '0.6875rem' }}>True Negative</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Per-Document Results Table */}
+      {allRecords.length > 0 && (
+        <div>
+          <div style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 8 }}>
+            Per-Document Results
+          </div>
+          <div style={{ maxHeight: 300, overflowY: 'auto', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)' }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Document</th>
+                  <th>Expected</th>
+                  <th>Verdict</th>
+                  <th>Score</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allRecords.map((item, idx) => {
+                  const isCorrect = (item.status_tag || item.status || '').includes('CORRECT');
+                  return (
+                    <tr key={idx}>
+                      <td style={{ fontWeight: 600, color: 'var(--text-primary)', maxWidth: 200 }} className="truncate">{item.filename}</td>
+                      <td>{item.expected_label || item.actual_label || '—'}</td>
+                      <td>
+                        <span style={{ color: (item.final_verdict || item.predicted_verdict) === 'AUTHENTIC' ? '#34d399' : (item.final_verdict || item.predicted_verdict) === 'SUSPICIOUS' ? '#fbbf24' : '#fb7185' }}>
+                          {item.final_verdict || item.predicted_verdict}
+                        </span>
+                      </td>
+                      <td className="font-mono" style={{ fontWeight: 700, color: 'white' }}>{item.authenticity_score}%</td>
+                      <td>
+                        <span className={`detector-status ${isCorrect ? 'status-clean' : 'status-strong'}`}>
+                          {isCorrect ? '✓ Correct' : '✕ Wrong'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Failures Detail */}
+      {hasFailures && (
+        <div>
+          <div style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#fb7185', marginBottom: 8 }}>
+            Failure Analysis ({data.failures.length})
+          </div>
+          {data.failures.map((f, i) => (
+            <div key={i} style={{ padding: '0.75rem', background: 'rgba(244, 63, 94, 0.04)', border: '1px solid rgba(244, 63, 94, 0.1)', borderRadius: 'var(--radius-md)', marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                <span style={{ fontWeight: 700, color: '#fda4af', fontSize: '0.8125rem' }}>{f.image_name}</span>
+                <span className="font-mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{f.authenticity_score}%</span>
+              </div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Expected: {f.expected_result} → Got: {f.final_verdict} | Category: {f.failure_category}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -1,3 +1,13 @@
+---
+title: DocuShield AI
+emoji: 🛡️
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # DocuShield AI: AI-Based Identity & Document Forensic Screening System
 **Smart India Hackathon (SIH 2026) — Problem Statement SIH26188**
 
