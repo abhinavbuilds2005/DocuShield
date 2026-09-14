@@ -35,25 +35,43 @@ class OCRUnavailableError(Exception):
 
 
 # ---------------------------------------------------------------------------
-# Singleton EasyOCR Reader (loaded once at module level)
+# Singleton EasyOCR Reader (lazy loaded on first use to stay within 512MB RAM)
 # ---------------------------------------------------------------------------
 _EASYOCR_READER = None
-_EASYOCR_AVAILABLE = False
+_EASYOCR_AVAILABLE = None
 _EASYOCR_INIT_ATTEMPTED = False
 
 _TESSERACT_AVAILABLE = False
 _TESSERACT_INIT_ATTEMPTED = False
 
 
-def _init_easyocr():
-    """Attempt to initialize EasyOCR reader exactly once."""
-    global _EASYOCR_READER, _EASYOCR_AVAILABLE, _EASYOCR_INIT_ATTEMPTED
-    if _EASYOCR_INIT_ATTEMPTED:
-        return
-    _EASYOCR_INIT_ATTEMPTED = True
+def _can_import_easyocr() -> bool:
+    """Check if easyocr library is installed without loading model weights."""
     try:
         import easyocr
-        # Check if model weights are downloaded
+        return True
+    except Exception:
+        return False
+
+
+def _init_easyocr():
+    """Attempt to initialize EasyOCR reader on demand."""
+    global _EASYOCR_READER, _EASYOCR_AVAILABLE, _EASYOCR_INIT_ATTEMPTED
+    if _EASYOCR_READER is not None:
+        return _EASYOCR_READER
+    _EASYOCR_INIT_ATTEMPTED = True
+
+    # Memory optimization for 512MB container environments
+    try:
+        import torch
+        torch.set_num_threads(1)
+        if hasattr(torch, "set_num_interop_threads"):
+            torch.set_num_interop_threads(1)
+    except Exception:
+        pass
+
+    try:
+        import easyocr
         user_home = os.path.expanduser("~")
         model_dir = os.path.join(user_home, ".EasyOCR", "model")
         craft_file = os.path.join(model_dir, "craft_mlt_25k.pth")
@@ -62,19 +80,20 @@ def _init_easyocr():
             and os.path.exists(craft_file)
             and os.path.getsize(craft_file) > 1_000_000
         )
-        # Allow download on first run if weights are missing
         _EASYOCR_READER = easyocr.Reader(
             ['en'],
             gpu=False,
             verbose=False,
-            download_enabled=not has_weights  # Only download if needed
+            download_enabled=not has_weights
         )
         _EASYOCR_AVAILABLE = True
-        print("[OCR] EasyOCR initialized successfully")
+        print("[OCR] EasyOCR initialized successfully (lazy loaded)")
+        return _EASYOCR_READER
     except Exception as e:
         print(f"[OCR] EasyOCR initialization failed: {e}")
         _EASYOCR_READER = None
         _EASYOCR_AVAILABLE = False
+        return None
 
 
 def _init_tesseract():
@@ -85,17 +104,14 @@ def _init_tesseract():
     _TESSERACT_INIT_ATTEMPTED = True
     try:
         import pytesseract
-        # Quick test to verify binary is accessible
         pytesseract.get_tesseract_version()
         _TESSERACT_AVAILABLE = True
         print("[OCR] Tesseract fallback available")
     except Exception as e:
-        print(f"[OCR] Tesseract not available: {e}")
         _TESSERACT_AVAILABLE = False
 
 
-# Initialize OCR engines at module load
-_init_easyocr()
+# Lightweight initialization at module load (Tesseract only; EasyOCR is lazy-loaded)
 _init_tesseract()
 
 
@@ -103,12 +119,14 @@ _init_tesseract()
 # Public health check
 # ---------------------------------------------------------------------------
 def get_ocr_status() -> Dict[str, Any]:
-    """Returns the availability status of OCR engines."""
+    """Returns availability status without forcing heavy neural weights into RAM."""
+    easyocr_ok = (_EASYOCR_AVAILABLE if _EASYOCR_AVAILABLE is not None else _can_import_easyocr())
+    tesseract_ok = _TESSERACT_AVAILABLE
     return {
-        "ocr_available": _EASYOCR_AVAILABLE or _TESSERACT_AVAILABLE,
-        "easyocr_available": _EASYOCR_AVAILABLE,
-        "tesseract_available": _TESSERACT_AVAILABLE,
-        "primary_engine": "easyocr" if _EASYOCR_AVAILABLE else ("tesseract" if _TESSERACT_AVAILABLE else None),
+        "ocr_available": easyocr_ok or tesseract_ok,
+        "easyocr_available": easyocr_ok,
+        "tesseract_available": tesseract_ok,
+        "primary_engine": "easyocr" if easyocr_ok else ("tesseract" if tesseract_ok else None),
     }
 
 
@@ -123,10 +141,21 @@ class OCREngine:
     """
 
     def __init__(self):
-        # References to module-level singletons
-        self.easyocr_reader = _EASYOCR_READER
-        self.easyocr_available = _EASYOCR_AVAILABLE
         self.tesseract_available = _TESSERACT_AVAILABLE
+
+    @property
+    def easyocr_reader(self):
+        global _EASYOCR_READER
+        if _EASYOCR_READER is None:
+            return _init_easyocr()
+        return _EASYOCR_READER
+
+    @property
+    def easyocr_available(self) -> bool:
+        global _EASYOCR_AVAILABLE
+        if _EASYOCR_AVAILABLE is None:
+            return _can_import_easyocr()
+        return _EASYOCR_AVAILABLE
 
     def process_image(self, image_path_or_array, benchmark_mode: bool = False) -> Dict[str, Any]:
         """
@@ -252,18 +281,22 @@ class OCREngine:
                             }
                         })
 
-            if lines:
-                return {
-                    "full_text": " ".join(full_parts),
-                    "tokens": tokens,
-                    "lines": lines,
-                    "image_dims": [w, h],
-                    "ocr_engine": "easyocr"
-                }
-            return None
+            return {
+                "full_text": " ".join(full_parts),
+                "tokens": tokens,
+                "lines": lines,
+                "image_dims": [w, h],
+                "ocr_engine": "easyocr"
+            }
         except Exception as e:
             print(f"[OCR] EasyOCR processing error: {e}")
             return None
+        finally:
+            try:
+                import gc
+                gc.collect()
+            except Exception:
+                pass
 
     def _run_tesseract(self, img: np.ndarray, w: int, h: int) -> Optional[Dict[str, Any]]:
         """Run Tesseract OCR on the image. Returns None on failure."""

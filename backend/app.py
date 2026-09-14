@@ -67,7 +67,7 @@ ALLOWED_ORIGINS = [
     o.strip()
     for o in os.environ.get(
         "ALLOWED_ORIGINS",
-        "http://localhost:5173,http://127.0.0.1:5173"
+        "*"
     ).split(",")
     if o.strip()
 ]
@@ -284,31 +284,53 @@ def get_samples():
     return {"samples": samples, "count": len(samples)}
 
 
+@app.get("/api/document-types")
+def get_document_types():
+    """Returns supported document types and their human-readable labels."""
+    from backend.nlp.document_classifier import DOCUMENT_TYPES, DOCUMENT_TYPE_LABELS
+    return {
+        "supported_types": [
+            {
+                "id": dt,
+                "label": DOCUMENT_TYPE_LABELS.get(dt, dt),
+                "is_mrz_capable": dt in ["passport", "visa"]
+            }
+            for dt in DOCUMENT_TYPES
+        ],
+        "default": "auto"
+    }
+
+
 @app.post("/api/screen")
 async def screen_document(
     file: Optional[UploadFile] = File(None),
-    sample_id: Optional[str] = Form(None)
+    sample_id: Optional[str] = Form(None),
+    document_type: Optional[str] = Form(None),
+    person_image: Optional[UploadFile] = File(None)
 ):
     """
     Screens an uploaded identity document or pre-selected synthetic sample.
     
-    REAL SCREENING MODE: benchmark_mode is ALWAYS False here.
-    The pipeline will NEVER use sidecar OCR or ground truth data.
+    Supports:
+    - Document categories: passport, visa, national_id, driving_license, permit (or auto-detect)
+    - Optional biometric face verification when person_image is supplied
+    - Full explainable evidence fusion across NLP, ELA, Typography, Copy-Move, Metadata, Face
     
     Returns:
     - Authenticity score (0-100%)
-    - Categorical verdict (AUTHENTIC, SUSPICIOUS, FLAGGED / TAMPERED)
+    - Risk score & verdict (AUTHENTIC, SUSPICIOUS, FLAGGED / TAMPERED)
+    - Document classification & structured OCR schema fields
     - Unified flagged bounding box coordinates
-    - Forensic layer breakdown (NLP, ELA, Font Analysis, Copy-Move, Metadata)
+    - Face verification report (or 'not performed' notice)
     """
     temp_path = None
+    person_temp_path = None
     try:
+        # 1. Process document image
         if file and file.filename:
-            # Read and validate uploaded file
             content = await file.read()
             detected_mime = _validate_uploaded_image(content, file.filename)
 
-            # Determine safe file extension from detected MIME
             ext_map = {
                 'image/jpeg': '.jpg',
                 'image/png': '.png',
@@ -323,7 +345,6 @@ async def screen_document(
             original_filename = file.filename
 
         elif sample_id:
-            # Validate sample_id against whitelist (path traversal protection)
             target_path = _validate_sample_id(sample_id)
             original_filename = sample_id
         else:
@@ -332,12 +353,33 @@ async def screen_document(
                 detail={"error": "MISSING_INPUT", "message": "Must provide either 'file' or 'sample_id'"}
             )
 
-        # Execute screening pipeline — ALWAYS in real screening mode
-        # benchmark_mode=False means OCR sidecar/ground truth is NEVER accessed
-        result = pipeline.screen_document(target_path, benchmark_mode=False)
+        # 2. Process optional live person/selfie image
+        if person_image and person_image.filename:
+            p_content = await person_image.read()
+            p_mime = _validate_uploaded_image(p_content, person_image.filename)
+            p_ext = {
+                'image/jpeg': '.jpg',
+                'image/png': '.png',
+                'image/webp': '.webp',
+            }.get(p_mime, '.png')
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix=p_ext) as p_tmp:
+                p_tmp.write(p_content)
+                person_temp_path = p_tmp.name
+
+        # Clean document_type
+        clean_doc_type = document_type.strip().lower() if document_type and document_type.strip().lower() != "auto" else None
+
+        # Execute screening pipeline
+        result = pipeline.screen_document(
+            target_path,
+            benchmark_mode=False,
+            document_type=clean_doc_type,
+            person_image_path=person_temp_path
+        )
         result["filename"] = original_filename
 
-        # Also provide base64 of original document for the canvas viewer
+        # Provide base64 of original document for canvas viewer
         with open(target_path, "rb") as f_img:
             b64_orig = base64.b64encode(f_img.read()).decode('utf-8')
             mime = "image/jpeg" if target_path.lower().endswith((".jpg", ".jpeg")) else "image/png"
@@ -364,8 +406,7 @@ async def screen_document(
             }
         )
     except Exception as e:
-        # Never expose raw stack traces to the client
-        print(f"[SCREEN ERROR] {traceback.format_exc()}")
+        print(f"[SCREEN ERROR] Internal error occurred during document screening")
         return JSONResponse(
             status_code=500,
             content={
@@ -379,6 +420,12 @@ async def screen_document(
                 os.remove(temp_path)
             except Exception:
                 pass
+        if person_temp_path and os.path.exists(person_temp_path):
+            try:
+                os.remove(person_temp_path)
+            except Exception:
+                pass
+
 
 
 @app.get("/api/benchmark")
@@ -449,3 +496,70 @@ def get_image(filename: str):
             detail={"error": "SAMPLE_NOT_FOUND", "message": "Image not found"}
         )
     return FileResponse(path)
+
+
+@app.get("/api/download/pptx")
+@app.get("/download/pptx")
+def download_pptx():
+    """Download the final SIH 2026 presentation in PowerPoint (.pptx) format."""
+    file_path = os.path.realpath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "DocuShield_AI_SIH2026_Final_Presentation.pptx"))
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Presentation file not found.")
+    return FileResponse(
+        file_path,
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        filename="DocuShield_AI_SIH2026_Final_Presentation.pptx"
+    )
+
+
+@app.get("/api/download/pdf")
+@app.get("/download/pdf")
+def download_pdf():
+    """Download the final SIH 2026 presentation in PDF format."""
+    file_path = os.path.realpath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "DocuShield_AI_SIH2026_Final_Presentation.pdf"))
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Presentation PDF not found.")
+    return FileResponse(
+        file_path,
+        media_type="application/pdf",
+        filename="DocuShield_AI_SIH2026_Final_Presentation.pdf"
+    )
+
+
+@app.get("/api/download/reference-template")
+@app.get("/download/reference-template")
+def download_reference_template():
+    """Download the uploaded original reference SIH presentation template."""
+    file_path = os.path.realpath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploaded_reference_sih_template.pdf"))
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Reference template file not found.")
+    return FileResponse(
+        file_path,
+        media_type="application/pdf",
+        filename="uploaded_reference_sih_template.pdf"
+    )
+
+
+@app.get("/{full_path:path}")
+def serve_spa_catchall(full_path: str, request: Request):
+    """Fallback handler to serve static frontend files or index.html for client-side routing."""
+    # Never intercept API or documentation routes
+    if full_path.startswith("api/") or full_path in ("docs", "redoc", "openapi.json"):
+        raise HTTPException(status_code=404, detail="Endpoint not found")
+
+    # Serve static assets from FRONTEND_DIST if safe and existent
+    static_file = os.path.realpath(os.path.join(FRONTEND_DIST, full_path))
+    dist_real = os.path.realpath(FRONTEND_DIST)
+    if static_file.startswith(dist_real) and os.path.isfile(static_file):
+        return FileResponse(static_file)
+
+    # Only return index.html for browser page navigation
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept and os.path.exists(FRONTEND_INDEX):
+        return FileResponse(FRONTEND_INDEX)
+
+    raise HTTPException(status_code=404, detail="Not found")
+
+
+
+

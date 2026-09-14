@@ -1,0 +1,27 @@
+{
+  "passport_authentic_sample.png": {
+    "type": "passport",
+    "label": "GENUINE"
+  },
+  "passport_tampered_sample.png": {
+    "type": "passport",
+    "label": "TAMPERED",
+    "tamper": "MRZ Mismatch"
+  },
+  "visa_authentic_sample.png": {
+    "type": "visa",
+    "label": "GENUINE"
+  },
+  "national_id_sample.png": {
+    "type": "national_id",
+    "label": "GENUINE"
+  },
+  "driving_license_sample.png": {
+    "type": "driving_license",
+    "label": "GENUINE"
+  },
+  "travel_permit_sample.png": {
+    "type": "permit",
+    "label": "GENUINE"
+  }
+}

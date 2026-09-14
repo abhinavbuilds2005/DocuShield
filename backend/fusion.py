@@ -11,15 +11,20 @@ Enhanced for Real-World Robustness:
 
 import cv2
 import numpy as np
-from typing import Dict, Any, List
+import os
+from typing import Dict, Any, List, Optional
 
 from backend.nlp.ocr_engine import OCREngine
 from backend.nlp.field_validator import DocumentFieldValidator
+from backend.nlp.document_classifier import DocumentClassifier
+from backend.nlp.mrz_parser import MRZParser
 from backend.forensics.ela import ErrorLevelAnalysis
 from backend.forensics.copy_move import CopyMoveDetector
 from backend.forensics.font_alignment import FontAlignmentForensics
 from backend.forensics.metadata_checker import MetadataForensics
 from backend.forensics.condition_analyzer import DocumentConditionAnalyzer
+from backend.forensics.face_verifier import FaceVerifier
+
 
 
 def _classify_evidence_strength(score: float) -> str:
@@ -47,8 +52,17 @@ class DocumentScreeningPipeline:
         self.font_analyzer = FontAlignmentForensics()
         self.metadata_checker = MetadataForensics()
         self.condition_analyzer = DocumentConditionAnalyzer()
+        self.face_verifier = FaceVerifier()
+        self.mrz_parser = MRZParser()
+        self.document_classifier = DocumentClassifier()
 
-    def screen_document(self, image_path: str, benchmark_mode: bool = False) -> Dict[str, Any]:
+    def screen_document(
+        self,
+        image_path: str,
+        benchmark_mode: bool = False,
+        document_type: Optional[str] = None,
+        person_image_path: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Executes complete screening pipeline on a given document image path.
         
@@ -56,6 +70,8 @@ class DocumentScreeningPipeline:
             image_path: Path to the document image file
             benchmark_mode: If False (default), uses ONLY real OCR.
                           If True, may use sidecar OCR for benchmark testing.
+            document_type: Optional document type override ('passport', 'visa', 'national_id', 'driving_license', 'permit').
+            person_image_path: Optional path to live person/selfie image for biometric face verification.
         """
         img_bgr = cv2.imread(image_path)
         if img_bgr is None:
@@ -66,9 +82,16 @@ class DocumentScreeningPipeline:
         # 0. Condition Assessment (Provides context for physical & digital distortions)
         condition = self.condition_analyzer.analyze(img_bgr)
 
-        # 1. Layer 1: OCR and NLP Field Validation
+        # 1. Face Verification (if person image provided)
+        person_img = None
+        if person_image_path and os.path.exists(person_image_path):
+            person_img = cv2.imread(person_image_path)
+        face_result = self.face_verifier.verify(img_bgr, person_img)
+
+        # 2. Layer 1: OCR and NLP Field Validation
         ocr_result = self.ocr_engine.process_image(image_path, benchmark_mode=benchmark_mode)
-        nlp_result = self.field_validator.validate(ocr_result)
+        nlp_result = self.field_validator.validate(ocr_result, user_selected_type=document_type)
+
 
         # 2. Layer 2: Image Forensics (with condition context and text masking)
         text_boxes = [l.get("box") for l in ocr_result.get("lines", []) if "box" in l]
@@ -418,6 +441,47 @@ class DocumentScreeningPipeline:
             "explanation": f"Extracted {ocr_token_count} tokens across {len(ocr_result.get('lines', []))} lines with average clarity {avg_ocr_conf:.2f}."
         }
 
+        # (f) Identity Evidence: Face Verification (Biometric cross-matching)
+        if face_result.get("status") == "MATCH":
+            positive_checks.append(face_result.get("explanation"))
+            face_status = "CLEAN"
+            face_level_name = "LEVEL 1: NORMAL IMAGE ARTIFACT"
+            face_expl = face_result.get("explanation")
+        elif face_result.get("status") == "MISMATCH":
+            sig_text = face_result.get("explanation")
+            level4_strong_signals.append(sig_text)
+            critical_evidence.append(sig_text)
+            family_level4_active.add("identity")
+            face_status = "STRONG"
+            face_level_name = "LEVEL 4: STRONG FORENSIC EVIDENCE"
+            face_expl = sig_text
+        elif face_result.get("status") == "NO_FACE_IN_DOCUMENT":
+            cautions.append("No facial portrait detected in document image")
+            face_status = "WEAK"
+            face_level_name = "LEVEL 2: WEAK FORENSIC ANOMALY"
+            face_expl = face_result.get("explanation")
+        elif face_result.get("status") == "NO_FACE_IN_PERSON_IMAGE":
+            cautions.append("No face detected in presented person image")
+            face_status = "WEAK"
+            face_level_name = "LEVEL 2: WEAK FORENSIC ANOMALY"
+            face_expl = face_result.get("explanation")
+        else: # NOT_PERFORMED
+            face_status = "NOT_PERFORMED"
+            face_level_name = "NOT_PERFORMED"
+            face_expl = "Face verification not performed — person image not provided."
+
+        detector_evidence["face_verification"] = {
+            "status": face_status,
+            "confidence": face_result.get("confidence", 0.0),
+            "evidence_level": face_level_name,
+            "explanation": face_expl,
+            "similarity": face_result.get("similarity", 0.0),
+            "face_match": face_result.get("face_match"),
+            "document_face_b64": face_result.get("document_face_b64"),
+            "person_face_b64": face_result.get("person_face_b64")
+        }
+
+
         # Condition observations (blur, compression) -> Level 1
         if condition.get("is_blurry"):
             var_val = condition.get('laplacian_variance', 0.0)
@@ -504,32 +568,64 @@ class DocumentScreeningPipeline:
             fused_score = max(88.0, min(100.0, base_weighted_sum))
             rules_triggered.append("All forensic layers clean and consistent -> AUTHENTIC")
 
-        # Insufficient Evidence Policy: Severely degraded thumbnails cannot be certified authentic autonomously
-        if condition.get("condition_profile") == "SEVERELY_DEGRADED" or condition.get("resolution", {}).get("megapixels", 1.0) < 0.08:
-            if fused_score > 68.0:
-                fused_score = 65.0
-                sig_text = "Severe resolution limitation (< 0.08 MP): fine forensic features (micro-print, Guilloche lattice, ELA residuals) cannot be certified authentic autonomously. Mandatory human review required."
-                cautions.append(sig_text)
-                rules_triggered.append("Resolution insufficient for autonomous certification -> Routed to REVIEW NEEDED")
-                if diagnostic_status == "CLEAN":
-                    diagnostic_status = "ANOMALY_DETECTED"
+        # -------------------------------------------------------------
+        # Quality & Insufficient Evidence Policy: NEEDS REVIEW Handling
+        # -------------------------------------------------------------
+        # When image quality is too poor for an autonomous decision (VERY_LOW quality,
+        # unreadable critical fields, severe blur), but NO positive tampering evidence exists:
+        # Route to "NEEDS REVIEW" instead of falsely branding as FAKE or giving blind AUTHENTIC.
+        is_quality_very_low = (
+            condition.get("quality_tier") == "VERY_LOW" or
+            condition.get("condition_profile") == "SEVERELY_DEGRADED" or
+            condition.get("resolution", {}).get("megapixels", 1.0) < 0.08 or
+            (condition.get("is_blurry", False) and condition.get("blur_score", 100.0) < 45.0)
+        )
+
+        has_unverifiable_critical_field = any(
+            f.get("status") == "UNCERTAIN" and f.get("is_unverifiable_due_to_ocr")
+            for f in nlp_result.get("fields", [])
+        )
+
+        # Inconclusive evidence condition: low reliability with no definitive fraud proof
+        is_evidence_inconclusive = (
+            not is_strongly_suspected and
+            len(level5_deterministic_signals) == 0 and
+            len(level4_strong_signals) == 0 and
+            (is_quality_very_low or (has_unverifiable_critical_field and avg_ocr_conf < 0.50))
+        )
+
+        if is_evidence_inconclusive:
+            fused_score = 65.0
+            sig_text = "Image quality or field readability is insufficient for an autonomous decision. Mandatory manual human inspection recommended."
+            cautions.append(sig_text)
+            rules_triggered.append("Evidence reliability insufficient for autonomous certification -> NEEDS REVIEW")
+            diagnostic_status = "INSUFFICIENT_EVIDENCE"
 
         fused_score = round(max(0.0, min(100.0, fused_score)), 1)
         risk_score = round(max(0.0, min(100.0, 100.0 - fused_score)), 1)
 
         # Categorical Verdict
-        if fused_score >= 80.0:
+        legacy_verdict = None
+        if diagnostic_status == "INSUFFICIENT_EVIDENCE":
+            verdict = "NEEDS REVIEW"
+            legacy_verdict = "SUSPICIOUS"
+            verdict_color = "sky"
+            verdict_description = "Image quality or evidence reliability is insufficient for a confident automatic decision. Manual inspection recommended."
+        elif fused_score >= 80.0:
             verdict = "AUTHENTIC"
+            legacy_verdict = "AUTHENTIC"
             verdict_color = "emerald"
             verdict_description = "Document appears authentic with uniform compression, valid checksums, consistent typography, and authentic layout structures."
             if diagnostic_status == "ANOMALY_DETECTED":
                 verdict_description += " (Minor isolated natural artifacts noted; no significant tampering indicators detected)."
         elif fused_score >= 50.0:
             verdict = "SUSPICIOUS"
+            legacy_verdict = "SUSPICIOUS"
             verdict_color = "amber"
             verdict_description = "Document exhibits localized anomalies or format discrepancies. Secondary manual review recommended."
         else:
             verdict = "FLAGGED / TAMPERED"
+            legacy_verdict = "FLAGGED / TAMPERED"
             verdict_color = "rose"
             verdict_description = "High-confidence detection of digital forgery, text splicing, photo swap, or invalid identity credentials."
 
@@ -590,6 +686,9 @@ class DocumentScreeningPipeline:
         # Complete Forensic Decision Debug Report
         forensic_decision_debug = {
             "final_verdict": verdict,
+            "legacy_verdict": legacy_verdict or verdict,
+            "quality_tier": condition.get("quality_tier", "GOOD"),
+            "reliability_score": condition.get("reliability_score", 1.0),
             "final_risk_score": risk_score,
             "confidence": round(avg_ocr_conf if ocr_token_count > 0 else 0.90, 4),
             "diagnostic_status": diagnostic_status,
@@ -641,9 +740,10 @@ class DocumentScreeningPipeline:
         # Human Review Requirement Flag
         human_review_required = (
             verdict != "AUTHENTIC" or
-            diagnostic_status == "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED" or
+            diagnostic_status in ["DOCUMENT_STRONGLY_SUSPECTED_TAMPERED", "INSUFFICIENT_EVIDENCE"] or
             len(uncertain_fields) > 0 or
-            condition.get("is_blurry", False)
+            condition.get("is_blurry", False) or
+            condition.get("quality_tier") in ["LOW", "VERY_LOW"]
         )
 
         # Build Why This Verdict structure
@@ -661,8 +761,14 @@ class DocumentScreeningPipeline:
             "authenticity_score": fused_score,
             "risk_score": risk_score,
             "verdict": verdict,
+            "legacy_verdict": legacy_verdict or verdict,
             "verdict_color": verdict_color,
+            "quality_tier": condition.get("quality_tier", "GOOD"),
+            "reliability_score": condition.get("reliability_score", 1.0),
+            "quality_explanation": condition.get("quality_explanation", ""),
             "diagnostic_status": diagnostic_status,
+            "condition": condition,
+            "detector_evidence": detector_evidence,
             "decision_threshold": decision_threshold,
             "why_this_verdict": why_this_verdict,
             "ocr_extraction": ocr_extraction_info,
@@ -717,9 +823,69 @@ class DocumentScreeningPipeline:
                     "evidence_strength": evidence_strengths["metadata"],
                     "detected_software": metadata_result.get("detected_software"),
                     "reasons": metadata_result.get("reasons", [])
+                },
+                "face_verification": {
+                    "layer_name": "Biometric Face Verification",
+                    "status": detector_evidence["face_verification"]["status"],
+                    "similarity": face_result.get("similarity", 0.0),
+                    "face_match": face_result.get("face_match"),
+                    "details": face_result.get("explanation", "")
                 }
+            },
+            "document_type": nlp_result.get("document_type", "unknown"),
+            "document_classification": nlp_result.get("classification", {}),
+            "schema_fields": nlp_result.get("schema_fields", {}),
+            "validation_rules": nlp_result.get("validation_engine", {}).get("checks", []),
+            "face_verification": face_result,
+            "government_database_status": {
+                "status": "NOT_PERFORMED",
+                "message": "Rule-based validation only — no external government database verification performed."
+            },
+            "sih_evidence": {
+                "overall_risk_score": risk_score,
+                "risk_level": "LOW" if risk_score <= 20 else ("MEDIUM" if risk_score <= 50 else "HIGH"),
+                "verdict": verdict,
+                "evidence": [
+                    {
+                        "module": "OCR & Field Validation",
+                        "status": detector_evidence["field_validation"]["status"],
+                        "confidence": detector_evidence["field_validation"]["confidence"],
+                        "explanation": detector_evidence["field_validation"]["explanation"]
+                    },
+                    {
+                        "module": "Error Level Analysis",
+                        "status": detector_evidence["ela"]["status"],
+                        "confidence": detector_evidence["ela"]["confidence"],
+                        "explanation": detector_evidence["ela"]["explanation"]
+                    },
+                    {
+                        "module": "Copy-Move Forensics",
+                        "status": detector_evidence["copy_move"]["status"],
+                        "confidence": detector_evidence["copy_move"]["confidence"],
+                        "explanation": detector_evidence["copy_move"]["explanation"]
+                    },
+                    {
+                        "module": "Typography Analysis",
+                        "status": detector_evidence["typography"]["status"],
+                        "confidence": detector_evidence["typography"]["confidence"],
+                        "explanation": detector_evidence["typography"]["explanation"]
+                    },
+                    {
+                        "module": "Metadata Inspection",
+                        "status": detector_evidence["metadata"]["status"],
+                        "confidence": detector_evidence["metadata"]["confidence"],
+                        "explanation": detector_evidence["metadata"]["explanation"]
+                    },
+                    {
+                        "module": "Face Verification",
+                        "status": detector_evidence["face_verification"]["status"],
+                        "confidence": detector_evidence["face_verification"]["confidence"],
+                        "explanation": detector_evidence["face_verification"]["explanation"]
+                    }
+                ]
             }
         }
+
 
     def _deduplicate_boxes(self, regions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Removes or merges near-identical overlapping bounding boxes."""

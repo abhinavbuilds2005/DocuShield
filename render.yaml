@@ -1,0 +1,27 @@
+# ==============================================================================
+# Render Blueprint Specification for DocuShield AI
+# Documentation: https://render.com/docs/blueprint-spec
+# ==============================================================================
+services:
+  - type: web
+    name: docushield-ai
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: MALLOC_ARENA_MAX
+        value: "2"
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: MKL_NUM_THREADS
+        value: "1"
+

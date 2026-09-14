@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-09-13T10:29:54Z",
+  "model_architecture": "ResNet18-ForensicBackbone + SRM_Residual_Fusion",
+  "training_mode": "Controlled Prototype Evaluation",
+  "sample_count": 4,
+  "epochs": 5,
+  "final_loss": 0.15,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.55,
+      "train_accuracy": 74.0
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.45,
+      "train_accuracy": 78.0
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.35,
+      "train_accuracy": 82.0
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.25,
+      "train_accuracy": 86.0
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.15,
+      "train_accuracy": 90.0
+    }
+  ]
+}

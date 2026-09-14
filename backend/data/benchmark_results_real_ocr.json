@@ -1,6 +1,6 @@
 {
   "total_documents": 20,
-  "elapsed_seconds": 99.85,
+  "elapsed_seconds": 86.25,
   "benchmark_mode": "real_ocr",
   "dataset_composition": {
     "genuine": 9,
@@ -9,19 +9,19 @@
   },
   "qualification": "Results from 20-document synthetic benchmark (with real OCR engine). This is NOT a claim of real-world accuracy.",
   "metrics": {
-    "accuracy": 95.0,
-    "precision": 100.0,
+    "accuracy": 85.0,
+    "precision": 83.33,
     "recall": 90.91,
-    "f1_score": 95.24,
+    "f1_score": 86.96,
     "true_positives": 10,
-    "true_negatives": 9,
-    "false_positives": 0,
+    "true_negatives": 7,
+    "false_positives": 2,
     "false_negatives": 1
   },
   "confusion_matrix": {
     "TP": 10,
-    "TN": 9,
-    "FP": 0,
+    "TN": 7,
+    "FP": 2,
     "FN": 1
   },
   "details": [
@@ -33,9 +33,9 @@
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.6655,
+      "ocr_confidence": 0.6697,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -44,7 +44,7 @@
             "value": "5426 9182 3811",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 3)]",
-            "field_ocr_confidence": 0.508,
+            "field_ocr_confidence": 0.52,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           }
@@ -135,9 +135,9 @@
       "final_risk_fraud_score": 48.0,
       "authenticity_score": 52.0,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.6479,
+      "ocr_confidence": 0.6307,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -146,7 +146,7 @@
             "value": "5426 9182 3811",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 3)]",
-            "field_ocr_confidence": 0.722,
+            "field_ocr_confidence": 0.716,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           }
@@ -242,9 +242,9 @@
       "final_risk_fraud_score": 42.0,
       "authenticity_score": 58.0,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.7056,
+      "ocr_confidence": 0.6938,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 55,
         "evidence_strength": "STRONG",
         "fields": [
@@ -350,9 +350,9 @@
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.7121,
+      "ocr_confidence": 0.7249,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -361,7 +361,7 @@
             "value": "6742 1935 8123",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 0)]",
-            "field_ocr_confidence": 0.699,
+            "field_ocr_confidence": 0.713,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
@@ -458,9 +458,9 @@
       "final_risk_fraud_score": 38.0,
       "authenticity_score": 62.0,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.7234,
+      "ocr_confidence": 0.7433,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -469,7 +469,7 @@
             "value": "6742 1935 8123",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm) [Resolved via single-digit OCR optical disambiguation (8->6 at index 0)]",
-            "field_ocr_confidence": 0.724,
+            "field_ocr_confidence": 0.736,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
@@ -571,9 +571,9 @@
       "final_risk_fraud_score": 6.0,
       "authenticity_score": 94.0,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.7616,
+      "ocr_confidence": 0.7724,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 95,
         "evidence_strength": "WEAK",
         "fields": [
@@ -588,15 +588,15 @@
           },
           {
             "field": "OCR Confidence Consistency",
-            "value": "Avg: 76.2%",
+            "value": "Avg: 77.2%",
             "status": "WARNING",
-            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.25) contrast with baseline (0.76)",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.27) contrast with baseline (0.77)",
             "is_deterministic": false,
             "evidence_level": "WEAK"
           }
         ],
         "reasons": [
-          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.25) contrast with baseline (0.76)"
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.27) contrast with baseline (0.77)"
         ]
       },
       "ela_score_evidence": {
@@ -683,18 +683,18 @@
       "final_risk_fraud_score": 38.0,
       "authenticity_score": 62.0,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.7774,
+      "ocr_confidence": 0.756,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 87,
         "evidence_strength": "WEAK",
         "fields": [
           {
             "field": "Permanent Account Number (PAN)",
-            "value": "ABCPG1234F",
+            "value": "ABCFG1234F",
             "status": "PASS",
             "details": "Valid 10-character Tax ID structure (Entity code verified)",
-            "field_ocr_confidence": 0.631,
+            "field_ocr_confidence": 0.618,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
@@ -709,16 +709,16 @@
           },
           {
             "field": "OCR Confidence Consistency",
-            "value": "Avg: 77.7%",
+            "value": "Avg: 75.6%",
             "status": "WARNING",
-            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.78)",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.76)",
             "is_deterministic": false,
             "evidence_level": "WEAK"
           }
         ],
         "reasons": [
           "Uncertain date entry: '31/02/1988' has low OCR clarity (0.65 < 0.65)",
-          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.78)"
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.76)"
         ]
       },
       "ela_score_evidence": {
@@ -810,32 +810,32 @@
       "final_risk_fraud_score": 48.0,
       "authenticity_score": 52.0,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.7453,
+      "ocr_confidence": 0.7352,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 95,
         "evidence_strength": "WEAK",
         "fields": [
           {
             "field": "Permanent Account Number (PAN)",
-            "value": "ABCFG1234F",
+            "value": "ABCPG1234F",
             "status": "PASS",
             "details": "Valid 10-character Tax ID structure (Entity code verified)",
-            "field_ocr_confidence": 0.65,
+            "field_ocr_confidence": 0.657,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
           {
             "field": "OCR Confidence Consistency",
-            "value": "Avg: 74.5%",
+            "value": "Avg: 73.5%",
             "status": "WARNING",
-            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.75)",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.23) contrast with baseline (0.74)",
             "is_deterministic": false,
             "evidence_level": "WEAK"
           }
         ],
         "reasons": [
-          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.75)"
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.23) contrast with baseline (0.74)"
         ]
       },
       "ela_score_evidence": {
@@ -926,9 +926,9 @@
       "final_risk_fraud_score": 6.0,
       "authenticity_score": 94.0,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.806,
+      "ocr_confidence": 0.7927,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 95,
         "evidence_strength": "WEAK",
         "fields": [
@@ -949,15 +949,15 @@
           },
           {
             "field": "OCR Confidence Consistency",
-            "value": "Avg: 80.6%",
+            "value": "Avg: 79.3%",
             "status": "WARNING",
-            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.81)",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.79)",
             "is_deterministic": false,
             "evidence_level": "WEAK"
           }
         ],
         "reasons": [
-          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.81)"
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.79)"
         ]
       },
       "ela_score_evidence": {
@@ -1044,9 +1044,9 @@
       "final_risk_fraud_score": 42.0,
       "authenticity_score": 58.0,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.7864,
+      "ocr_confidence": 0.7991,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 60,
         "evidence_strength": "STRONG",
         "fields": [
@@ -1054,8 +1054,8 @@
             "field": "Permanent Account Number (PAN)",
             "value": "Missing / Unresolvable",
             "status": "FAIL",
-            "details": "Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.79). Forensic review required.",
-            "field_ocr_confidence": 0.7863953488372093,
+            "details": "Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.80). Forensic review required.",
+            "field_ocr_confidence": 0.7991162790697675,
             "is_deterministic": true,
             "evidence_level": "MODERATE"
           },
@@ -1067,16 +1067,16 @@
           },
           {
             "field": "OCR Confidence Consistency",
-            "value": "Avg: 78.6%",
+            "value": "Avg: 79.9%",
             "status": "WARNING",
-            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.79)",
+            "details": "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.27) contrast with baseline (0.80)",
             "is_deterministic": false,
             "evidence_level": "WEAK"
           }
         ],
         "reasons": [
-          "Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.79). Forensic review required.",
-          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.24) contrast with baseline (0.79)"
+          "Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.80). Forensic review required.",
+          "Minor OCR confidence disparity on 1 word(s): 'MCCK\"SPECIMENDNOT' (0.27) contrast with baseline (0.80)"
         ]
       },
       "ela_score_evidence": {
@@ -1155,7 +1155,7 @@
       ],
       "flagged_regions_count": 0,
       "critical_triggers": [
-        "Deterministic checksum/format failure: Permanent Account Number (PAN): Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.79). Forensic review required."
+        "Deterministic checksum/format failure: Permanent Account Number (PAN): Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.80). Forensic review required."
       ],
       "ocr_engine": "easyocr"
     },
@@ -1167,12 +1167,21 @@
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.6157,
+      "ocr_confidence": 0.6349,
       "field_validation_checksum_results": {
-        "document_type": "dl",
+        "document_type": "driving_license",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "DL-1420110012345",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (DL-1420110012345)",
+            "field_ocr_confidence": 0.746,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "DL-1420110012345",
@@ -1272,12 +1281,21 @@
       "final_risk_fraud_score": 58.0,
       "authenticity_score": 42.0,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.6157,
+      "ocr_confidence": 0.6154,
       "field_validation_checksum_results": {
-        "document_type": "dl",
+        "document_type": "driving_license",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "DL-1420110012345",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (DL-1420110012345)",
+            "field_ocr_confidence": 0.994,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "DL-1420110012345",
@@ -1386,12 +1404,21 @@
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.6032,
+      "ocr_confidence": 0.6156,
       "field_validation_checksum_results": {
-        "document_type": "dl",
+        "document_type": "driving_license",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "DL-1420110012345",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (DL-1420110012345)",
+            "field_ocr_confidence": 0.746,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "DL-1420110012345",
@@ -1490,16 +1517,25 @@
       "document_id": "mock_dl_04_genuine.png",
       "filename": "mock_dl_04_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
-      "final_risk_fraud_score": 0.5,
-      "authenticity_score": 99.5,
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 42.0,
+      "authenticity_score": 58.0,
       "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.6273,
+      "ocr_confidence": 0.6261,
       "field_validation_checksum_results": {
-        "document_type": "dl",
-        "score": 100,
-        "evidence_strength": "CLEAN",
+        "document_type": "driving_license",
+        "score": 65,
+        "evidence_strength": "STRONG",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "KL-0720190054321",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (KL-0720190054321)",
+            "field_ocr_confidence": 0.758,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "KL-0720190054321",
@@ -1511,121 +1547,18 @@
             "value": "15/10/2019, 14/10/2039",
             "status": "PASS",
             "details": "Parsed 2 chronological date(s) successfully"
-          }
-        ],
-        "reasons": []
-      },
-      "ela_score_evidence": {
-        "score": 98.0,
-        "evidence_strength": "CLEAN",
-        "hotspot_count": 0,
-        "metrics": {
-          "mean_error": 4.21,
-          "std_error": 11.67,
-          "max_error": 150.0
-        }
-      },
-      "copy_move_score_evidence": {
-        "score": 100.0,
-        "evidence_strength": "CLEAN",
-        "detected": false,
-        "details": "No cloned texture or copy-move forgery patterns identified"
-      },
-      "typography_rendering_anomaly_score_evidence": {
-        "score": 100.0,
-        "evidence_strength": "CLEAN",
-        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
-      },
-      "metadata_anomaly_score_evidence": {
-        "score": 100.0,
-        "evidence_strength": "CLEAN",
-        "detected_software": null,
-        "reasons": []
-      },
-      "fusion_contributions": {
-        "nlp": {
-          "weight": 0.3,
-          "raw_score": 100,
-          "weighted_score": 30.0,
-          "evidence_strength": "CLEAN"
-        },
-        "ela": {
-          "weight": 0.25,
-          "raw_score": 98.0,
-          "weighted_score": 24.5,
-          "evidence_strength": "CLEAN"
-        },
-        "font": {
-          "weight": 0.2,
-          "raw_score": 100.0,
-          "weighted_score": 20.0,
-          "evidence_strength": "CLEAN"
-        },
-        "copy_move": {
-          "weight": 0.15,
-          "raw_score": 100.0,
-          "weighted_score": 15.0,
-          "evidence_strength": "CLEAN"
-        },
-        "metadata": {
-          "weight": 0.1,
-          "raw_score": 100.0,
-          "weighted_score": 10.0,
-          "evidence_strength": "CLEAN"
-        },
-        "base_weighted_sum": 99.5,
-        "penalties_applied": [
-          "All forensic layers clean and consistent -> AUTHENTIC"
-        ],
-        "diagnostic_status": "CLEAN"
-      },
-      "final_decision_threshold": {
-        "authenticity_threshold": 80.0,
-        "risk_threshold": 20.0,
-        "suspicious_threshold": 50.0,
-        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
-      },
-      "classification_status": "CORRECT_GENUINE",
-      "tampering_types": [],
-      "flagged_regions_count": 0,
-      "critical_triggers": [],
-      "ocr_engine": "easyocr"
-    },
-    {
-      "document_id": "mock_dl_05_tampered_chronology.png",
-      "filename": "mock_dl_05_tampered_chronology.png",
-      "ground_truth_label": "TAMPERED",
-      "final_prediction": "SUSPICIOUS",
-      "final_risk_fraud_score": 38.0,
-      "authenticity_score": 62.0,
-      "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.6233,
-      "field_validation_checksum_results": {
-        "document_type": "dl",
-        "score": 50,
-        "evidence_strength": "STRONG",
-        "fields": [
-          {
-            "field": "Driving Licence Number",
-            "value": "KL-0720190054321",
-            "status": "PASS",
-            "details": "Standard state code & series pattern valid"
           },
           {
-            "field": "Detected Dates",
-            "value": "15/10/2019, 14/10/2015",
-            "status": "PASS",
-            "details": "Parsed 2 chronological date(s) successfully"
-          },
-          {
-            "field": "Date Chronology",
-            "value": "15/10/2019 -> 14/10/2015",
+            "field": "Chronology (Issue vs Expiry)",
+            "value": "Logic Contradiction",
             "status": "FAIL",
-            "details": "Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)"
+            "details": "Chronological Contradiction: Expiry date is before or equal to Issue date",
+            "is_deterministic": true,
+            "evidence_level": "STRONG"
           }
         ],
         "reasons": [
-          "Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)"
+          "Chronological Contradiction: Expiry date is before or equal to Issue date"
         ]
       },
       "ela_score_evidence": {
@@ -1658,8 +1591,8 @@
       "fusion_contributions": {
         "nlp": {
           "weight": 0.3,
-          "raw_score": 50,
-          "weighted_score": 15.0,
+          "raw_score": 65,
+          "weighted_score": 19.5,
           "evidence_strength": "STRONG"
         },
         "ela": {
@@ -1686,11 +1619,153 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 84.5,
+        "base_weighted_sum": 89.0,
         "penalties_applied": [
-          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS / REVIEW NEEDED"
+          "Single deterministic integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
         ],
-        "diagnostic_status": "ANOMALY_DETECTED"
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "FALSE_POSITIVE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [
+        "Deterministic checksum/format failure: Chronology (Issue vs Expiry): Chronological Contradiction: Expiry date is before or equal to Issue date"
+      ],
+      "ocr_engine": "easyocr"
+    },
+    {
+      "document_id": "mock_dl_05_tampered_chronology.png",
+      "filename": "mock_dl_05_tampered_chronology.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "FLAGGED / TAMPERED",
+      "final_risk_fraud_score": 55.5,
+      "authenticity_score": 44.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.6285,
+      "field_validation_checksum_results": {
+        "document_type": "driving_license",
+        "score": 0,
+        "evidence_strength": "STRONG",
+        "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "KL-0720190054321",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (KL-0720190054321)",
+            "field_ocr_confidence": 0.743,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Driving Licence Number",
+            "value": "KL-0720190054321",
+            "status": "PASS",
+            "details": "Standard state code & series pattern valid"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "15/10/2019, 14/10/2015",
+            "status": "PASS",
+            "details": "Parsed 2 chronological date(s) successfully"
+          },
+          {
+            "field": "Date Chronology",
+            "value": "15/10/2019 -> 14/10/2015",
+            "status": "FAIL",
+            "details": "Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)"
+          },
+          {
+            "field": "Chronology (DOB vs Issue)",
+            "value": "Logic Contradiction",
+            "status": "FAIL",
+            "details": "Chronological Contradiction: Issue date is on or before Date of Birth",
+            "is_deterministic": true,
+            "evidence_level": "STRONG"
+          },
+          {
+            "field": "Chronology (Issue vs Expiry)",
+            "value": "Logic Contradiction",
+            "status": "FAIL",
+            "details": "Chronological Contradiction: Expiry date is before or equal to Issue date",
+            "is_deterministic": true,
+            "evidence_level": "STRONG"
+          }
+        ],
+        "reasons": [
+          "Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)",
+          "Chronological Contradiction: Issue date is on or before Date of Birth",
+          "Chronological Contradiction: Expiry date is before or equal to Issue date"
+        ]
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 4.21,
+          "std_error": 11.67,
+          "max_error": 150.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 0,
+          "weighted_score": 0.0,
+          "evidence_strength": "STRONG"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 69.5,
+        "penalties_applied": [
+          "Single deterministic integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
+        ],
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
       },
       "final_decision_threshold": {
         "authenticity_threshold": 80.0,
@@ -1704,7 +1779,7 @@
       ],
       "flagged_regions_count": 1,
       "critical_triggers": [
-        "Field validation mismatch: Date Chronology: Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)"
+        "Deterministic checksum/format failure: Chronology (DOB vs Issue): Chronological Contradiction: Issue date is on or before Date of Birth; Chronology (Issue vs Expiry): Chronological Contradiction: Expiry date is before or equal to Issue date"
       ],
       "ocr_engine": "easyocr"
     },
@@ -1718,7 +1793,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.7019,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -1820,7 +1895,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.7084,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -1926,7 +2001,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.7664,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 95,
         "evidence_strength": "WEAK",
         "fields": [
@@ -2038,7 +2113,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.6194,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -2138,16 +2213,25 @@
       "document_id": "mock_dl_06_genuine.png",
       "filename": "mock_dl_06_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
-      "final_risk_fraud_score": 0.5,
-      "authenticity_score": 99.5,
+      "final_prediction": "SUSPICIOUS",
+      "final_risk_fraud_score": 42.0,
+      "authenticity_score": 58.0,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.6206,
       "field_validation_checksum_results": {
-        "document_type": "dl",
-        "score": 100,
-        "evidence_strength": "CLEAN",
+        "document_type": "driving_license",
+        "score": 65,
+        "evidence_strength": "STRONG",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "PB0220080078901",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (PB0220080078901)",
+            "field_ocr_confidence": 0.941,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "PB0220080078901",
@@ -2159,9 +2243,19 @@
             "value": "20/05/2008, 19/05/2028",
             "status": "PASS",
             "details": "Parsed 2 chronological date(s) successfully"
+          },
+          {
+            "field": "Chronology (Issue vs Expiry)",
+            "value": "Logic Contradiction",
+            "status": "FAIL",
+            "details": "Chronological Contradiction: Expiry date is before or equal to Issue date",
+            "is_deterministic": true,
+            "evidence_level": "STRONG"
           }
         ],
-        "reasons": []
+        "reasons": [
+          "Chronological Contradiction: Expiry date is before or equal to Issue date"
+        ]
       },
       "ela_score_evidence": {
         "score": 98.0,
@@ -2193,9 +2287,9 @@
       "fusion_contributions": {
         "nlp": {
           "weight": 0.3,
-          "raw_score": 100,
-          "weighted_score": 30.0,
-          "evidence_strength": "CLEAN"
+          "raw_score": 65,
+          "weighted_score": 19.5,
+          "evidence_strength": "STRONG"
         },
         "ela": {
           "weight": 0.25,
@@ -2221,11 +2315,11 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 99.5,
+        "base_weighted_sum": 89.0,
         "penalties_applied": [
-          "All forensic layers clean and consistent -> AUTHENTIC"
+          "Single deterministic integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
         ],
-        "diagnostic_status": "CLEAN"
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
       },
       "final_decision_threshold": {
         "authenticity_threshold": 80.0,
@@ -2233,10 +2327,12 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_GENUINE",
+      "classification_status": "FALSE_POSITIVE",
       "tampering_types": [],
       "flagged_regions_count": 0,
-      "critical_triggers": [],
+      "critical_triggers": [
+        "Deterministic checksum/format failure: Chronology (Issue vs Expiry): Chronological Contradiction: Expiry date is before or equal to Issue date"
+      ],
       "ocr_engine": "easyocr"
     }
   ],

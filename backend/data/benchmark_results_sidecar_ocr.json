@@ -1,6 +1,6 @@
 {
   "total_documents": 20,
-  "elapsed_seconds": 1.68,
+  "elapsed_seconds": 2.83,
   "benchmark_mode": "sidecar_ocr",
   "dataset_composition": {
     "genuine": 9,
@@ -35,7 +35,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9583,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -143,7 +143,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9583,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -256,7 +256,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9583,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 55,
         "evidence_strength": "STRONG",
         "fields": [
@@ -370,7 +370,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9583,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -478,7 +478,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9143,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -591,7 +591,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -699,7 +699,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.904,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 92,
         "evidence_strength": "WEAK",
         "fields": [
@@ -817,7 +817,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -927,7 +927,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -1035,7 +1035,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 65,
         "evidence_strength": "STRONG",
         "fields": [
@@ -1149,10 +1149,19 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9607,
       "field_validation_checksum_results": {
-        "document_type": "dl",
+        "document_type": "driving_license",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "DL-1420110012345",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (DL-1420110012345)",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "DL-1420110012345",
@@ -1254,10 +1263,19 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9607,
       "field_validation_checksum_results": {
-        "document_type": "dl",
+        "document_type": "driving_license",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "DL-1420110012345",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (DL-1420110012345)",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "DL-1420110012345",
@@ -1368,10 +1386,19 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.8768,
       "field_validation_checksum_results": {
-        "document_type": "dl",
+        "document_type": "driving_license",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "DL-1420110012345",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (DL-1420110012345)",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "DL-1420110012345",
@@ -1476,10 +1503,19 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9607,
       "field_validation_checksum_results": {
-        "document_type": "dl",
+        "document_type": "driving_license",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "KL-0720190054321",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (KL-0720190054321)",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "KL-0720190054321",
@@ -1575,16 +1611,25 @@
       "document_id": "mock_dl_05_tampered_chronology.png",
       "filename": "mock_dl_05_tampered_chronology.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "SUSPICIOUS",
-      "final_risk_fraud_score": 38.0,
-      "authenticity_score": 62.0,
+      "final_prediction": "FLAGGED / TAMPERED",
+      "final_risk_fraud_score": 51.0,
+      "authenticity_score": 49.0,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9607,
       "field_validation_checksum_results": {
-        "document_type": "dl",
-        "score": 50,
+        "document_type": "driving_license",
+        "score": 15,
         "evidence_strength": "STRONG",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "KL-0720190054321",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (KL-0720190054321)",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "KL-0720190054321",
@@ -1602,10 +1647,19 @@
             "value": "15/10/2019 -> 14/10/2015",
             "status": "FAIL",
             "details": "Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)"
+          },
+          {
+            "field": "Chronology (Issue vs Expiry)",
+            "value": "Logic Contradiction",
+            "status": "FAIL",
+            "details": "Chronological Contradiction: Expiry date is before or equal to Issue date",
+            "is_deterministic": true,
+            "evidence_level": "STRONG"
           }
         ],
         "reasons": [
-          "Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)"
+          "Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)",
+          "Chronological Contradiction: Expiry date is before or equal to Issue date"
         ]
       },
       "ela_score_evidence": {
@@ -1638,8 +1692,8 @@
       "fusion_contributions": {
         "nlp": {
           "weight": 0.3,
-          "raw_score": 50,
-          "weighted_score": 15.0,
+          "raw_score": 15,
+          "weighted_score": 4.5,
           "evidence_strength": "STRONG"
         },
         "ela": {
@@ -1666,11 +1720,11 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 84.5,
+        "base_weighted_sum": 74.0,
         "penalties_applied": [
-          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS / REVIEW NEEDED"
+          "Single deterministic integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
         ],
-        "diagnostic_status": "ANOMALY_DETECTED"
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
       },
       "final_decision_threshold": {
         "authenticity_threshold": 80.0,
@@ -1684,7 +1738,7 @@
       ],
       "flagged_regions_count": 1,
       "critical_triggers": [
-        "Field validation mismatch: Date Chronology: Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)"
+        "Deterministic checksum/format failure: Chronology (Issue vs Expiry): Chronological Contradiction: Expiry date is before or equal to Issue date"
       ],
       "ocr_engine": "sidecar"
     },
@@ -1698,7 +1752,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9626,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -1806,7 +1860,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9626,
       "field_validation_checksum_results": {
-        "document_type": "aadhaar",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -1919,7 +1973,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -2027,7 +2081,7 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "pan",
+        "document_type": "national_id",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
@@ -2139,10 +2193,19 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9607,
       "field_validation_checksum_results": {
-        "document_type": "dl",
+        "document_type": "driving_license",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
+          {
+            "field": "Driving Licence Number Format",
+            "value": "PB-0220080078901",
+            "status": "PASS",
+            "details": "Valid state code and licence structure (PB-0220080078901)",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
           {
             "field": "Driving Licence Number",
             "value": "PB-0220080078901",

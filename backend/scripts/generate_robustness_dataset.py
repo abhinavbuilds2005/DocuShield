@@ -8,6 +8,13 @@ All documents have distinct names, IDs, dates, and locations not present in the 
 """
 
 import os
+import sys
+
+# Ensure repository root is on sys.path for direct script invocation
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
+
 import cv2
 import json
 import numpy as np

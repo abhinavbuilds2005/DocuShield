@@ -188,7 +188,8 @@ def test_category_i_blurred_document(pipeline, tmp_path):
 
     res = pipeline.screen_document(blurred_path, benchmark_mode=True)
     # Should not produce a false positive tamper verdict
-    assert res["verdict"] in ["AUTHENTIC", "SUSPICIOUS"]
+    assert res["verdict"] in ["AUTHENTIC", "SUSPICIOUS", "NEEDS REVIEW"]
+    assert res["verdict"] != "FLAGGED / TAMPERED"
     assert res["diagnostic_status"] != "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
     # Condition assessment should record blur
     assert res["condition_assessment"]["is_blurry"] is True

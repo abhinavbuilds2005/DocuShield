@@ -8,190 +8,258 @@ app_port: 7860
 pinned: false
 ---
 
-# DocuShield AI: AI-Based Identity & Document Forensic Screening System
+# DocuShield AI: AI-Based Fake Identity & Document Screening System
 **Smart India Hackathon (SIH 2026) — Problem Statement SIH26188**
 
-A multi-layered AI, computer vision, and document forensics system designed to screen, detect, and explain tampering indicators in identity documents (Aadhaar-style, PAN-style, Driving License, and voter cards) using a multimodal fusion of **Text/NLP Field Validation** and **Image Forensics Tampering Detection**.
+DocuShield AI is an enterprise-grade, multimodal forensic screening platform built to verify document authenticity, extract key identity attributes, detect digital tampering, and validate biometric credentials across five core identity document categories.
 
-> **Important Forensic Notice**: This system performs **forensic risk assessment and tampering indicator detection**. It provides explainable supporting evidence for human reviewers; it does **not** claim to provide infallible or guaranteed fraud detection.
+> **Honesty & Forensic Disclaimer**:
+> 1. **Rule-Based Validation**: All field, pattern, and checksum evaluations are performed locally using deterministic rule sets. **No external government database verification is performed or simulated.**
+> 2. **Transparent Model Architecture**: Document classification currently relies on layout heuristics, ICAO MRZ signatures, and keyword matching. Future ML model training pipelines are scaffolded in `training/` with reproducible training scripts ready for real-world datasets.
+> 3. **Non-Infallible Decision Support**: This system assesses forensic risk and presents explainable corroborating evidence to empower human border/immigration and verification officers; it does not claim autonomous infallibility.
 
 ---
 
-## Architecture Overview
+## 1. Supported Document Categories
+
+DocuShield provides dedicated schema parsing, structural validation, and classification for:
+
+1. **Passport**:
+   - ICAO Doc 9303 TD3 (2×44) and TD1/TD2 Machine Readable Zone (MRZ) parser.
+   - 7-3-1 weighted modulus 10 check digit verification for Document Number, Date of Birth, Date of Expiry, and Composite check digits.
+   - Cross-consistency verification between MRZ and visible OCR text.
+2. **Visa**:
+   - Extraction and validation of Visa Number, Holder Name, Nationality, Date of Birth, Visa Type, Issue Date, Expiry Date, Entries, Duration of Stay, and Issuing Authority.
+3. **National Identity Card**:
+   - Indian 12-digit Aadhaar / UID with strict Verhoeff checksum algorithm (D5 dihedral group).
+   - Tax ID / PAN alphanumeric structure validation (entity type and surname initial consistency).
+   - Citizen ID generic layout parsing with age range plausibility checks.
+4. **Driving Licence**:
+   - Jurisdictional state/union code verification (e.g., `DL`, `MH`, `KA`, `TN`, `UP`).
+   - Vehicle class authorization extraction (LMV, MCWG, HMV).
+   - Plausible issue-to-expiry validity span verification.
+5. **Permit / Travel Authorization**:
+   - Permit identifier validation, nationality, travel validity windows, permit purpose, and issuing authority.
+
+---
+
+## 2. Core Architectural Modules
 
 ```
-                                  Uploaded Document Image
+                           Uploaded Document (+ Optional Selfie)
                                              │
-                         ┌───────────────────┴───────────────────┐
-                         ▼                                       ▼
-             [Layer 1: NLP & Field Logic]             [Layer 2: Image Forensics]
-          • Real OCR (EasyOCR / Tesseract)         • Error Level Analysis (ELA)
-          • Normalized BBox Coordinates            • Copy-Move Keypoint Matching + RANSAC
-          • Verhoeff Checksum Algorithm (12-digit) • Typography & Laplacian Variance
-          • PAN Tax Entity Alphanumeric Regex      • EXIF & Software Signatures
-          • Chronological Date Logic & Formats     • Pixel-Level Gradient Maps
-                         │                                       │
-                         └───────────────────┬───────────────────┘
+      ┌──────────────────────────────────────┼──────────────────────────────────────┐
+      ▼                                      ▼                                      ▼
+[Module 1: OCR Extraction]      [Module 3: Tampering Detection]       [Module 4: Face Verification]
+• Document Classifier (Auto/Manual) • Error Level Analysis (ELA)          • Document Face Detection (Haar)
+• EasyOCR / Tesseract Fallback      • Copy-Move (ORB + RANSAC)            • Live Person Face Detection
+• Normalized & Bounding Boxes       • Typography & Laplacian Variance     • HSV/Gradient Similarity Score
+• Document-Specific JSON Schemas    • EXIF Software Signatures (Adobe)    • Graceful "Not Performed" Handling
+      │                             • Condition Analyzer (Blur/Quality)                     │
+      ▼                                      │                                             │
+[Module 2: Document Validation]              │                                             │
+• ICAO Doc 9303 MRZ Check Digits             │                                             │
+• Date Chronology (DOB < Issue < Expiry)     │                                             │
+• Algorithmic Checksum (Verhoeff for UID)    │                                             │
+• Rule-Based Disclaimer Notice               │                                             │
+      │                                      │                                             │
+      └──────────────────────────────────────┼─────────────────────────────────────────────┘
                                              ▼
-                              [Multimodal Fusion Engine]
-                           • Calibrated Authenticity Score (0-100%)
-                           • 3-Tier Categorical Verdict (AUTHENTIC, SUSPICIOUS, FLAGGED)
-                           • Evidence Strength Classification per Signal
-                           • Multi-Layer Corroboration Scoring (No Single-Veto Blind Spots)
-                           • Unified Flagged Bounding Box Overlays
+                             [Multimodal Evidence Fusion Engine]
+                              • 5-Level Hierarchical Evidence Fusion
+                              • Multi-Family Corroboration (Text, Image, Identity)
+                              • Unified Risk Score [0 - 100%] & Calibrated Verdict:
+                                [AUTHENTIC | SUSPICIOUS | FLAGGED / TAMPERED]
+                              • Explainable Evidence Item List for Human Reviewers
                                              │
                                              ▼
-                              [Modern React UI Dashboard]
-                           • Interactive Forensic Canvas with SVG Bounding Boxes
-                           • Toggleable ELA Heatmaps & Edge Gradient Maps
-                           • Quick Test Carousel (20 Synthetic Paired Cards)
-                           • Sidecar-Free Real-OCR Benchmark Evaluation
+                             [Interactive Forensic UI Dashboard]
+                              • React 18 + Vite Canvas Inspector
+                              • Document Category Dropdown (Auto-Detect / Manual)
+                              • Live Person Selfie Uploader & Biometric Card
+                              • Document-Specific Field Extraction Table
+                              • Interactive Forensic Canvas with SVG Overlays
 ```
 
----
+### Module 1 — OCR Extraction (`backend/nlp/`)
+- **Document Classifier** (`document_classifier.py`): Automatically classifies inputs into `passport`, `visa`, `national_id`, `driving_license`, or `permit` using MRZ signatures, structural keywords, or user selection overrides.
+- **OCR Engine** (`ocr_engine.py`): Singleton running EasyOCR with Tesseract fallback. Extracts raw text, word tokens, confidences, and normalized bounding boxes `[0, 1]`.
+- **Field Schemas**: Standardized `{ "value": "...", "confidence": float, "status": "valid|invalid|unknown" }` schema mappings.
 
-## Key Detection Layers
+### Module 2 — Document Validation (`backend/nlp/`)
+- **MRZ Parser** (`mrz_parser.py`): Fully compliant ICAO 9303 TD3 parser. Computes and checks:
+  $$\text{Check Digit} = \left( \sum_{i} \text{char\_val}(c_i) \times w_i \right) \pmod{10}, \quad w \in \{7, 3, 1\}$$
+- **Date Chronology**: Verifies calendar syntax, plausible age ranges (1920–present), and ensures `DOB < Issue Date < Expiry Date`.
+- **Selective Checksum Policy**: Verhoeff checksum algorithm is strictly isolated to 12-digit Indian National ID cards; it is never erroneously applied to passports, visas, or driving licences.
 
-### 1. Text / NLP Field Validation
-- **Real OCR Processing**: Runs EasyOCR as primary neural text recognizer, producing token-level and line-level text with both absolute pixel coordinates and normalized coordinates `[0, 1]`.
-- **Strict Mode Separation**: Real document screening (`POST /api/screen`) **never** reads sidecar `.ocr.json` or `ground_truth.json` files. If OCR fails or is unavailable, a structured `OCR_UNAVAILABLE` error is returned; fake placeholder OCR is never returned.
-- **Verhoeff Checksum Verification**: Validates 12-digit national identity numbers against the D5 dihedral group permutation tables. Altered or fabricated digits are flagged as strong supporting evidence.
-- **Tax ID / PAN Alphanumeric Pattern**: Enforces 10-character structure (`ABCDE1234F`), checking that the 4th character matches official entity types (e.g., `P` for Person) and the 5th character matches the surname initial.
-- **Chronological Date Consistency**: Validates calendar plausibility and chronological relationships (e.g., driving license expiry must follow issue date).
+### Module 3 — Tampering Detection (`backend/forensics/`)
+- **Error Level Analysis (ELA)** (`ela.py`): Measures localized JPEG recompression error at 90% quality to detect cut-and-paste seams, font splicing, and compression discrepancies.
+- **Copy-Move Forgery Detection** (`copy_move.py`): Extracts ORB descriptors, eliminates self-matches, clusters spatial displacement vectors, and performs RANSAC homography estimation to detect cloned stamps, graphics, or text blocks.
+- **Typography & Font Alignment** (`font_alignment.py`): Analyzes stroke sharpness via local Laplacian variance, edge gradients, and token confidence disparities.
+- **Metadata Forensics** (`metadata_checker.py`): Parses EXIF markers and detects traces of image manipulation software (Adobe Photoshop, GIMP, Canva).
+- **Document Condition Analyzer** (`condition_analyzer.py`): Quantifies image resolution, blur (Laplacian variance), and JPEG quality metrics.
 
-### 2. Image Forensics Tampering Detection
-- **Error Level Analysis (ELA)**: Recompresses the image at 90% JPEG quality to measure localized quantization error. Regions altered or pasted with differing compression histories exhibit elevated error hotspots. Includes format-awareness notes for PNG vs. JPEG inputs.
-- **Typography & Rendering Forensics**: Evaluates stroke sharpness via local Laplacian variance, edge density via Canny gradients, and relative OCR token confidence. Flags words that exhibit statistically significant sharpness and edge disparity relative to the line baseline.
-- **Copy-Move Forgery Detection**: Employs ORB feature descriptors with self-match elimination, Lowe's ratio test, spatial displacement clustering, and RANSAC geometric affine verification to detect cloned graphics, stamps, or duplicated background patches.
-- **Metadata & EXIF Inspection**: Inspects embedded image headers and EXIF fields, checking for editing software signatures (Adobe Photoshop, Canva, GIMP) and anomalies.
-
-### 3. Multimodal Evidence Fusion
-- Calculates a weighted authenticity score (NLP 30%, ELA 25%, Typography 20%, Copy-Move 15%, Metadata 10%).
-- Implements **multi-layer corroboration**: a single anomaly reduces confidence or shifts verdict to `SUSPICIOUS`, while multiple concurring forensic signals lower the score into `FLAGGED / TAMPERED`.
-
----
-
-## Security & Robustness Measures
-
-- **File Upload Limits**: Enforces a strict 10 MB upload ceiling.
-- **Magic Byte Inspection**: Validates true binary signatures for JPEG (`FF D8 FF`), PNG (`89 50 4E 47`), and WebP (`RIFF...WEBP`). Rejects mismatched Content-Types.
-- **Decompression Bomb Protection**: Guarded against pixel floods with dimension limits (maximum 8192×8192 pixels) and `PIL.Image.MAX_IMAGE_PIXELS` capping.
-- **Path Traversal Prevention**: User-provided `sample_id` and `/api/image/{filename}` parameters are strictly checked against a dataset whitelist and validated with `os.path.realpath` containment checks.
-- **CORS Hardening**: Configurable allowed origins via the `ALLOWED_ORIGINS` environment variable (defaults to local Vite dev server).
-- **Structured Error Responses**: Clean JSON errors (`FILE_TOO_LARGE`, `UNSUPPORTED_FORMAT`, `CORRUPT_IMAGE`, `OCR_UNAVAILABLE`, `SAMPLE_NOT_FOUND`) without leaking raw Python stack traces.
+### Module 4 — Face Verification (`backend/forensics/face_verifier.py`)
+- Detects the portrait in the document using OpenCV cascade models and extracts the cropped face thumbnail.
+- If a live person / selfie image is supplied, detects and aligns the person's face.
+- Computes structural similarity, multi-channel HSV color histogram correlation, and gradient orientation similarity.
+- Returns match confidence, similarity percentage [0–100%], and side-by-side cropped face previews.
+- **Graceful Handling**: If no live person photo is provided, reports:
+  `"Face verification not performed — person image not provided."` (never assumes or claims verification).
 
 ---
 
-## Ethical Synthetic Data Strategy
+## 3. Explainable Evidence Fusion
 
-1. **No Real PII**: No real government identity cards or citizen data are collected, scraped, or stored.
-2. **Procedural Generation**: All templates are programmatically generated using Pillow with stylized avatar silhouettes and fictitious identities (e.g., "Aarav Sharma", "Priya Verma").
-3. **Mandatory Watermarking**: Every generated card (both baseline and tampered) carries explicit, prominent watermarks:
-   - Header: `"SAMPLE / MOCK — NOT A REAL GOVERNMENT DOCUMENT — SIH 2026 DEMO"`
-   - Diagonal Banner: `"MOCK / SPECIMEN — NOT REAL ID"`
-   - Footer: `"SYNTHETIC FICTIONAL TEST DATASET — ETHICAL AI RESEARCH ONLY"`
-4. **20-Document Synthetic Test Suite**: 9 genuine baseline cards + 11 tampered variants with specific attack vectors (photo swap, checksum corruption, date splicing, copy-move cloning, font splicing, metadata tampering).
+DocuShield organizes all signals into a structured 5-level hierarchy across three independent evidence families:
+1. **Compression Family**: ELA error levels, DCT grid uniformity, JPEG quality index.
+2. **Structural / Visual Family**: Cut seams, copy-move feature clusters, typography variance.
+3. **Content & Identity Family**: ICAO MRZ check digits, Verhoeff checksum, date chronology, OCR confidence disparities, and facial portrait similarity.
 
----
-
-## Benchmark Evaluation Results
-
-The system supports two distinct evaluation modes:
-
-### 1. Sidecar-Free Real-OCR Benchmark (`--real-ocr`)
-Evaluates the full end-to-end pipeline without reading any sidecar files. All text is extracted dynamically by the EasyOCR engine.
-
-| Metric | Score | Note |
-| :--- | :--- | :--- |
-| **Overall Accuracy** | **80.0%** | Tested across 20 synthetic cards |
-| **Precision** | **88.89%** | High precision when flagging tampered cards |
-| **Recall** | **72.73%** | 8 of 11 tampered documents detected |
-| **F1 Score** | **80.0%** | Balanced harmonic mean |
-| **True Positives (TP)** | **8 / 11** | Correctly identified tampering |
-| **True Negatives (TN)** | **8 / 9** | Correctly verified genuine cards |
-| **False Positives (FP)** | **1 / 9** | Genuine card flagged as suspicious |
-| **False Negatives (FN)** | **3 / 11** | Tampered cards with subtle field changes missed by OCR |
-
-### 2. Controlled Synthetic Benchmark (Sidecar Mode)
-Used for baseline regression testing against pre-computed character-level alignments:
-
-| Metric | Score |
-| :--- | :--- |
-| **Overall Accuracy** | **90.0%** |
-| **Precision** | **84.62%** |
-| **Recall** | **100.0%** |
-| **F1 Score** | **91.67%** |
-| **Confusion Matrix** | **TP=11, TN=7, FP=2, FN=0** |
-
-> **Important Note on Benchmark Claims**: The 90-100% scores achieved on controlled synthetic test suites represent performance on procedural test templates under synthetic attack vectors. Real-world physical document verification involves lighting variance, print-scan degradation, and camera perspective distortions that will produce different performance profiles.
+### Standardized Verdict Thresholds:
+- **`AUTHENTIC`** (Authenticity Score $\ge 80\%$ / Risk Score $\le 20\%$): All check digits valid, uniform compression, authentic typography, no tamper indicators.
+- **`SUSPICIOUS`** (Authenticity Score $50\% - 79\%$ / Risk Score $21\% - 50\%$): Isolated anomaly detected (e.g., low-resolution artifact, isolated font variance, expired document). Recommended for secondary manual review.
+- **`FLAGGED / TAMPERED`** (Authenticity Score $< 50\%$ / Risk Score $> 50\%$): Multi-family corroborated tampering, verified cut seam, corrupted check digits, or face mismatch.
 
 ---
 
-## Quickstart & Installation
+## 4. Dataset Management & Synthetic Testbed
+
+DocuShield enforces strict privacy ethics: **no real government identity cards or citizen PII are collected or stored**.
+
+### Directory Structure (`datasets/`)
+```
+datasets/
+├── README.md               # Privacy ethics, citations & data governance
+├── authentic/              # Watermarked synthetic authentic cards
+├── tampered/               # Watermarked synthetic tampered cards
+├── passport/               # Sample passport test templates
+├── visa/                   # Sample visa test templates
+├── national_id/            # Sample national identity card templates
+├── driving_license/        # Sample driving licence test templates
+├── permit/                 # Sample travel authorization permit templates
+├── raw/                    # Raw templates
+├── processed/              # Preprocessed normalized assets
+└── annotations/            # Ground truth bounding boxes & metadata
+```
+
+### Generating the Controlled Synthetic Testbed
+Run the automated testbed generator to produce watermarked synthetic test samples for all 5 document categories:
+```powershell
+python backend/scripts/generate_synthetic_testbed.py
+```
+Every generated image carries explicit, mandatory watermarks:
+- `"SAMPLE / MOCK — NOT A REAL GOVERNMENT DOCUMENT"`
+- `"MOCK / SPECIMEN — NOT REAL ID"`
+
+---
+
+## 5. Future ML Training Framework (`training/`)
+
+For future scalability with real-world research datasets, a modular training pipeline is scaffolded in `training/`:
+- `dataset_loader.py`: Document dataset loader supporting PyTorch and NumPy tensors with train/val/test splits.
+- `preprocessing.py`: Multi-resolution resizing, CLAHE contrast enhancement, and noise normalization.
+- `augmentation.py`: Realistic document augmentations (perspective tilt, blur, JPEG recompression, shadow gradients).
+- `train.py`: Training engine with learning rate scheduling, early stopping, and checkpoint saving.
+- `evaluate.py`: Evaluation pipeline tracking Accuracy, Precision, Recall, F1 Score, ROC-AUC, and Confusion Matrix.
+- `inference.py`: Standalone inference wrapper for deployment.
+
+---
+
+## 6. API Reference
+
+| Endpoint | Method | Parameters | Description |
+| :--- | :--- | :--- | :--- |
+| `/api/health` | `GET` | — | System health, OCR engine availability, and dataset status |
+| `/api/document-types` | `GET` | — | Supported document categories and their required schema fields |
+| `/api/screen` | `POST` | `file`, `document_type`, `person_image`, `sample_id` | Full multimodal screening pipeline execution |
+| `/api/samples` | `GET` | — | Catalog of pre-generated mock documents with thumbnails |
+| `/api/benchmark` | `GET` | `real_ocr: bool` | Automated benchmark evaluation across testbed |
+| `/api/image/{filename}` | `GET` | `filename: str` | Serves dataset images with path-traversal protection |
+
+---
+
+## 7. Quickstart & Installation
 
 ### Prerequisites
-- Python 3.10+ (tested with Python 3.13)
+- Python 3.10+ (tested on Python 3.13)
 - Node.js 18+ and npm
 
-### 1. Backend Setup
-
+### 1. Backend Service
 ```powershell
-# From project root (d:\Document detector):
+# From project root:
 pip install -r requirements.txt
 
-# Start the FastAPI service:
-python -m uvicorn backend.app:app --host 127.0.0.1 --port 8008
+# Start FastAPI server on port 8000:
+python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
 ```
+- Interactive API Docs: `http://127.0.0.1:8000/docs`
+- Health Check: `http://127.0.0.1:8000/api/health`
 
-> **First-Run Note for EasyOCR**: On first execution, EasyOCR will automatically download CRAFT text detection and recognition model weights (~100 MB) to `~/.EasyOCR/model/`. Subsequent runs use the cached weights.
-
-- API Docs: `http://127.0.0.1:8008/docs`
-- Health Endpoint: `http://127.0.0.1:8008/api/health`
-
-### 2. Frontend Setup
-
+### 2. Frontend Dashboard
 ```powershell
 # From frontend directory:
 cd frontend
 npm install
 npm run dev
 ```
+- Dashboard runs at: `http://localhost:5173/`
 
-- Open browser at: `http://localhost:5173/`
-
-### 3. Running Automated Tests
-
+### 3. Production Build
 ```powershell
-# Run the complete test suite (API, Security, OCR Isolation, Forensics):
+cd frontend
+npm run build
+```
+Builds optimized production assets into `frontend/dist/`.
+
+### 4. Running Automated Tests
+```powershell
+# Run the complete test suite (90 passing tests):
 python -m pytest backend/tests -v
 ```
 
-### 4. Running the Benchmark
+---
 
-```powershell
-# Real OCR Benchmark (sidecar-free, live inference):
-python -m backend.scripts.run_benchmark --real-ocr
+## 8. Deploying to Render
 
-# Controlled Synthetic Benchmark (sidecar mode):
-python -m backend.scripts.run_benchmark
-```
+DocuShield AI includes ready-to-deploy configuration for [Render](https://render.com) using Docker:
+
+### Option A: One-Click Blueprint Deployment (Recommended)
+1. Push your repository to **GitHub** or **GitLab**.
+2. Go to your [Render Dashboard](https://dashboard.render.com/) and click **New +** → **Blueprint**.
+3. Connect your repository. Render will automatically detect [`render.yaml`](file:///d:/Document%20detector/render.yaml) and configure:
+   - **Service Type**: Web Service
+   - **Environment**: Docker (multi-stage build with CPU PyTorch and Node 20)
+   - **Port**: Bound dynamically to `$PORT` (default 10000)
+   - **Health Check**: `/api/health`
+4. Click **Apply**. Render will build and deploy the container.
+
+### Option B: Manual Web Service Setup
+1. On the Render Dashboard, click **New +** → **Web Service**.
+2. Select your repository.
+3. Configure the following settings:
+   - **Name**: `docushield-ai` (or your choice)
+   - **Region**: Oregon (or nearest)
+   - **Branch**: `main`
+   - **Runtime**: **Docker**
+   - **Dockerfile Path**: `./Dockerfile`
+   - **Docker Context**: `.`
+   - **Instance Type**: Free (or Starter/Standard)
+4. Under **Advanced Settings**:
+   - **Health Check Path**: `/api/health`
+   - **Environment Variables**:
+     - `PORT`: `10000`
+     - `ALLOWED_ORIGINS`: `*`
+5. Click **Create Web Service**.
+
+> [!TIP]
+> **Free Tier Cold Starts**: On Render's Free tier, the service spins down after 15 minutes of inactivity and wakes up upon incoming requests (usually takes ~30-50 seconds to spin up). The Dockerfile pre-caches EasyOCR weights at build time so screening documents has zero download delay once online.
 
 ---
 
-## API Reference
+## 9. Real-World Limitations
 
-| Endpoint | Method | Description |
-| :--- | :--- | :--- |
-| `/api/health` | `GET` | Health status and OCR engine availability |
-| `/api/screen` | `POST` | Screen document via multipart upload or `sample_id` (Real Screening Mode) |
-| `/api/samples` | `GET` | Catalog of pre-generated mock documents with thumbnails |
-| `/api/benchmark` | `GET` | Executes benchmark evaluation (`?real_ocr=true` supported) |
-| `/api/image/{filename}` | `GET` | Serves dataset images (protected by filename whitelist) |
+1. **Physical Print-and-Scan Limitations**: ELA and copy-move forensics inspect digital compression and pixel-level gradients. High-resolution re-photographed physical printouts may require physical security feature analysis (UV luminescence, hologram reflection, guilloche pattern integrity).
+2. **Camera Lighting & Glare**: Heavy glare or extreme shadows on plastic laminate cards can degrade OCR token confidence or trigger localized false positives in Laplacian sharpness maps.
+3. **No Database Verification**: DocuShield verifies mathematical, grammatical, and forensic structural authenticity. A fabricated identity card containing completely plausible but unregistered information cannot be invalidated without authoritative national registry access.
 
----
-
-## Known Limitations
-
-1. **OCR on Heavily Watermarked Synthetic Cards**: Programmatic diagonal watermarks across synthetic cards occasionally interfere with character segmentation for tiny font sizes.
-2. **Physical Print-and-Scan Attacks**: ELA and copy-move forensics operate on digital compression and pixel artifacts; re-photographed physical documents require specialized sensor-noise (PRNU) analysis.
-3. **Template Coverage**: Built-in field validation currently targets Indian identity formats (Aadhaar, PAN, Driving License). Additional document specifications can be added via modular validator extensions.

@@ -41,3 +41,6 @@ desktop.ini
 # Temporary files
 *.tmp
 *.temp
+scratch/
+scratch_extract.py
+

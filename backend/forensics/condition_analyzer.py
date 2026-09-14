@@ -32,13 +32,20 @@ class DocumentConditionAnalyzer:
         if img_bgr is None or img_bgr.size == 0:
             return {
                 "resolution": {"width": 0, "height": 0, "megapixels": 0.0},
+                "quality_tier": "VERY_LOW",
+                "reliability_score": 0.0,
+                "quality_explanation": "Image array is empty or unreadable.",
+                "condition_profile": "SEVERELY_DEGRADED",
                 "is_low_res": True,
                 "blur_score": 0.0,
                 "is_blurry": True,
                 "compression_uniformity": 1.0,
                 "estimated_jpeg_quality": 85,
                 "is_heavily_compressed": False,
+                "is_compressed": False,
                 "is_camera_photo": False,
+                "is_screenshot": False,
+                "is_print_and_scan": False,
                 "recommended_sensitivity": "standard"
             }
 
@@ -79,22 +86,94 @@ class DocumentConditionAnalyzer:
         # High-frequency noise estimation via median absolute deviation of Laplacian
         noise_level = float(np.median(np.abs(cv2.Laplacian(gray, cv2.CV_64F))))
 
-        # 7. Overall Condition Profile (EXCELLENT, GOOD, DEGRADED, SEVERELY_DEGRADED)
-        if mp < 0.08 or (lap_var < 50.0 and mp < 0.30):
+        # 7. Screenshot and Print-and-Scan Heuristics
+        # Common screen aspect ratios: 16:9 (1.778), 16:10 (1.60), 4:3 (1.333), 19.5:9 (2.167)
+        aspect_ratio = float(w) / max(1.0, float(h))
+        is_screen_ratio = (
+            abs(aspect_ratio - 1.778) < 0.05 or
+            abs(aspect_ratio - 1.600) < 0.05 or
+            abs(aspect_ratio - 2.167) < 0.06 or
+            (w in (1920, 1366, 1280, 1440, 2560, 3840) and h in (1080, 768, 720, 900, 1440, 2160))
+        )
+        # Screenshots typically have very low noise level and zero perspective/optical curvature
+        is_screenshot = bool(is_screen_ratio and noise_level < 3.5 and blockiness_ratio < 1.15 and mp >= 0.50)
+
+        # Print-and-scan indicators: presence of scanner noise / paper texture,
+        # combined with absence of clean DCT grids and moderate high-frequency noise
+        is_print_and_scan = bool(
+            not is_screenshot and
+            noise_level > 6.0 and
+            blockiness_ratio < 1.10 and
+            uniformity_score > 0.65 and
+            lap_var < 500.0
+        )
+
+        # 8. Forensic Reliability Score & Quality Tier Computation
+        # Quantifies "How reliable is the document image for automated forensic screening?"
+        # NOT "How fake is the document?"
+        rel_score = 1.0
+
+        # Penalize resolution limitations
+        if mp < 0.08:
+            rel_score -= 0.45
+        elif mp < 0.20:
+            rel_score -= 0.22
+        elif mp < 0.45:
+            rel_score -= 0.08
+
+        # Penalize blur / defocus
+        if lap_var < 45.0:
+            rel_score -= 0.38
+        elif lap_var < 100.0:
+            rel_score -= 0.20
+        elif lap_var < 220.0:
+            rel_score -= 0.08
+
+        # Penalize heavy quantization
+        if is_heavily_compressed:
+            rel_score -= 0.15
+        elif blockiness_ratio > 1.14:
+            rel_score -= 0.06
+
+        # Penalize low contrast
+        if contrast < 24.0:
+            rel_score -= 0.18
+        elif contrast < 35.0:
+            rel_score -= 0.08
+
+        # Bound reliability score
+        reliability_score = round(max(0.08, min(1.0, rel_score)), 3)
+
+        # 4-Tier Taxonomy
+        if reliability_score >= 0.82 and mp >= 0.40 and lap_var >= 180.0:
+            quality_tier = "GOOD"
+            quality_explanation = "High image clarity with sufficient resolution and sharpness for full automated forensic analysis."
+        elif reliability_score >= 0.60:
+            quality_tier = "ACCEPTABLE"
+            quality_explanation = "Acceptable capture clarity suitable for OCR parsing, mathematical checksums, and standard forensic inspection."
+        elif reliability_score >= 0.40:
+            quality_tier = "LOW"
+            quality_explanation = "Degraded capture quality (blur, compression, or low resolution). Digital forensics attenuated to prevent false alarms."
+        else:
+            quality_tier = "VERY_LOW"
+            quality_explanation = "Image quality is severely degraded and insufficient for reliable autonomous verification. Manual human inspection required."
+
+        # Map to legacy condition profile
+        if quality_tier == "VERY_LOW":
             condition_profile = "SEVERELY_DEGRADED"
-        elif mp < 0.25 or lap_var < 110.0 or (is_heavily_compressed and uniformity_score < 0.60):
+        elif quality_tier == "LOW":
             condition_profile = "DEGRADED"
-        elif lap_var < 400.0 or is_heavily_compressed or mp < 0.60:
+        elif quality_tier == "ACCEPTABLE":
             condition_profile = "GOOD"
         else:
             condition_profile = "EXCELLENT"
 
         # Downstream forensic attenuation factors
-        if condition_profile == "SEVERELY_DEGRADED":
+        if quality_tier == "VERY_LOW":
             typography_attenuation = 0.20
             ela_attenuation = 0.35
             copy_move_attenuation = 0.30
-        elif condition_profile == "DEGRADED":
+        elif quality_tier == "LOW":
             typography_attenuation = 0.50
             ela_attenuation = 0.65
             copy_move_attenuation = 0.60
@@ -113,17 +192,21 @@ class DocumentConditionAnalyzer:
             condition_flags.append("mild_blur_defocus")
         if is_camera_photo:
             condition_flags.append("camera_capture_lighting")
+        if is_screenshot:
+            condition_flags.append("screenshot_capture")
+        if is_print_and_scan:
+            condition_flags.append("print_and_scan_texture")
         if orientation_angle != 0:
             condition_flags.append(f"rotation_{orientation_angle}deg")
         if mp < 0.35:
             condition_flags.append("low_resolution")
-        if condition_profile in ["DEGRADED", "SEVERELY_DEGRADED"]:
-            condition_flags.append(f"condition_profile_{condition_profile.lower()}")
+        if quality_tier in ["LOW", "VERY_LOW"]:
+            condition_flags.append(f"quality_tier_{quality_tier.lower()}")
 
         blur_level = "HIGH" if lap_var < 100.0 else ("NORMAL" if lap_var < 400.0 else "LOW")
         compression_level = "HEAVY" if is_heavily_compressed else ("MODERATE" if blockiness_ratio > 1.08 else "LOW")
 
-        # 8. Determine Sensitivity Adaptations
+        # 9. Determine Sensitivity Adaptations
         if is_heavily_compressed or uniformity_score > 0.75:
             recommended_sensitivity = "tolerant_compression"
         elif is_blurry:
@@ -139,6 +222,9 @@ class DocumentConditionAnalyzer:
                 "height": h,
                 "megapixels": round(mp, 3)
             },
+            "quality_tier": quality_tier,
+            "reliability_score": reliability_score,
+            "quality_explanation": quality_explanation,
             "condition_profile": condition_profile,
             "typography_attenuation": typography_attenuation,
             "ela_attenuation": ela_attenuation,
@@ -149,6 +235,7 @@ class DocumentConditionAnalyzer:
             "compression_level": compression_level,
             "blockiness_ratio": round(blockiness_ratio, 3),
             "is_heavily_compressed": is_heavily_compressed,
+            "is_compressed": is_heavily_compressed,
             "compression_uniformity": round(uniformity_score, 3),
             "brightness": round(brightness, 1),
             "contrast": round(contrast, 1),
@@ -156,6 +243,8 @@ class DocumentConditionAnalyzer:
             "orientation": orientation_angle,
             "orientation_confidence": round(orientation_conf, 2),
             "is_camera_photo": is_camera_photo,
+            "is_screenshot": is_screenshot,
+            "is_print_and_scan": is_print_and_scan,
             "is_low_res": mp < 0.35,
             "condition_flags": condition_flags,
             "recommended_sensitivity": recommended_sensitivity
@@ -265,3 +354,11 @@ class DocumentConditionAnalyzer:
         # Normalized uniformity index between 0.0 and 1.0
         uniformity = max(0.0, min(1.0, 1.0 - (cov / 2.0)))
         return uniformity
+
+
+_analyzer_instance = DocumentConditionAnalyzer()
+
+def analyze_document_condition(img_bgr: np.ndarray) -> Dict[str, Any]:
+    """Convenience helper function to run DocumentConditionAnalyzer."""
+    return _analyzer_instance.analyze(img_bgr)
+

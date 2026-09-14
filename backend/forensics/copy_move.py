@@ -335,3 +335,6 @@ class CopyMoveDetector:
             "visualization_base64": vis_base64,
             "details": details
         }
+
+    detect = analyze
+

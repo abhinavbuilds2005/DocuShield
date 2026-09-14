@@ -1,7 +1,7 @@
 {
   "benchmark_name": "HELD_OUT_GENERALIZATION_AND_ROBUSTNESS",
   "total_documents": 11,
-  "elapsed_seconds": 29.65,
+  "elapsed_seconds": 48.47,
   "dataset_composition": {
     "genuine": 5,
     "tampered": 6,
@@ -34,6 +34,9 @@
       "classification_status": "CORRECT_GENUINE",
       "forensic_decision_debug": {
         "final_verdict": "AUTHENTIC",
+        "legacy_verdict": "AUTHENTIC",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.92,
         "final_risk_score": 0.5,
         "confidence": 0.7165,
         "diagnostic_status": "CLEAN",
@@ -50,16 +53,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.92,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 3467.3,
           "is_blurry": false,
           "compression_level": "MODERATE",
           "blockiness_ratio": 1.106,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.68,
+          "brightness": 223.4,
+          "contrast": 64.6,
+          "noise_level": 0.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [],
           "recommended_sensitivity": "standard"
@@ -80,7 +96,7 @@
           ]
         },
         "regex_field_validation_result": {
-          "document_type": "aadhaar",
+          "document_type": "national_id",
           "fields_checked": 2,
           "failed_fields": []
         },
@@ -170,6 +186,9 @@
       "classification_status": "CORRECT_GENUINE",
       "forensic_decision_debug": {
         "final_verdict": "AUTHENTIC",
+        "legacy_verdict": "AUTHENTIC",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.86,
         "final_risk_score": 0.5,
         "confidence": 0.552,
         "diagnostic_status": "CLEAN",
@@ -186,16 +205,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.86,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 3249.0,
           "is_blurry": false,
           "compression_level": "MODERATE",
           "blockiness_ratio": 1.179,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.682,
+          "brightness": 222.8,
+          "contrast": 65.5,
+          "noise_level": 1.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [],
           "recommended_sensitivity": "standard"
@@ -216,7 +248,7 @@
           ]
         },
         "regex_field_validation_result": {
-          "document_type": "aadhaar",
+          "document_type": "national_id",
           "fields_checked": 1,
           "failed_fields": []
         },
@@ -306,6 +338,9 @@
       "classification_status": "CORRECT_GENUINE",
       "forensic_decision_debug": {
         "final_verdict": "AUTHENTIC",
+        "legacy_verdict": "AUTHENTIC",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.92,
         "final_risk_score": 7.5,
         "confidence": 0.1649,
         "diagnostic_status": "ANOMALY_DETECTED",
@@ -322,16 +357,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.92,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 561.7,
           "is_blurry": false,
           "compression_level": "LOW",
           "blockiness_ratio": 1.052,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.722,
+          "brightness": 192.2,
+          "contrast": 79.7,
+          "noise_level": 0.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [
             "uniform_recompression_artifact"
@@ -344,7 +392,7 @@
           "fields": []
         },
         "regex_field_validation_result": {
-          "document_type": "pan",
+          "document_type": "national_id",
           "fields_checked": 1,
           "failed_fields": []
         },
@@ -440,6 +488,9 @@
       "classification_status": "CORRECT_GENUINE",
       "forensic_decision_debug": {
         "final_verdict": "AUTHENTIC",
+        "legacy_verdict": "AUTHENTIC",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.92,
         "final_risk_score": 0.5,
         "confidence": 0.623,
         "diagnostic_status": "CLEAN",
@@ -456,16 +507,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.92,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 2765.6,
           "is_blurry": false,
           "compression_level": "LOW",
           "blockiness_ratio": 1.051,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.789,
+          "brightness": 197.2,
+          "contrast": 78.3,
+          "noise_level": 5.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [
             "uniform_recompression_artifact"
@@ -478,8 +542,8 @@
           "fields": []
         },
         "regex_field_validation_result": {
-          "document_type": "dl",
-          "fields_checked": 2,
+          "document_type": "driving_license",
+          "fields_checked": 3,
           "failed_fields": []
         },
         "ela_result_and_score": {
@@ -568,6 +632,9 @@
       "classification_status": "CORRECT_GENUINE",
       "forensic_decision_debug": {
         "final_verdict": "AUTHENTIC",
+        "legacy_verdict": "AUTHENTIC",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.92,
         "final_risk_score": 0.5,
         "confidence": 0.5306,
         "diagnostic_status": "CLEAN",
@@ -584,16 +651,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.92,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 1501.6,
           "is_blurry": false,
           "compression_level": "LOW",
           "blockiness_ratio": 0.917,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.73,
+          "brightness": 212.8,
+          "contrast": 70.1,
+          "noise_level": 0.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [
             "uniform_recompression_artifact"
@@ -616,7 +696,7 @@
           ]
         },
         "regex_field_validation_result": {
-          "document_type": "aadhaar",
+          "document_type": "national_id",
           "fields_checked": 1,
           "failed_fields": []
         },
@@ -700,13 +780,16 @@
       "filename": "unseen_06_tampered_checksum.png",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_score": 39.0,
-      "authenticity_score": 61.0,
+      "final_risk_score": 42.0,
+      "authenticity_score": 58.0,
       "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
         "final_verdict": "SUSPICIOUS",
-        "final_risk_score": 39.0,
+        "legacy_verdict": "SUSPICIOUS",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.92,
+        "final_risk_score": 42.0,
         "confidence": 0.6921,
         "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
         "ocr_status_and_confidence": {
@@ -722,16 +805,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.92,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 3391.3,
           "is_blurry": false,
           "compression_level": "MODERATE",
           "blockiness_ratio": 1.109,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.677,
+          "brightness": 222.9,
+          "contrast": 65.4,
+          "noise_level": 0.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [],
           "recommended_sensitivity": "standard"
@@ -752,7 +848,7 @@
           ]
         },
         "regex_field_validation_result": {
-          "document_type": "aadhaar",
+          "document_type": "national_id",
           "fields_checked": 2,
           "failed_fields": [
             {
@@ -848,13 +944,16 @@
       "filename": "unseen_07_tampered_textsplice.png",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_score": 28.0,
-      "authenticity_score": 72.0,
+      "final_risk_score": 38.0,
+      "authenticity_score": 62.0,
       "diagnostic_status": "ANOMALY_DETECTED",
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
         "final_verdict": "SUSPICIOUS",
-        "final_risk_score": 28.0,
+        "legacy_verdict": "SUSPICIOUS",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.86,
+        "final_risk_score": 38.0,
         "confidence": 0.7448,
         "diagnostic_status": "ANOMALY_DETECTED",
         "ocr_status_and_confidence": {
@@ -870,16 +969,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.86,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 4213.4,
           "is_blurry": false,
           "compression_level": "MODERATE",
           "blockiness_ratio": 1.171,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.722,
+          "brightness": 192.9,
+          "contrast": 81.4,
+          "noise_level": 0.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [
             "uniform_recompression_artifact"
@@ -892,7 +1004,7 @@
           "fields": []
         },
         "regex_field_validation_result": {
-          "document_type": "pan",
+          "document_type": "national_id",
           "fields_checked": 3,
           "failed_fields": []
         },
@@ -908,7 +1020,7 @@
           "detected": false
         },
         "typography_rendering_result_and_score": {
-          "score": 70.0,
+          "score": 75.0,
           "evidence_strength": "STRONG",
           "anomalies_detected": true,
           "flagged_count": 1
@@ -934,8 +1046,8 @@
           },
           "font": {
             "weight": 0.2,
-            "raw_score": 70.0,
-            "weighted_score": 14.0,
+            "raw_score": 75.0,
+            "weighted_score": 15.0,
             "evidence_strength": "STRONG"
           },
           "copy_move": {
@@ -950,9 +1062,9 @@
             "weighted_score": 10.0,
             "evidence_strength": "CLEAN"
           },
-          "base_weighted_sum": 92.0,
+          "base_weighted_sum": 93.0,
           "penalties_applied": [
-            "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
+            "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS / REVIEW NEEDED"
           ],
           "diagnostic_status": "ANOMALY_DETECTED"
         },
@@ -961,7 +1073,7 @@
           "Field validation inconclusive due to low OCR clarity (OCR Confidence Consistency: Minor OCR confidence disparity on 1 word(s): 'MO' (0.13) contrast with baseline (0.74))"
         ],
         "rules_triggered": [
-          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
+          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS / REVIEW NEEDED"
         ],
         "decision_threshold": {
           "authenticity_threshold": 80.0,
@@ -989,6 +1101,9 @@
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
         "final_verdict": "SUSPICIOUS",
+        "legacy_verdict": "SUSPICIOUS",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.86,
         "final_risk_score": 48.0,
         "confidence": 0.7193,
         "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
@@ -1005,16 +1120,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.86,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 4034.2,
           "is_blurry": false,
           "compression_level": "MODERATE",
           "blockiness_ratio": 1.167,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.682,
+          "brightness": 221.5,
+          "contrast": 68.2,
+          "noise_level": 0.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [],
           "recommended_sensitivity": "standard"
@@ -1035,7 +1163,7 @@
           ]
         },
         "regex_field_validation_result": {
-          "document_type": "aadhaar",
+          "document_type": "national_id",
           "fields_checked": 2,
           "failed_fields": []
         },
@@ -1121,13 +1249,16 @@
       "filename": "unseen_09_tampered_fontsplice.png",
       "ground_truth_label": "TAMPERED",
       "final_prediction": "SUSPICIOUS",
-      "final_risk_score": 28.0,
-      "authenticity_score": 72.0,
+      "final_risk_score": 38.0,
+      "authenticity_score": 62.0,
       "diagnostic_status": "ANOMALY_DETECTED",
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
         "final_verdict": "SUSPICIOUS",
-        "final_risk_score": 28.0,
+        "legacy_verdict": "SUSPICIOUS",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.92,
+        "final_risk_score": 38.0,
         "confidence": 0.6962,
         "diagnostic_status": "ANOMALY_DETECTED",
         "ocr_status_and_confidence": {
@@ -1143,16 +1274,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.92,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 3600.4,
           "is_blurry": false,
           "compression_level": "LOW",
           "blockiness_ratio": 1.031,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.7,
+          "brightness": 223.6,
+          "contrast": 64.4,
+          "noise_level": 0.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [],
           "recommended_sensitivity": "standard"
@@ -1173,7 +1317,7 @@
           ]
         },
         "regex_field_validation_result": {
-          "document_type": "aadhaar",
+          "document_type": "national_id",
           "fields_checked": 1,
           "failed_fields": []
         },
@@ -1189,7 +1333,7 @@
           "detected": false
         },
         "typography_rendering_result_and_score": {
-          "score": 70.0,
+          "score": 75.0,
           "evidence_strength": "STRONG",
           "anomalies_detected": true,
           "flagged_count": 1
@@ -1215,8 +1359,8 @@
           },
           "font": {
             "weight": 0.2,
-            "raw_score": 70.0,
-            "weighted_score": 14.0,
+            "raw_score": 75.0,
+            "weighted_score": 15.0,
             "evidence_strength": "STRONG"
           },
           "copy_move": {
@@ -1231,9 +1375,9 @@
             "weighted_score": 10.0,
             "evidence_strength": "CLEAN"
           },
-          "base_weighted_sum": 93.5,
+          "base_weighted_sum": 94.5,
           "penalties_applied": [
-            "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
+            "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS / REVIEW NEEDED"
           ],
           "diagnostic_status": "ANOMALY_DETECTED"
         },
@@ -1241,7 +1385,7 @@
           "Significant typographical rendering discontinuity on 1 token(s)"
         ],
         "rules_triggered": [
-          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
+          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS / REVIEW NEEDED"
         ],
         "decision_threshold": {
           "authenticity_threshold": 80.0,
@@ -1258,16 +1402,19 @@
     {
       "filename": "unseen_10_tampered_categorysplice.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "SUSPICIOUS",
-      "final_risk_score": 28.0,
-      "authenticity_score": 72.0,
-      "diagnostic_status": "ANOMALY_DETECTED",
+      "final_prediction": "FLAGGED / TAMPERED",
+      "final_risk_score": 58.0,
+      "authenticity_score": 42.0,
+      "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
-        "final_verdict": "SUSPICIOUS",
-        "final_risk_score": 28.0,
+        "final_verdict": "FLAGGED / TAMPERED",
+        "legacy_verdict": "FLAGGED / TAMPERED",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.92,
+        "final_risk_score": 58.0,
         "confidence": 0.6039,
-        "diagnostic_status": "ANOMALY_DETECTED",
+        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
         "ocr_status_and_confidence": {
           "status": "SUCCESS",
           "engine": "easyocr",
@@ -1281,16 +1428,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.92,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 2953.5,
           "is_blurry": false,
           "compression_level": "LOW",
           "blockiness_ratio": 0.991,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.782,
+          "brightness": 200.7,
+          "contrast": 77.2,
+          "noise_level": 0.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [
             "uniform_recompression_artifact"
@@ -1303,9 +1463,18 @@
           "fields": []
         },
         "regex_field_validation_result": {
-          "document_type": "dl",
-          "fields_checked": 2,
-          "failed_fields": []
+          "document_type": "driving_license",
+          "fields_checked": 4,
+          "failed_fields": [
+            {
+              "field": "Chronology (Issue vs Expiry)",
+              "value": "Logic Contradiction",
+              "status": "FAIL",
+              "details": "Chronological Contradiction: Expiry date is before or equal to Issue date",
+              "is_deterministic": true,
+              "evidence_level": "STRONG"
+            }
+          ]
         },
         "ela_result_and_score": {
           "score": 98.0,
@@ -1319,7 +1488,7 @@
           "detected": false
         },
         "typography_rendering_result_and_score": {
-          "score": 70.0,
+          "score": 75.0,
           "evidence_strength": "STRONG",
           "anomalies_detected": true,
           "flagged_count": 1
@@ -1333,9 +1502,9 @@
         "detector_contributions": {
           "nlp": {
             "weight": 0.3,
-            "raw_score": 100,
-            "weighted_score": 30.0,
-            "evidence_strength": "CLEAN"
+            "raw_score": 65,
+            "weighted_score": 19.5,
+            "evidence_strength": "STRONG"
           },
           "ela": {
             "weight": 0.25,
@@ -1345,8 +1514,8 @@
           },
           "font": {
             "weight": 0.2,
-            "raw_score": 70.0,
-            "weighted_score": 14.0,
+            "raw_score": 75.0,
+            "weighted_score": 15.0,
             "evidence_strength": "STRONG"
           },
           "copy_move": {
@@ -1361,17 +1530,18 @@
             "weighted_score": 10.0,
             "evidence_strength": "CLEAN"
           },
-          "base_weighted_sum": 93.5,
+          "base_weighted_sum": 84.0,
           "penalties_applied": [
-            "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
+            "Multiple independent strong/deterministic signals across families -> FLAGGED / TAMPERED"
           ],
-          "diagnostic_status": "ANOMALY_DETECTED"
+          "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
         },
         "triggered_signals": [
+          "Deterministic checksum/format failure: Chronology (Issue vs Expiry): Chronological Contradiction: Expiry date is before or equal to Issue date",
           "Significant typographical rendering discontinuity on 1 token(s)"
         ],
         "rules_triggered": [
-          "Single isolated strong forensic anomaly without independent corroboration -> SUSPICIOUS"
+          "Multiple independent strong/deterministic signals across families -> FLAGGED / TAMPERED"
         ],
         "decision_threshold": {
           "authenticity_threshold": 80.0,
@@ -1381,8 +1551,8 @@
         },
         "cautions": [],
         "weak_or_uncertain_signals": [],
-        "is_anomaly_detected": true,
-        "is_strongly_suspected_tampered": false
+        "is_anomaly_detected": false,
+        "is_strongly_suspected_tampered": true
       }
     },
     {
@@ -1395,6 +1565,9 @@
       "classification_status": "CORRECT_DETECTION",
       "forensic_decision_debug": {
         "final_verdict": "FLAGGED / TAMPERED",
+        "legacy_verdict": "FLAGGED / TAMPERED",
+        "quality_tier": "GOOD",
+        "reliability_score": 0.92,
         "final_risk_score": 58.0,
         "confidence": 0.6566,
         "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED",
@@ -1411,16 +1584,29 @@
             "height": 500,
             "megapixels": 0.4
           },
+          "quality_tier": "GOOD",
+          "reliability_score": 0.92,
+          "quality_explanation": "High image clarity with sufficient resolution and sharpness for full automated forensic analysis.",
+          "condition_profile": "EXCELLENT",
+          "typography_attenuation": 1.0,
+          "ela_attenuation": 1.0,
+          "copy_move_attenuation": 1.0,
           "blur_level": "LOW",
           "blur_score": 3466.8,
           "is_blurry": false,
           "compression_level": "LOW",
           "blockiness_ratio": 0.949,
           "is_heavily_compressed": false,
+          "is_compressed": false,
           "compression_uniformity": 0.686,
+          "brightness": 222.5,
+          "contrast": 67.8,
+          "noise_level": 1.0,
           "orientation": 0,
           "orientation_confidence": 0.95,
           "is_camera_photo": false,
+          "is_screenshot": false,
+          "is_print_and_scan": false,
           "is_low_res": false,
           "condition_flags": [],
           "recommended_sensitivity": "standard"
@@ -1441,7 +1627,7 @@
           ]
         },
         "regex_field_validation_result": {
-          "document_type": "aadhaar",
+          "document_type": "national_id",
           "fields_checked": 1,
           "failed_fields": [
             {

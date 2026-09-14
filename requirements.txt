@@ -19,7 +19,7 @@ Pillow>=10.0.0
 
 # OCR engines
 easyocr>=1.7.0
-# pytesseract>=0.3.10  # Optional fallback — uncomment if Tesseract binary is installed
+pytesseract>=0.3.10
 
 # Testing (dev only)
 pytest>=7.0.0
