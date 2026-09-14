@@ -185,12 +185,14 @@ export default function App() {
       if (!res.ok) {
         let errorMsg = `Screening failed (${res.status} ${res.statusText || 'Error'})`;
         try {
-          const errData = await res.json();
-          errorMsg = errData.message || errData.detail?.message || errData.detail || errData.error || errorMsg;
-        } catch (_) {
-          const text = await res.text();
-          if (text) errorMsg = `${errorMsg}: ${text.slice(0, 150)}`;
-        }
+          const rawText = await res.text();
+          try {
+            const errData = JSON.parse(rawText);
+            errorMsg = errData.message || errData.detail?.message || errData.detail || errData.error || errorMsg;
+          } catch (_) {
+            if (rawText) errorMsg = `${errorMsg}: ${rawText.slice(0, 150)}`;
+          }
+        } catch (_) {}
         throw new Error(errorMsg);
       }
       const result = await res.json();
@@ -236,12 +238,14 @@ export default function App() {
       if (!res.ok) {
         let errorMsg = `Screening failed (${res.status} ${res.statusText || 'Error'})`;
         try {
-          const errData = await res.json();
-          errorMsg = errData.message || errData.detail?.message || errData.detail || errData.error || errorMsg;
-        } catch (_) {
-          const text = await res.text();
-          if (text) errorMsg = `${errorMsg}: ${text.slice(0, 150)}`;
-        }
+          const rawText = await res.text();
+          try {
+            const errData = JSON.parse(rawText);
+            errorMsg = errData.message || errData.detail?.message || errData.detail || errData.error || errorMsg;
+          } catch (_) {
+            if (rawText) errorMsg = `${errorMsg}: ${rawText.slice(0, 150)}`;
+          }
+        } catch (_) {}
         throw new Error(errorMsg);
       }
       const result = await res.json();

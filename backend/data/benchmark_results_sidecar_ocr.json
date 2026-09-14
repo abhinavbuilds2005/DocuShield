@@ -1,6 +1,6 @@
 {
   "total_documents": 20,
-  "elapsed_seconds": 2.0,
+  "elapsed_seconds": 2.03,
   "benchmark_mode": "sidecar_ocr",
   "dataset_composition": {
     "genuine": 9,

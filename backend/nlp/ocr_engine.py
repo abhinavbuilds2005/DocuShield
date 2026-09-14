@@ -122,11 +122,14 @@ def get_ocr_status() -> Dict[str, Any]:
     """Returns availability status without forcing heavy neural weights into RAM."""
     easyocr_ok = (_EASYOCR_AVAILABLE if _EASYOCR_AVAILABLE is not None else _can_import_easyocr())
     tesseract_ok = _TESSERACT_AVAILABLE
+    pref = os.environ.get("OCR_ENGINE", "auto").strip().lower()
+    use_tess_primary = (pref == "tesseract") or (pref == "auto" and (os.environ.get("RENDER") == "true" or tesseract_ok))
+    primary = "tesseract" if (use_tess_primary and tesseract_ok) else ("easyocr" if easyocr_ok else ("tesseract" if tesseract_ok else None))
     return {
         "ocr_available": easyocr_ok or tesseract_ok,
         "easyocr_available": easyocr_ok,
         "tesseract_available": tesseract_ok,
-        "primary_engine": "easyocr" if easyocr_ok else ("tesseract" if tesseract_ok else None),
+        "primary_engine": primary,
     }
 
 
@@ -191,14 +194,23 @@ class OCREngine:
                 return sidecar_result
 
         # ─── REAL OCR (used in both modes) ────────────────────────────
-        # Try EasyOCR first
+        pref = os.environ.get("OCR_ENGINE", "auto").strip().lower()
+        use_tesseract_first = (pref == "tesseract") or (pref == "auto" and (os.environ.get("RENDER") == "true" or self.tesseract_available))
+
+        # Try Tesseract first if preferred or in memory-constrained cloud environments (~25MB RAM)
+        if use_tesseract_first and self.tesseract_available:
+            result = self._run_tesseract(img, w, h)
+            if result is not None:
+                return result
+
+        # Try EasyOCR
         if self.easyocr_available and self.easyocr_reader is not None:
             result = self._run_easyocr(img, w, h)
             if result is not None:
                 return result
 
-        # Try Tesseract fallback
-        if self.tesseract_available:
+        # Fallback to Tesseract if not already tried
+        if not use_tesseract_first and self.tesseract_available:
             result = self._run_tesseract(img, w, h)
             if result is not None:
                 return result
