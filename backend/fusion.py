@@ -372,13 +372,29 @@ class DocumentScreeningPipeline:
                 for b in font_boxes
             )
             has_high_sharpness = any(b.get("score", 0.0) >= 0.85 for b in font_boxes)
-            if has_font_seam or (has_high_sharpness and len(font_boxes) >= 2):
+
+            # Require multi-token seams or corroboration from independent detectors before escalating to Level 4
+            is_corroborated = (
+                score_ela < 60.0 or
+                score_cm < 60.0 or
+                len(level5_deterministic_signals) >= 1
+            )
+            if (has_font_seam and (len(font_boxes) >= 2 or is_corroborated)) or (has_high_sharpness and len(font_boxes) >= 2):
                 font_text = f"Significant typographical rendering discontinuity on {len(font_boxes)} token(s)"
                 level4_strong_signals.append(font_text)
                 critical_evidence.append(font_text)
                 family_level4_active.add("structural_visual")
                 font_status = "STRONG"
                 font_level_name = "LEVEL 4: STRONG FORENSIC EVIDENCE"
+                font_expl = font_text
+            elif has_font_seam:
+                # Single isolated verified boundary cut seam on data field: Moderate anomaly requiring review
+                font_text = f"Localized boundary cut seam detected on {len(font_boxes)} token(s)"
+                level3_moderate_signals.append(font_text)
+                detected_anomalies.append(font_text)
+                family_level4_active.add("structural_visual")
+                font_status = "MODERATE"
+                font_level_name = "LEVEL 3: MODERATE FORENSIC ANOMALY"
                 font_expl = font_text
             else:
                 font_text = f"Isolated stroke sharpness or edge gradient variance on {len(font_boxes)} token(s)"

@@ -17,6 +17,34 @@ import base64
 from typing import Dict, Any, List, Optional
 
 
+# Static pre-printed document titles, country names, and government headers
+STATIC_DOCUMENT_TITLES = {
+    # Government & authority headers
+    "GOVERNMENT", "INDIA", "INCOME", "TAX", "DEPARTMENT",
+    "AADHAAR", "MERA", "PEHCHAN", "BHARAT", "SARKAR", "UNION",
+    "DRIVING", "LICENCE", "LICENSE", "TRANSPORT", "AUTHORITY",
+    "REPUBLIC", "RZECZPOSPOLITA", "POLSKA", "POLAND", "FRANCAISE", "DEUTSCHLAND",
+    "UNITED", "STATES", "AMERICA", "KINGDOM", "CANADA", "AUSTRALIA", "EUROPEAN",
+    # Document title labels
+    "PASSPORT", "PASZPORT", "PASSEPORT", "REISEPASS", "PASSAPORTO", "PASAPORTE",
+    "SPECIMEN", "SAMPLE", "MUSTER"
+}
+
+
+def is_static_document_title(text: str) -> bool:
+    """Returns True if the text represents a static document header/title."""
+    if not text:
+        return False
+    clean = "".join(ch for ch in text.upper() if ch.isalnum())
+    if clean in STATIC_DOCUMENT_TITLES:
+        return True
+    # Substring checks for compound headers or multi-lingual words
+    for kw in ["PASSPORT", "PASZPORT", "PASSEPORT", "REPUBLIC", "RZECZPOSPOLITA", "POLSKA", "AADHAAR", "LICENCE", "GOVERNMENT"]:
+        if kw in clean:
+            return True
+    return False
+
+
 class FontAlignmentForensics:
     """Detects spliced typography, font mismatches, and pixel-boundary discontinuities."""
 
@@ -73,11 +101,32 @@ class FontAlignmentForensics:
 
                     # Check 1: Pixel-boundary cut seam along token boundary
                     # A digital box splice corresponds to an inserted name/field, not single punctuation or 1-2 char noise
-                    if len(tok_text) >= 3 and bw >= 35 and bh >= 10:
+                    # Static template labels (e.g. PASSPORT, PASZPORT, REPUBLIC) are pre-printed and never splices
+                    if is_static_document_title(tok_text):
+                        pass
+                    elif len(tok_text) >= 3 and bw >= 35 and bh >= 10:
+                        # Check if there are neighboring OCR tokens immediately above or below this token
+                        # that would contaminate boundary gradient sampling with adjacent letter strokes
+                        has_adjacent_token_above = False
+                        has_adjacent_token_below = False
+
+                        for other_t in ocr_tokens:
+                            if other_t is t:
+                                continue
+                            obx, oby, obw, obh = other_t.get("box", [0, 0, 0, 0])
+                            h_overlap = max(0, min(bx + bw, obx + obw) - max(bx, obx))
+                            if h_overlap >= min(bw, obw) * 0.25:
+                                # Proximity above (within 8 pixels)
+                                if oby + obh <= by and (by - (oby + obh)) <= 8:
+                                    has_adjacent_token_above = True
+                                # Proximity below (within 8 pixels)
+                                if oby >= by + bh and (oby - (by + bh)) <= 8:
+                                    has_adjacent_token_below = True
+
                         top_y1, top_y2 = max(0, by - 5), max(0, by - 1)
                         bot_y1, bot_y2 = min(h, by + bh + 1), min(h, by + bh + 5)
-                        top_seam = float(np.mean(sobel_y[top_y1:top_y2, bx:bx+bw])) if top_y2 > top_y1 else 0.0
-                        bot_seam = float(np.mean(sobel_y[bot_y1:bot_y2, bx:bx+bw])) if bot_y2 > bot_y1 else 0.0
+                        top_seam = float(np.mean(sobel_y[top_y1:top_y2, bx:bx+bw])) if (top_y2 > top_y1 and not has_adjacent_token_above) else 0.0
+                        bot_seam = float(np.mean(sobel_y[bot_y1:bot_y2, bx:bx+bw])) if (bot_y2 > bot_y1 and not has_adjacent_token_below) else 0.0
                         max_seam = max(top_seam, bot_seam)
 
                         # Verify that this is not a continuous horizontal printed card divider line
@@ -125,13 +174,6 @@ class FontAlignmentForensics:
             all_confs = [float(t.get("confidence", 1.0)) for t in ocr_tokens if "confidence" in t]
             doc_baseline_conf = float(np.median(all_confs)) if all_confs else 0.95
 
-            # Known static template header tokens to ignore from typography anomaly flagging
-            IGNORED_TEMPLATE_WORDS = {
-                "GOVERNMENT", "INDIA", "INCOME", "TAX", "DEPARTMENT",
-                "AADHAAR", "MERA", "PEHCHAN", "BHARAT", "SARKAR", "UNION",
-                "DRIVING", "LICENCE", "LICENSE", "TRANSPORT", "AUTHORITY"
-            }
-
             # Inspect each line for typography disparity
             for line_y, line_tokens in lines_dict.items():
                 if len(line_tokens) < 2:
@@ -144,7 +186,7 @@ class FontAlignmentForensics:
                     item for item in line_tokens
                     if abs(item[4] - med_h) <= (0.35 * med_h)
                     and 12 <= item[4] <= 60
-                    and item[0].get("text", "").upper().strip() not in IGNORED_TEMPLATE_WORDS
+                    and not is_static_document_title(item[0].get("text", ""))
                 ]
 
                 if len(comparable_tokens) < 2:
