@@ -341,6 +341,23 @@ async def screen_document(
             with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
                 tmp.write(content)
                 temp_path = tmp.name
+
+            # Safe downscaling to prevent memory exhaustion in 512MB RAM
+            try:
+                with PILImage.open(temp_path) as p_img:
+                    cur_w, cur_h = p_img.size
+                    max_dim = max(cur_w, cur_h)
+                    if max_dim > 1600:
+                        ratio = 1600.0 / max_dim
+                        new_size = (max(1, int(cur_w * ratio)), max(1, int(cur_h * ratio)))
+                        resample_filter = getattr(PILImage, "Resampling", PILImage).LANCZOS
+                        resized_img = p_img.resize(new_size, resample=resample_filter)
+                        if p_img.mode in ("RGBA", "P") and suffix.lower() in (".jpg", ".jpeg"):
+                            resized_img = resized_img.convert("RGB")
+                        resized_img.save(temp_path)
+            except Exception as resize_err:
+                print(f"[RESIZE WARNING] Could not downscale uploaded image: {resize_err}")
+
             target_path = temp_path
             original_filename = file.filename
 
@@ -366,6 +383,21 @@ async def screen_document(
             with tempfile.NamedTemporaryFile(delete=False, suffix=p_ext) as p_tmp:
                 p_tmp.write(p_content)
                 person_temp_path = p_tmp.name
+
+            try:
+                with PILImage.open(person_temp_path) as p_img:
+                    cur_w, cur_h = p_img.size
+                    max_dim = max(cur_w, cur_h)
+                    if max_dim > 800:
+                        ratio = 800.0 / max_dim
+                        new_size = (max(1, int(cur_w * ratio)), max(1, int(cur_h * ratio)))
+                        resample_filter = getattr(PILImage, "Resampling", PILImage).LANCZOS
+                        resized_img = p_img.resize(new_size, resample=resample_filter)
+                        if p_img.mode in ("RGBA", "P") and p_ext.lower() in (".jpg", ".jpeg"):
+                            resized_img = resized_img.convert("RGB")
+                        resized_img.save(person_temp_path)
+            except Exception as resize_err:
+                print(f"[RESIZE WARNING] Could not downscale person image: {resize_err}")
 
         # Clean document_type
         clean_doc_type = document_type.strip().lower() if document_type and document_type.strip().lower() != "auto" else None
@@ -406,7 +438,7 @@ async def screen_document(
             }
         )
     except Exception as e:
-        print(f"[SCREEN ERROR] Internal error occurred during document screening")
+        print(f"[SCREEN ERROR] Internal error occurred during document screening:\n{traceback.format_exc()}")
         return JSONResponse(
             status_code=500,
             content={

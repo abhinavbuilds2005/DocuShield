@@ -182,8 +182,18 @@ export default function App() {
       }
       setLoadingStatus('Running OCR, Forensics & Biometrics...');
       const res = await fetch(`${API_BASE}/api/screen`, { method: 'POST', body: formData });
+      if (!res.ok) {
+        let errorMsg = `Screening failed (${res.status} ${res.statusText || 'Error'})`;
+        try {
+          const errData = await res.json();
+          errorMsg = errData.message || errData.detail?.message || errData.detail || errData.error || errorMsg;
+        } catch (_) {
+          const text = await res.text();
+          if (text) errorMsg = `${errorMsg}: ${text.slice(0, 150)}`;
+        }
+        throw new Error(errorMsg);
+      }
       const result = await res.json();
-      if (!res.ok) throw new Error(result.message || result.detail || 'Screening failed');
       setScreeningResult(result);
       setActiveView('annotated');
     } catch (err) {
@@ -223,8 +233,18 @@ export default function App() {
       }
       setLoadingStatus('Running OCR, Forensics & Biometrics...');
       const res = await fetch(`${API_BASE}/api/screen`, { method: 'POST', body: formData });
+      if (!res.ok) {
+        let errorMsg = `Screening failed (${res.status} ${res.statusText || 'Error'})`;
+        try {
+          const errData = await res.json();
+          errorMsg = errData.message || errData.detail?.message || errData.detail || errData.error || errorMsg;
+        } catch (_) {
+          const text = await res.text();
+          if (text) errorMsg = `${errorMsg}: ${text.slice(0, 150)}`;
+        }
+        throw new Error(errorMsg);
+      }
       const result = await res.json();
-      if (!res.ok) throw new Error(result.message || result.detail || 'Screening failed');
       setScreeningResult(result);
       setActiveView('annotated');
     } catch (err) {

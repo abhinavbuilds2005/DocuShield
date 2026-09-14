@@ -229,7 +229,13 @@ class OCREngine:
                 rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             else:
                 rgb_img = img
-            results = self.easyocr_reader.readtext(rgb_img)
+            results = self.easyocr_reader.readtext(
+                rgb_img,
+                batch_size=1,
+                workers=0,
+                canvas_size=1600,
+                mag_ratio=1.0
+            )
             lines = []
             tokens = []
             full_parts = []
