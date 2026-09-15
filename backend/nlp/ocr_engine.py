@@ -209,10 +209,14 @@ class OCREngine:
                 return result
 
         # Try EasyOCR (primary engine)
-        if self.easyocr_available and self.easyocr_reader is not None:
-            result = self._run_easyocr(img, w, h)
-            if result is not None:
-                return result
+        if self.easyocr_available:
+            try:
+                if self.easyocr_reader is not None:
+                    result = self._run_easyocr(img, w, h)
+                    if result is not None:
+                        return result
+            except Exception as ocr_err:
+                print(f"[OCR] EasyOCR error: {ocr_err}, falling back to Tesseract")
 
         # Fallback to Tesseract if EasyOCR was unavailable or failed
         if self.tesseract_available:
@@ -240,19 +244,43 @@ class OCREngine:
             }
 
     def _run_easyocr(self, img: np.ndarray, w: int, h: int) -> Optional[Dict[str, Any]]:
-        """Run EasyOCR on the image. Returns None on failure."""
+        """Run EasyOCR on the image with memory optimizations for 512MB RAM environments.
+        Returns None on failure."""
         try:
             if len(img.shape) == 3 and img.shape[2] == 3:
                 rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             else:
                 rgb_img = img
-            results = self.easyocr_reader.readtext(
-                rgb_img,
-                batch_size=1,
-                workers=0,
-                canvas_size=1600,
-                mag_ratio=1.0
-            )
+
+            # Downscale dynamically to max 960px to keep PyTorch CRAFT feature maps <100MB
+            max_ocr_dim = 960
+            max_curr = max(w, h)
+            if max_curr > max_ocr_dim:
+                scale = float(max_ocr_dim) / float(max_curr)
+                ocr_w = max(1, int(w * scale))
+                ocr_h = max(1, int(h * scale))
+                ocr_input = cv2.resize(rgb_img, (ocr_w, ocr_h), interpolation=cv2.INTER_AREA)
+            else:
+                scale = 1.0
+                ocr_input = rgb_img
+
+            # Execute inference with torch.inference_mode to disable autograd overhead
+            try:
+                import torch
+                torch_ctx = torch.inference_mode()
+            except Exception:
+                import contextlib
+                torch_ctx = contextlib.nullcontext()
+
+            with torch_ctx:
+                results = self.easyocr_reader.readtext(
+                    ocr_input,
+                    batch_size=1,
+                    workers=0,
+                    canvas_size=960,
+                    mag_ratio=1.0
+                )
+
             lines = []
             tokens = []
             full_parts = []
@@ -262,11 +290,12 @@ class OCREngine:
                 if not t_str:
                     continue
 
-                pts = np.array(bbox, dtype=np.int32)
-                bx = int(np.min(pts[:, 0]))
-                by = int(np.min(pts[:, 1]))
-                bw = int(np.max(pts[:, 0]) - bx)
-                bh = int(np.max(pts[:, 1]) - by)
+                pts = np.array(bbox, dtype=np.float32)
+                # Map bounding box back to original image dimensions (w, h)
+                bx = max(0, min(w - 1, int(np.min(pts[:, 0]) / scale)))
+                by = max(0, min(h - 1, int(np.min(pts[:, 1]) / scale)))
+                bw = max(1, min(w - bx, int((np.max(pts[:, 0]) - np.min(pts[:, 0])) / scale)))
+                bh = max(1, min(h - by, int((np.max(pts[:, 1]) - np.min(pts[:, 1])) / scale)))
 
                 # Pixel-coordinate box (backward compatible)
                 pixel_box = [bx, by, bw, bh]

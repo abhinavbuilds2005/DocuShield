@@ -347,8 +347,8 @@ async def screen_document(
                 with PILImage.open(temp_path) as p_img:
                     cur_w, cur_h = p_img.size
                     max_dim = max(cur_w, cur_h)
-                    if max_dim > 1600:
-                        ratio = 1600.0 / max_dim
+                    if max_dim > 1280:
+                        ratio = 1280.0 / max_dim
                         new_size = (max(1, int(cur_w * ratio)), max(1, int(cur_h * ratio)))
                         resample_filter = getattr(PILImage, "Resampling", PILImage).LANCZOS
                         resized_img = p_img.resize(new_size, resample=resample_filter)
