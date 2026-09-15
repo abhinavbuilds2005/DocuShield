@@ -123,8 +123,13 @@ def get_ocr_status() -> Dict[str, Any]:
     easyocr_ok = (_EASYOCR_AVAILABLE if _EASYOCR_AVAILABLE is not None else _can_import_easyocr())
     tesseract_ok = _TESSERACT_AVAILABLE
     pref = os.environ.get("OCR_ENGINE", "auto").strip().lower()
-    use_tess_primary = (pref == "tesseract") or (pref == "auto" and (os.environ.get("RENDER") == "true" or tesseract_ok))
-    primary = "tesseract" if (use_tess_primary and tesseract_ok) else ("easyocr" if easyocr_ok else ("tesseract" if tesseract_ok else None))
+    if pref == "tesseract":
+        primary = "tesseract" if tesseract_ok else ("easyocr" if easyocr_ok else None)
+    elif pref == "easyocr":
+        primary = "easyocr" if easyocr_ok else ("tesseract" if tesseract_ok else None)
+    else:
+        # Default 'auto': prioritize EasyOCR if available, then fallback to Tesseract
+        primary = "easyocr" if easyocr_ok else ("tesseract" if tesseract_ok else None)
     return {
         "ocr_available": easyocr_ok or tesseract_ok,
         "easyocr_available": easyocr_ok,
@@ -195,22 +200,22 @@ class OCREngine:
 
         # ─── REAL OCR (used in both modes) ────────────────────────────
         pref = os.environ.get("OCR_ENGINE", "auto").strip().lower()
-        use_tesseract_first = (pref == "tesseract") or (pref == "auto" and (os.environ.get("RENDER") == "true" or self.tesseract_available))
+        force_tesseract = (pref == "tesseract")
 
-        # Try Tesseract first if preferred or in memory-constrained cloud environments (~25MB RAM)
-        if use_tesseract_first and self.tesseract_available:
+        # Try Tesseract first only if explicitly requested
+        if force_tesseract and self.tesseract_available:
             result = self._run_tesseract(img, w, h)
             if result is not None:
                 return result
 
-        # Try EasyOCR
+        # Try EasyOCR (primary engine)
         if self.easyocr_available and self.easyocr_reader is not None:
             result = self._run_easyocr(img, w, h)
             if result is not None:
                 return result
 
-        # Fallback to Tesseract if not already tried
-        if not use_tesseract_first and self.tesseract_available:
+        # Fallback to Tesseract if EasyOCR was unavailable or failed
+        if self.tesseract_available:
             result = self._run_tesseract(img, w, h)
             if result is not None:
                 return result

@@ -25,6 +25,6 @@ services:
       - key: MKL_NUM_THREADS
         value: "1"
       - key: OCR_ENGINE
-        value: "tesseract"
+        value: "easyocr"
 
 
