@@ -31,7 +31,9 @@ services:
         # Deep-learning OCR engine with high character accuracy on Indian ID documents
         value: "easyocr"
       - key: USE_FIELD_DETECTOR
-        value: "true"
+        # On Render Free Tier (512MB RAM), 'false' gives EasyOCR the full memory pool to prevent 502 OOM crashes.
+        # Set to 'true' on paid plans with >= 1GB RAM.
+        value: "false"
       - key: FIELD_DETECTOR_MODEL_PATH
         value: "models/aadhaar_field_detector.pt"
       - key: FIELD_DETECTOR_CONF_THRESHOLD

@@ -252,9 +252,9 @@ class OCREngine:
             else:
                 rgb_img = img
 
-            # Standardize max dimension to avoid double-downscaling (800px on Render 512MB RAM, 1280px elsewhere)
+            # Standardize max dimension to avoid double-downscaling (960px on Render 512MB RAM, 1280px elsewhere)
             is_render = os.environ.get("RENDER", "").lower() == "true"
-            max_ocr_dim = 800 if is_render else 1280
+            max_ocr_dim = 960 if is_render else 1280
             max_curr = max(w, h)
             if max_curr > max_ocr_dim:
                 scale = float(max_ocr_dim) / float(max_curr)
@@ -278,7 +278,7 @@ class OCREngine:
                     ocr_input,
                     batch_size=1,
                     workers=0,
-                    canvas_size=800 if is_render else 1280,
+                    canvas_size=960 if is_render else 1280,
                     mag_ratio=1.0
                 )
 
@@ -495,8 +495,10 @@ class OCREngine:
             crop_img, min_height=64, max_scale=3.0, max_dimension=800
         )
 
-        # 2. Bounded preprocessing variants (max 3)
-        variants = get_crop_preprocessing_variants(upscaled_crop, max_variants=max_variants)
+        # 2. Bounded preprocessing variants (max 1 on Render to prevent OOM)
+        is_render = os.environ.get("RENDER", "").lower() == "true"
+        eff_variants = 1 if is_render else max_variants
+        variants = get_crop_preprocessing_variants(upscaled_crop, max_variants=eff_variants)
         if not variants:
             return empty_res
 

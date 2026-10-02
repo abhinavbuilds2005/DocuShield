@@ -429,7 +429,7 @@ async def screen_document(
                 with PILImage.open(temp_path) as p_img:
                     cur_w, cur_h = p_img.size
                     max_dim = max(cur_w, cur_h)
-                    limit = 1024 if IS_PRODUCTION else 1280
+                    limit = 960 if IS_PRODUCTION else 1280
                     if max_dim > limit:
                         ratio = float(limit) / max_dim
                         new_size = (max(1, int(cur_w * ratio)), max(1, int(cur_h * ratio)))

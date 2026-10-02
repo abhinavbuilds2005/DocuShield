@@ -116,7 +116,10 @@ class DocumentScreeningPipeline:
         condition = self.condition_analyzer.analyze(img_bgr)
 
         # 1. Field Detection (Localize document regions to assist OCR and forensics)
-        use_field_detector = os.environ.get("USE_FIELD_DETECTOR", "true").strip().lower() in ("true", "1", "yes")
+        # On memory-constrained Render Free Tier (512MB), default to false so EasyOCR has sufficient RAM.
+        is_render = os.environ.get("RENDER", "").lower() == "true"
+        default_field_det = "false" if is_render else "true"
+        use_field_detector = os.environ.get("USE_FIELD_DETECTOR", default_field_det).strip().lower() in ("true", "1", "yes")
         
         # Check explicit user document type selection
         selected_type = (document_type or "").strip().lower().replace("-", "_")
@@ -172,12 +175,21 @@ class DocumentScreeningPipeline:
             person_img = cv2.imread(person_image_path)
         face_result = self.face_verifier.verify(img_bgr, person_img)
 
-        # 3. Layer 1: Dedicated Field-Crop OCR (Assisted by localized detector crops where available)
+        # 3. Layer 1: Primary Full-Image OCR
+        ocr_result = self.ocr_engine.process_image(image_path, benchmark_mode=benchmark_mode)
+        full_text = ocr_result.get("full_text", "")
+
+        # Targeted Crop OCR: Only execute on localized field crops if identifier was missed by full OCR
         crop_ocr_records = {}
         if not benchmark_mode and field_detection_result.get("field_crops"):
-            # Aadhaar crop OCR
+            import re
+            has_aadhaar_in_full = bool(re.search(r"\b(\d{4}[\s-]?\d{4}[\s-]?\d{4})\b", full_text))
+            has_pan_in_full = bool(re.search(r"\b([A-Z]{5}[0-9]{4}[A-Z])\b", full_text))
+            has_dl_in_full = bool(re.search(r"\b([A-Z]{2}[-\s]?[0-9]{2}[-\s]?[0-9]{4}[-\s]?[0-9]{7})\b", full_text))
+
+            # Aadhaar crop OCR fallback
             aadhaar_crop = field_detection_result["field_crops"].get("aadhaar_number")
-            if aadhaar_crop and aadhaar_crop.get("crop") is not None:
+            if not has_aadhaar_in_full and aadhaar_crop and aadhaar_crop.get("crop") is not None:
                 c_img = aadhaar_crop["crop"]
                 if c_img.shape[0] >= 12 and c_img.shape[1] >= 35:
                     c_res = self.ocr_engine.extract_field_crop_text(
@@ -188,10 +200,12 @@ class DocumentScreeningPipeline:
                     )
                     if c_res.get("text"):
                         crop_ocr_records["aadhaar_number"] = c_res
+                        ocr_result["full_text"] = f"{ocr_result.get('full_text', '')} {c_res['text']}".strip()
+                        ocr_result["crop_assisted"] = True
 
-            # PAN crop OCR
+            # PAN crop OCR fallback
             pan_crop = field_detection_result["field_crops"].get("pan_number")
-            if pan_crop and pan_crop.get("crop") is not None:
+            if not has_pan_in_full and pan_crop and pan_crop.get("crop") is not None:
                 c_img = pan_crop["crop"]
                 if c_img.shape[0] >= 12 and c_img.shape[1] >= 35:
                     from backend.nlp.field_validator import validate_pan_format
@@ -204,10 +218,12 @@ class DocumentScreeningPipeline:
                     )
                     if c_res.get("text"):
                         crop_ocr_records["pan_number"] = c_res
+                        ocr_result["full_text"] = f"{ocr_result.get('full_text', '')} {c_res['text']}".strip()
+                        ocr_result["crop_assisted"] = True
 
-            # DL crop OCR
+            # DL crop OCR fallback
             dl_crop = field_detection_result["field_crops"].get("licence_number")
-            if dl_crop and dl_crop.get("crop") is not None:
+            if not has_dl_in_full and dl_crop and dl_crop.get("crop") is not None:
                 c_img = dl_crop["crop"]
                 if c_img.shape[0] >= 12 and c_img.shape[1] >= 35:
                     from backend.nlp.field_validator import validate_dl_format
@@ -220,56 +236,11 @@ class DocumentScreeningPipeline:
                     )
                     if c_res.get("text"):
                         crop_ocr_records["licence_number"] = c_res
-
-        ocr_result = self.ocr_engine.process_image(image_path, benchmark_mode=benchmark_mode)
-
-        # Merge crop OCR results if crop OCR extracted text with higher confidence or valid format
-        import re
-        if crop_ocr_records:
-            ocr_result["field_crop_extractions"] = crop_ocr_records
-            for f_name, c_data in crop_ocr_records.items():
-                c_text = c_data.get("text", "")
-                if not c_text:
-                    continue
-
-                if f_name == "aadhaar_number":
-                    crop_num = re.search(r"\b(\d{4}[\s-]?\d{4}[\s-]?\d{4})\b", c_text)
-                    full_num = re.search(r"\b(\d{4}[\s-]?\d{4}[\s-]?\d{4})\b", ocr_result.get("full_text", ""))
-                    if crop_num and not full_num:
-                        ocr_result["full_text"] = f"{ocr_result.get('full_text', '')} {crop_num.group(1)}".strip()
+                        ocr_result["full_text"] = f"{ocr_result.get('full_text', '')} {c_res['text']}".strip()
                         ocr_result["crop_assisted"] = True
-                    elif crop_num and full_num:
-                        from backend.nlp.field_validator import validate_verhoeff
-                        full_digits = re.sub(r"\D", "", full_num.group(1))
-                        crop_digits = re.sub(r"\D", "", crop_num.group(1))
-                        if not validate_verhoeff(full_digits) and validate_verhoeff(crop_digits):
-                            ocr_result["full_text"] = ocr_result.get("full_text", "").replace(full_num.group(1), crop_num.group(1))
-                            ocr_result["crop_assisted"] = True
 
-                elif f_name == "pan_number":
-                    pan_crop_match = re.search(r"\b([A-Z]{5}[0-9]{4}[A-Z])\b", c_text)
-                    pan_full_match = re.search(r"\b([A-Z]{5}[0-9]{4}[A-Z])\b", ocr_result.get("full_text", ""))
-                    if pan_crop_match and not pan_full_match:
-                        ocr_result["full_text"] = f"{ocr_result.get('full_text', '')} {pan_crop_match.group(1)}".strip()
-                        ocr_result["crop_assisted"] = True
-                    elif pan_crop_match and pan_full_match:
-                        from backend.nlp.field_validator import validate_pan_format
-                        if not validate_pan_format(pan_full_match.group(1))[0] and validate_pan_format(pan_crop_match.group(1))[0]:
-                            ocr_result["full_text"] = ocr_result.get("full_text", "").replace(pan_full_match.group(1), pan_crop_match.group(1))
-                            ocr_result["crop_assisted"] = True
-
-                elif f_name == "licence_number":
-                    dl_num_pattern = r"\b([A-Z]{2}[-\s]?[0-9]{2}[-\s]?[0-9]{4}[-\s]?[0-9]{7})\b"
-                    dl_crop_match = re.search(dl_num_pattern, c_text)
-                    dl_full_match = re.search(dl_num_pattern, ocr_result.get("full_text", ""))
-                    if dl_crop_match and not dl_full_match:
-                        ocr_result["full_text"] = f"{ocr_result.get('full_text', '')} {dl_crop_match.group(1)}".strip()
-                        ocr_result["crop_assisted"] = True
-                    elif dl_crop_match and dl_full_match:
-                        from backend.nlp.field_validator import validate_dl_format
-                        if not validate_dl_format(dl_full_match.group(1))[0] and validate_dl_format(dl_crop_match.group(1))[0]:
-                            ocr_result["full_text"] = ocr_result.get("full_text", "").replace(dl_full_match.group(1), dl_crop_match.group(1))
-                            ocr_result["crop_assisted"] = True
+            if crop_ocr_records:
+                ocr_result["field_crop_extractions"] = crop_ocr_records
 
         nlp_result = self.field_validator.validate(ocr_result, user_selected_type=document_type)
 
