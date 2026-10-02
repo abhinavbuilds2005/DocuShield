@@ -13,14 +13,15 @@ const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 const DOC_TYPE_NAMES = {
   auto: 'Auto Detect Category',
-  passport: 'Passport (ICAO Doc 9303)',
-  visa: 'Visa',
-  national_id: 'National Identity Card',
-  aadhaar: 'Aadhaar (National ID)',
+  aadhaar: 'Aadhaar Card (UIDAI)',
   pan: 'PAN Card (Tax ID)',
-  driving_license: 'Driving Licence',
-  dl: 'Driving Licence',
+  driving_license: 'Driving Licence (MoRTH)',
+  passport: 'Passport (ICAO Doc 9303)',
+  voter_id: 'Voter ID / EPIC Card (ECI)',
+  national_id: 'National Identity Card',
+  visa: 'Visa',
   permit: 'Permit / Travel Authorization',
+  dl: 'Driving Licence',
   unknown: 'Unknown Document'
 };
 
@@ -43,16 +44,18 @@ const DETECTOR_META = {
 // ─── Helper: Verdict Configuration ───
 function getVerdictConfig(verdict) {
   switch (verdict) {
+    case 'STRUCTURALLY_VALID_UNVERIFIED':
     case 'AUTHENTIC':
+    case 'STRUCTURALLY VALID':
       return {
         pillClass: 'verdict-pill-authentic',
         bannerClass: 'verdict-authentic',
         icon: ShieldCheck,
-        label: 'AUTHENTIC',
+        label: 'STRUCTURALLY VALID (UNVERIFIED)',
         color: '#15803D',
         bgColor: '#F0FDF4',
         borderColor: '#BBF7D0',
-        summary: 'All mathematical checksums, forensic layers, and formatting rules passed verification.'
+        summary: 'Document structure, typography, and checksums match expected templates. Official issuing authority validation not performed.'
       };
     case 'SUSPICIOUS':
       return {
@@ -63,25 +66,38 @@ function getVerdictConfig(verdict) {
         color: '#B45309',
         bgColor: '#FFFBEB',
         borderColor: '#FDE68A',
-        summary: 'Localized anomalies or format discrepancies detected. Secondary manual review recommended.'
+        summary: 'Localized anomalies, typography variances, or format discrepancies detected. Secondary manual review recommended.'
       };
+    case 'MANUAL_REVIEW_REQUIRED':
     case 'NEEDS REVIEW':
       return {
         pillClass: 'verdict-pill-review',
         bannerClass: 'verdict-review',
         icon: FileSearch,
-        label: 'NEEDS REVIEW',
+        label: 'MANUAL REVIEW REQUIRED',
         color: '#0369A1',
         bgColor: '#F0F9FF',
         borderColor: '#BAE6FD',
-        summary: 'Image clarity or evidence reliability is insufficient for a confident automatic decision.'
+        summary: 'Image clarity, blur, or evidence reliability is insufficient for a confident automatic decision. Human review required.'
       };
+    case 'INVALID':
+      return {
+        pillClass: 'verdict-pill-tampered',
+        bannerClass: 'verdict-tampered',
+        icon: XCircle,
+        label: 'INVALID CREDENTIAL',
+        color: '#DC2626',
+        bgColor: '#FEF2F2',
+        borderColor: '#FECACA',
+        summary: 'Deterministic identity credential failure or mathematical checksum violation detected.'
+      };
+    case 'LIKELY_TAMPERED':
     default:
       return {
         pillClass: 'verdict-pill-tampered',
         bannerClass: 'verdict-tampered',
         icon: ShieldAlert,
-        label: 'FLAGGED / TAMPERED',
+        label: verdict === 'LIKELY_TAMPERED' ? 'LIKELY TAMPERED' : 'FLAGGED / TAMPERED',
         color: '#B91C1C',
         bgColor: '#FEF2F2',
         borderColor: '#FECACA',
@@ -95,14 +111,22 @@ function maskIdentifier(idStr) {
   if (!idStr) return '—';
   const clean = String(idStr).trim();
   if (clean.length <= 4) return clean;
+  // If already masked by backend or previous masking pass, preserve directly
+  if (clean.includes('XXXX') || clean.includes('****') || clean.includes('••••') || (clean.includes('*') && clean.length >= 6)) {
+    return clean;
+  }
   const digits = clean.replace(/\s+/g, '');
-  if (digits.length === 12) {
-    return `${digits.slice(0, 4)} •••• ${digits.slice(8)}`;
+  if (digits.length === 12 && /^\d+$/.test(digits)) {
+    return `XXXX XXXX ${digits.slice(8)}`;
+  }
+  if (/^[A-Z]{5}\d{4}[A-Z]$/.test(clean)) {
+    return `${clean.slice(0, 5)}****${clean.slice(9)}`;
   }
   const prefix = clean.slice(0, 2);
   const suffix = clean.slice(-2);
   return `${prefix}${'•'.repeat(Math.min(6, Math.max(2, clean.length - 4)))}${suffix}`;
 }
+
 
 export default function App() {
   const [samples, setSamples] = useState([]);
@@ -483,10 +507,12 @@ export default function App() {
                       style={{ width: '100%' }}
                     >
                       <option value="auto">Auto Detect Category</option>
+                      <option value="aadhaar">Aadhaar Card (UIDAI)</option>
+                      <option value="pan">PAN Card (Income Tax)</option>
+                      <option value="driving_license">Driving Licence (MoRTH)</option>
                       <option value="passport">Passport (ICAO Doc 9303)</option>
-                      <option value="national_id">Aadhaar / National ID</option>
-                      <option value="pan">PAN Card (Tax ID)</option>
-                      <option value="driving_license">Driving Licence</option>
+                      <option value="voter_id">Voter ID / EPIC Card (ECI)</option>
+                      <option value="national_id">National Identity Card (Generic)</option>
                       <option value="visa">Visa</option>
                       <option value="permit">Permit / Authorization</option>
                     </select>
@@ -613,6 +639,34 @@ export default function App() {
             ================================================================== */}
         {r && !loading && (
           <>
+            {/* ─── OFFICIAL VERIFICATION NOTICE BANNER ─── */}
+            <div style={{
+              background: '#F8FAFC',
+              border: '1px solid #CBD5E1',
+              borderRadius: 8,
+              padding: '0.875rem 1.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              marginBottom: '1.25rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                <ShieldQuestion style={{ width: 22, height: 22, color: '#475569', flexShrink: 0 }} />
+                <div>
+                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    Official Verification: <span style={{ background: '#E2E8F0', color: '#475569', padding: '2px 8px', borderRadius: 4, fontSize: '0.6875rem', letterSpacing: '0.04em' }}>NOT PERFORMED</span>
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
+                    DocuShield AI screens document image structure, visual continuity, and algorithmic checksums. It cannot independently confirm official issuing authority records (e.g., UIDAI, DigiLocker).
+                  </div>
+                </div>
+              </div>
+              <span className="font-mono" style={{ fontSize: '0.6875rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+                Forensic Screening Only
+              </span>
+            </div>
+
             {/* ─── A. HERO RESULTS ROW: DOCUMENT CANVAS (LEFT) + VERDICT & SCORES (RIGHT) ─── */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '1.25rem', alignItems: 'start' }}>
               
@@ -632,6 +686,7 @@ export default function App() {
                 <div className="canvas-header-tabs">
                   {[
                     { key: 'annotated', label: 'Annotated' },
+                    { key: 'fields', label: `Field Localization (${r?.field_detection_model?.includes('YOLO') ? (r?.doc_type === 'pan' ? 'YOLO (PAN)' : 'YOLO (Aadhaar)') : (r?.field_detection_provenance?.fallback ? 'Heuristic' : 'Regions')}: ${r?.detected_fields?.length || 0})` },
                     { key: 'raw', label: 'Original Doc' },
                     { key: 'ela', label: 'ELA Heatmap' },
                     { key: 'edge', label: 'Edge Map' },
@@ -687,6 +742,65 @@ export default function App() {
                           />
                         );
                       })}
+
+                      {/* Precise overlay of YOLO localized field bounding boxes */}
+                      {activeView === 'fields' && r?.detected_fields?.map((f, i) => {
+                        const [bx, by, bw, bh] = f.box;
+                        const iw = r.image_dimensions?.width || 1;
+                        const ih = r.image_dimensions?.height || 1;
+                        const FIELD_COLORS = {
+                          // Aadhaar
+                          aadhaar_number: '#DC2626',
+                          name: '#2563EB',
+                          dob: '#16A34A',
+                          gender: '#9333EA',
+                          photo: '#0891B2',
+                          qr_code: '#EA580C',
+                          emblem_header: '#D97706',
+                          // PAN Card
+                          pan_number: '#DC2626',
+                          father_name: '#0D9488',
+                          date_of_birth: '#16A34A',
+                          // Driving Licence
+                          dl_number: '#7C3AED',
+                          license_number: '#7C3AED',
+                          issue_date: '#D97706',
+                          validity: '#EA580C'
+                        };
+                        const color = FIELD_COLORS[f.label] || '#4F46E5';
+                        return (
+                          <div
+                            key={i}
+                            title={`${f.label} (${Math.round((f.confidence || 0) * 100)}%)`}
+                            style={{
+                              position: 'absolute',
+                              left: `${(bx / iw) * 100}%`,
+                              top: `${(by / ih) * 100}%`,
+                              width: `${(bw / iw) * 100}%`,
+                              height: `${(bh / ih) * 100}%`,
+                              border: `2px solid ${color}`,
+                              borderRadius: 3,
+                              background: `${color}20`,
+                              pointerEvents: 'auto',
+                            }}
+                          >
+                            <span style={{
+                              position: 'absolute',
+                              top: -19,
+                              left: -1,
+                              background: color,
+                              color: '#FFFFFF',
+                              fontSize: '0.625rem',
+                              fontWeight: 700,
+                              padding: '1px 5px',
+                              borderRadius: '3px 3px 0 0',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {f.label} ({Math.round((f.confidence || 0) * 100)}%)
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
                     <div style={{ color: '#94A3B8', textAlign: 'center', padding: '3rem' }}>
@@ -696,8 +810,32 @@ export default function App() {
                   )}
                 </div>
 
+                {/* Field Detection Summary Box under image if active */}
+                {activeView === 'fields' && (
+                  <div style={{ borderTop: '1px solid #E2E8F0', padding: '0.75rem 1rem', background: '#F8FAFC' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0F2942', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                        <ScanLine style={{ width: 14, height: 14, color: '#2563EB' }} />
+                        Field Localization ({r.detected_fields?.length || 0} regions detected)
+                      </div>
+                      <span className="font-mono" style={{ fontSize: '0.6875rem', color: '#64748B' }}>
+                        {r.field_detection_model || (r.doc_type === 'aadhaar' ? 'Trained YOLOv8n (Aadhaar Only)' : r.doc_type === 'pan' ? 'Trained YOLOv8n (PAN Card)' : 'Layout Heuristics / OCR Anchors')}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {(r.detected_fields || []).map((f, i) => (
+                        <span key={i} style={{ fontSize: '0.6875rem', background: '#FFFFFF', border: '1px solid #CBD5E1', padding: '0.25rem 0.625rem', borderRadius: 4, color: '#1E293B', display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+                          <span style={{ width: 7, height: 7, borderRadius: '50%', background: f.source === 'layout_heuristic' ? '#D97706' : '#2563EB' }} />
+                          <strong>{f.label}:</strong> {Math.round((f.confidence || 0) * 100)}%
+                          {f.source === 'layout_heuristic' && <span style={{ fontSize: '0.625rem', color: '#94A3B8' }}>(heuristic)</span>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Flagged Regions Mini Table under image if any */}
-                {r?.flagged_regions?.length > 0 && (
+                {activeView !== 'fields' && r?.flagged_regions?.length > 0 && (
                   <div style={{ borderTop: '1px solid #E2E8F0', padding: '0.75rem 1rem', background: '#FFFFFF' }}>
                     <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#B45309', display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.375rem' }}>
                       <AlertTriangle style={{ width: 14, height: 14 }} />
@@ -1107,6 +1245,35 @@ export default function App() {
                   </span>
                 </div>
 
+                {/* Machine-Readable QR / Barcode State Machine */}
+                {r.qr_analysis && (
+                  <div style={{ border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0.875rem 1rem', background: '#F8FAFC' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
+                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0F2942', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                        <ScanLine style={{ width: 16, height: 16, color: '#2563EB' }} />
+                        2D Barcode / QR Code Security State
+                      </span>
+                      <span className={`status-badge ${
+                        r.qr_analysis.status === 'DECODED_AND_CONSISTENT' ? 'status-clean' :
+                        r.qr_analysis.status === 'DECODED_AND_MISMATCHED' ? 'status-strong' :
+                        r.qr_analysis.status === 'DETECTED_NOT_DECODED' ? 'status-moderate' : 'status-weak'
+                      }`}>
+                        {r.qr_analysis.status}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#475569', lineHeight: 1.4 }}>
+                      {r.qr_analysis.status === 'DECODED_AND_CONSISTENT' && '✓ QR code payload successfully decoded and matches visual document number.'}
+                      {r.qr_analysis.status === 'DECODED_AND_MISMATCHED' && '✕ Critical Cross-Field Mismatch: Decoded QR payload contradicts visual printed document number!'}
+                      {r.qr_analysis.status === 'DECODED_UNVERIFIED' && 'ℹ QR code decoded; payload contains binary/proprietary data without cross-checkable plain text UID.'}
+                      {r.qr_analysis.status === 'DETECTED_NOT_DECODED' && '⚠ QR matrix detected visually but could not be decoded due to blur, distortion, or low resolution.'}
+                      {r.qr_analysis.status === 'NOT_PRESENT' && 'No 2D barcode / QR matrix detected on document image.'}
+                    </div>
+                    <div style={{ fontSize: '0.6875rem', color: '#94A3B8', marginTop: '0.375rem' }}>
+                      {r.qr_analysis.disclaimer || 'Cryptographic signature verification against issuing authority public key is not performed.'}
+                    </div>
+                  </div>
+                )}
+
                 {/* Structured Fields Table */}
                 {r.schema_fields && Object.keys(r.schema_fields).length > 0 && (
                   <div style={{ overflowX: 'auto', border: '1px solid #E2E8F0', borderRadius: '8px' }}>
@@ -1202,10 +1369,10 @@ export default function App() {
                 Performance & Validation
               </div>
               <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.15rem' }}>
-                Evaluated on current 20-document dataset (Not a claim of universal real-world accuracy)
+                Measured on an internal 20-document benchmark; not equivalent to real-world authenticity accuracy or official verification.
               </div>
             </div>
-            <span className="badge-tag badge-tag-primary">Verified Project Results</span>
+            <span className="badge-tag badge-tag-primary">100% on Internal 20-Document Benchmark</span>
           </div>
 
           <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -1218,19 +1385,19 @@ export default function App() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.875rem' }}>
                 <div className="score-box">
                   <div className="score-number" style={{ color: '#15803D' }}>100%</div>
-                  <div className="score-label">Accuracy</div>
+                  <div className="score-label">Accuracy <span style={{ fontSize: '0.6rem', color: '#94A3B8', fontWeight: 400 }}>(Internal 20-Doc Set)</span></div>
                 </div>
                 <div className="score-box">
                   <div className="score-number" style={{ color: '#0F2942' }}>100%</div>
-                  <div className="score-label">Precision</div>
+                  <div className="score-label">Precision <span style={{ fontSize: '0.6rem', color: '#94A3B8', fontWeight: 400 }}>(Internal 20-Doc Set)</span></div>
                 </div>
                 <div className="score-box">
                   <div className="score-number" style={{ color: '#2563EB' }}>100%</div>
-                  <div className="score-label">Recall</div>
+                  <div className="score-label">Recall <span style={{ fontSize: '0.6rem', color: '#94A3B8', fontWeight: 400 }}>(Internal 20-Doc Set)</span></div>
                 </div>
                 <div className="score-box">
                   <div className="score-number" style={{ color: '#D97706' }}>100%</div>
-                  <div className="score-label">F1 Score</div>
+                  <div className="score-label">F1 Score <span style={{ fontSize: '0.6rem', color: '#94A3B8', fontWeight: 400 }}>(Internal 20-Doc Set)</span></div>
                 </div>
               </div>
             </div>
@@ -1246,8 +1413,8 @@ export default function App() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>
-                      <span>Genuine Documents</span>
-                      <span style={{ color: '#15803D' }}>10 evaluated • 10 correctly identified (100%)</span>
+                      <span>Genuine Benchmark Documents</span>
+                      <span style={{ color: '#15803D' }}>10 evaluated • 10 correctly identified in benchmark (100%)</span>
                     </div>
                     <div className="light-progress-bar">
                       <div className="light-progress-fill" style={{ width: '100%', background: '#16A34A' }} />
@@ -1256,8 +1423,8 @@ export default function App() {
 
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>
-                      <span>Fake / Tampered Documents</span>
-                      <span style={{ color: '#B45309' }}>10 evaluated • 10 correctly identified (100%)</span>
+                      <span>Fake / Tampered Benchmark Documents</span>
+                      <span style={{ color: '#B45309' }}>10 evaluated • 10 correctly identified in benchmark (100%)</span>
                     </div>
                     <div className="light-progress-bar">
                       <div className="light-progress-fill" style={{ width: '100%', background: '#D97706' }} />
@@ -1265,6 +1432,7 @@ export default function App() {
                   </div>
                 </div>
               </div>
+
 
               {/* C. Document Type Breakdown */}
               <div style={{ border: '1px solid #E2E8F0', borderRadius: '8px', padding: '1.25rem', background: '#FFFFFF' }}>
@@ -1390,7 +1558,7 @@ export default function App() {
                   <span className="badge-tag badge-tag-neutral" style={{ background: '#DCFCE7', color: '#15803D', border: '1px solid #86EFAC' }}>
                     GENUINE DOCUMENT EXAMPLE
                   </span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#15803D' }}>Verdict: AUTHENTIC</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#15803D' }}>Verdict: STRUCTURALLY VALID</span>
                 </div>
 
                 <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.25rem' }}>
@@ -1511,9 +1679,14 @@ export default function App() {
         </div>
       )}
 
-      {/* ─── Minimal Clean Footer ─── */}
-      <footer style={{ marginTop: 'auto', borderTop: '1px solid #E2E8F0', background: '#FFFFFF', padding: '1rem 2rem', textAlign: 'center', fontSize: '0.75rem', color: '#64748B' }}>
-        <strong>DocuShield AI</strong> — AI-Based Fake Identity & Document Screening System (SIH26188) • Built for SIH Prototype Demonstration
+      {/* ─── Transparent Legal & Forensic Footer ─── */}
+      <footer style={{ marginTop: 'auto', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', padding: '1.25rem 2rem', textAlign: 'center', fontSize: '0.75rem', color: '#64748B' }}>
+        <div style={{ maxWidth: 840, margin: '0 auto', lineHeight: 1.6 }}>
+          <strong>Forensic Notice & Scope:</strong> DocuShield AI now includes a trained field-detection component that improves document-region localization and can assist OCR and forensic analysis. It remains a forensic screening and risk-assessment system. Image-based checks alone cannot guarantee official document authenticity without authorized verification.
+        </div>
+        <div style={{ marginTop: '0.5rem', color: '#94A3B8', fontSize: '0.6875rem' }}>
+          DocuShield AI (SIH26188) • Document Forensics & Tampering Screening Prototype
+        </div>
       </footer>
     </div>
   );
@@ -1536,12 +1709,17 @@ function BenchmarkResults({ data, onRerun }) {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
-        <div className="score-box"><div className="score-number" style={{ color: '#15803D' }}>{m.accuracy ?? m.accuracy_pct ?? '—'}%</div><div className="score-label">Accuracy</div></div>
-        <div className="score-box"><div className="score-number" style={{ color: '#0F2942' }}>{m.precision ?? '—'}%</div><div className="score-label">Precision</div></div>
-        <div className="score-box"><div className="score-number" style={{ color: '#2563EB' }}>{m.recall ?? '—'}%</div><div className="score-label">Recall</div></div>
-        <div className="score-box"><div className="score-number" style={{ color: '#D97706' }}>{m.f1_score ?? m.f1 ?? '—'}%</div><div className="score-label">F1 Score</div></div>
+      <div style={{ fontSize: '0.75rem', color: '#64748B', background: '#F8FAFC', padding: '0.5rem 0.75rem', borderRadius: 6, border: '1px solid #E2E8F0' }}>
+        <strong>Scope Notice:</strong> Measured on an internal benchmark dataset; not equivalent to real-world authenticity accuracy or official verification.
       </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
+        <div className="score-box"><div className="score-number" style={{ color: '#15803D' }}>{m.accuracy ?? m.accuracy_pct ?? '—'}%</div><div className="score-label">Accuracy <span style={{ fontSize: '0.6rem', color: '#94A3B8', fontWeight: 400 }}>(Benchmark)</span></div></div>
+        <div className="score-box"><div className="score-number" style={{ color: '#0F2942' }}>{m.precision ?? '—'}%</div><div className="score-label">Precision <span style={{ fontSize: '0.6rem', color: '#94A3B8', fontWeight: 400 }}>(Benchmark)</span></div></div>
+        <div className="score-box"><div className="score-number" style={{ color: '#2563EB' }}>{m.recall ?? '—'}%</div><div className="score-label">Recall <span style={{ fontSize: '0.6rem', color: '#94A3B8', fontWeight: 400 }}>(Benchmark)</span></div></div>
+        <div className="score-box"><div className="score-number" style={{ color: '#D97706' }}>{m.f1_score ?? m.f1 ?? '—'}%</div><div className="score-label">F1 Score <span style={{ fontSize: '0.6rem', color: '#94A3B8', fontWeight: 400 }}>(Benchmark)</span></div></div>
+      </div>
+
 
       <div>
         <div style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#0F2942', marginBottom: '0.5rem' }}>
@@ -1596,7 +1774,7 @@ function BenchmarkResults({ data, onRerun }) {
                       <td>
                         <span style={{
                           fontWeight: 700,
-                          color: verd === 'AUTHENTIC' ? '#15803D' : verd === 'SUSPICIOUS' ? '#D97706' : '#DC2626'
+                          color: (verd === 'AUTHENTIC' || verd === 'STRUCTURALLY VALID' || verd === 'STRUCTURALLY_VALID_UNVERIFIED') ? '#15803D' : verd === 'SUSPICIOUS' ? '#D97706' : '#DC2626'
                         }}>
                           {verd}
                         </span>

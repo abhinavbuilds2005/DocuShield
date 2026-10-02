@@ -1,0 +1,62 @@
+{
+  "metric_type": "Field Detection Performance",
+  "forensic_notice": "These metrics quantify the model's ability to locate document regions (bounding boxes for Name, DOB, Aadhaar number, Photo, QR, Header). They do NOT represent genuine-vs-fake document authenticity accuracy.",
+  "model_architecture": "YOLOv8n (nano)",
+  "model_file": "D:\\Document detector\\models\\aadhaar_field_detector.pt",
+  "model_size_mb": 5.94,
+  "overall_performance": {
+    "mAP50": 0.995,
+    "mAP50_95": 0.7716,
+    "mean_precision": 0.9878,
+    "mean_recall": 0.9996
+  },
+  "per_class_performance": {
+    "aadhaar_number": {
+      "precision": 0.985,
+      "recall": 1.0,
+      "map50": 0.995,
+      "map50_95": 0.7805
+    },
+    "name": {
+      "precision": 1.0,
+      "recall": 0.9971,
+      "map50": 0.995,
+      "map50_95": 0.6971
+    },
+    "dob": {
+      "precision": 0.9874,
+      "recall": 1.0,
+      "map50": 0.995,
+      "map50_95": 0.6403
+    },
+    "gender": {
+      "precision": 0.9882,
+      "recall": 1.0,
+      "map50": 0.995,
+      "map50_95": 0.6105
+    },
+    "photo": {
+      "precision": 0.9834,
+      "recall": 1.0,
+      "map50": 0.995,
+      "map50_95": 0.995
+    },
+    "qr_code": {
+      "precision": 0.9843,
+      "recall": 1.0,
+      "map50": 0.995,
+      "map50_95": 0.9918
+    },
+    "emblem_header": {
+      "precision": 0.9864,
+      "recall": 1.0,
+      "map50": 0.995,
+      "map50_95": 0.6858
+    }
+  },
+  "inference_latency": {
+    "device": "CPU",
+    "average_ms": 55.65,
+    "fps": 18.0
+  }
+}

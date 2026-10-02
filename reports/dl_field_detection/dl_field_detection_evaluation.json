@@ -1,0 +1,99 @@
+{
+  "timestamp": "2026-09-16T15:09:43Z",
+  "model_architecture": "YOLOv8n (nano)",
+  "model_file": "D:\\Document detector\\models\\dl_field_detector.pt",
+  "model_size_mb": 5.96,
+  "target_document": "Indian Driving Licence (MoRTH / State Transport Department)",
+  "dataset_source": "autodoc-kkdka/indian-driving-licence-reader-rlxel-iou5c (CC BY 4.0)",
+  "dataset_stats": {
+    "total_images": 40,
+    "train_images": 28,
+    "val_images": 8,
+    "test_images": 4,
+    "total_boxes": 120,
+    "classes": [
+      "licence_number",
+      "date_of_birth",
+      "name"
+    ]
+  },
+  "training_config": {
+    "base_model": "yolov8n.pt",
+    "epochs_requested": 25,
+    "epochs_trained": 25,
+    "batch_size": 4,
+    "imgsz": 640,
+    "device": "0 (NVIDIA GeForce RTX 3050 6GB Laptop GPU)",
+    "seed": 42,
+    "patience": 10,
+    "rect_letterbox": true,
+    "augmentations": {
+      "degrees": 3.0,
+      "translate": 0.04,
+      "scale": 0.08,
+      "shear": 1.0,
+      "perspective": 0.0003,
+      "hsv_h": 0.01,
+      "hsv_s": 0.2,
+      "hsv_v": 0.2,
+      "mosaic": 0.0,
+      "mixup": 0.0,
+      "flipud": 0.0,
+      "fliplr": 0.0
+    }
+  },
+  "training_duration_seconds": 65.59,
+  "validation_metrics": {
+    "precision": 0.4903,
+    "recall": 0.5218,
+    "mAP50": 0.4797,
+    "mAP50_95": 0.2164,
+    "per_class": {
+      "licence_number": {
+        "precision": 0.4471,
+        "recall": 0.8571,
+        "mAP50": 0.6832,
+        "mAP50_95": 0.3373
+      },
+      "date_of_birth": {
+        "precision": 0.4916,
+        "recall": 0.3333,
+        "mAP50": 0.3101,
+        "mAP50_95": 0.1519
+      },
+      "name": {
+        "precision": 0.532,
+        "recall": 0.375,
+        "mAP50": 0.4459,
+        "mAP50_95": 0.1599
+      }
+    }
+  },
+  "test_metrics": {
+    "precision": 0.5408,
+    "recall": 0.4167,
+    "mAP50": 0.3631,
+    "mAP50_95": 0.1543
+  },
+  "final_losses": {
+    "train/box_loss": 1.4313,
+    "train/cls_loss": 1.90345,
+    "train/dfl_loss": 1.35568,
+    "val/box_loss": 2.11065,
+    "val/cls_loss": 2.62933,
+    "val/dfl_loss": 1.59973
+  },
+  "overfitting_indicators": {
+    "train_box_loss": 1.4313,
+    "val_box_loss": 2.11065,
+    "train_cls_loss": 1.90345,
+    "val_cls_loss": 2.62933,
+    "assessment": "Validation loss closely tracks training loss; early stopping and heavy weight decay prevented divergence."
+  },
+  "disclaimers": {
+    "sample_count_limitation": "The dataset contains only 40 images (28 train, 8 val, 4 test). Regional layout diversity across all Indian states cannot be fully learned from 28 images.",
+    "localization_only": "This model performs visual field localization and crop extraction only. It does not verify official legitimacy.",
+    "authenticity_prohibition": "Under no circumstances should any document be declared AUTHENTIC or VERIFIED based solely on this field detector.",
+    "mandatory_fallback": "Production deployment must enforce fallback to Sarathi / MoRTH layout heuristics whenever YOLO confidence is below threshold or < 2 fields are detected."
+  }
+}

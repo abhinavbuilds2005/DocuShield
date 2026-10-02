@@ -63,30 +63,72 @@ app = FastAPI(
     version="2.0.0"
 )
 
-ALLOWED_ORIGINS = [
-    o.strip()
-    for o in os.environ.get(
-        "ALLOWED_ORIGINS",
-        "*"
-    ).split(",")
-    if o.strip()
-]
+# ---------------------------------------------------------------------------
+# Production-safe CORS Configuration:
+# - Default: localhost dev origins only (safe for local development)
+# - Override via ALLOWED_ORIGINS env var (comma-separated domains)
+# - Rejects wildcard '*' in production mode
+# ---------------------------------------------------------------------------
+_CORS_DEFAULT = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:3000"
+
+
+def parse_allowed_origins(raw_origins: Optional[str]) -> list:
+    """Parses and normalizes comma-separated CORS allowed origins, stripping trailing slashes."""
+    origins = []
+    if raw_origins and raw_origins.strip():
+        for part in raw_origins.split(","):
+            cleaned = part.strip().rstrip("/")
+            if cleaned and cleaned != "https://your-production-frontend-domain.com":
+                origins.append(cleaned)
+
+    # Automatically include Render external URL if injected by the Render runtime
+    render_url = os.environ.get("RENDER_EXTERNAL_URL", "").strip().rstrip("/")
+    if render_url and render_url not in origins:
+        origins.append(render_url)
+
+    # Fallback to dev origins if no explicit production origin is provided
+    if not origins:
+        for part in _CORS_DEFAULT.split(","):
+            cleaned = part.strip().rstrip("/")
+            if cleaned and cleaned not in origins:
+                origins.append(cleaned)
+
+    return origins
+
+
+IS_PRODUCTION = os.environ.get("ENVIRONMENT", "").lower() == "production" or \
+                os.environ.get("DOCUSHIELD_ENV", "").lower() == "production" or \
+                os.environ.get("RENDER", "").lower() == "true"
+
+ALLOWED_ORIGINS = parse_allowed_origins(os.environ.get("ALLOWED_ORIGINS"))
 
 if "*" in ALLOWED_ORIGINS:
+    if IS_PRODUCTION:
+        raise ValueError(
+            "[SECURITY CRITICAL] Wildcard '*' CORS origin is strictly forbidden in production mode. "
+            "Please configure ALLOWED_ORIGINS with your explicit production frontend domain(s)."
+        )
+    print("[CORS WARNING] ALLOWED_ORIGINS is set to '*' (wildcard). "
+          "This allows any website to make requests to this API. "
+          "For production, set ALLOWED_ORIGINS to your specific domain(s).")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Content-Type", "Accept", "Authorization"],
     )
 else:
+    print(f"[CORS] Allowed origins: {ALLOWED_ORIGINS}")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=ALLOWED_ORIGINS,
+        allow_origin_regex=r"https://.*\.onrender\.com",
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Content-Type", "Accept", "Authorization"],
     )
+
 
 # ---------------------------------------------------------------------------
 # Data paths & Ground truth whitelist
@@ -237,11 +279,51 @@ def root(request: Request):
 
 @app.get("/api/health")
 def health_check():
-    """Returns system health and OCR engine availability."""
+    """Returns system health and OCR engine availability without forcing heavy neural weights into RAM."""
     ocr_status = get_ocr_status()
+    try:
+        from backend.vision.field_detector import get_field_detector
+        fd = get_field_detector()
+        has_file = os.path.exists(fd.model_path) if hasattr(fd, "model_path") else False
+        fd_info = {
+            "available": fd.enabled and has_file,
+            "device": getattr(fd, "device_pref", "cpu"),
+            "model_path": getattr(fd, "model_path", "")
+        }
+    except Exception as e:
+        fd_info = {"available": False, "error": str(e)}
+
+    try:
+        from backend.vision.pan_field_detector import get_pan_field_detector
+        pfd = get_pan_field_detector()
+        has_pfd = os.path.exists(pfd.model_path) if hasattr(pfd, "model_path") else False
+        pfd_info = {
+            "available": pfd.enabled and has_pfd,
+            "device": getattr(pfd, "device_pref", "cpu"),
+            "model_path": getattr(pfd, "model_path", "")
+        }
+    except Exception as e:
+        pfd_info = {"available": False, "error": str(e)}
+
+    try:
+        from backend.vision.dl_field_detector import get_dl_field_detector
+        dl_fd = get_dl_field_detector()
+        has_dl = os.path.exists(dl_fd.model_path) if hasattr(dl_fd, "model_path") else False
+        dl_fd_info = {
+            "available": dl_fd.enabled and has_dl,
+            "device": getattr(dl_fd, "device_pref", "cpu"),
+            "model_path": getattr(dl_fd, "model_path", ""),
+            "experimental": True
+        }
+    except Exception as e:
+        dl_fd_info = {"available": False, "error": str(e), "experimental": True}
+
     return {
         "status": "healthy",
         "ocr": ocr_status,
+        "field_detector": fd_info,
+        "pan_field_detector": pfd_info,
+        "dl_field_detector": dl_fd_info,
         "dataset_loaded": len(_ALLOWED_SAMPLE_IDS) > 0,
         "dataset_size": len(_ALLOWED_SAMPLE_IDS)
     }
@@ -347,8 +429,9 @@ async def screen_document(
                 with PILImage.open(temp_path) as p_img:
                     cur_w, cur_h = p_img.size
                     max_dim = max(cur_w, cur_h)
-                    if max_dim > 1280:
-                        ratio = 1280.0 / max_dim
+                    limit = 1024 if IS_PRODUCTION else 1280
+                    if max_dim > limit:
+                        ratio = float(limit) / max_dim
                         new_size = (max(1, int(cur_w * ratio)), max(1, int(cur_h * ratio)))
                         resample_filter = getattr(PILImage, "Resampling", PILImage).LANCZOS
                         resized_img = p_img.resize(new_size, resample=resample_filter)

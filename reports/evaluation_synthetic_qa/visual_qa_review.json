@@ -1,0 +1,125 @@
+{
+  "total_reviewed": 15,
+  "reviews": [
+    {
+      "sample_id": "eval_dev_aadhaar_0001",
+      "class": "aadhaar",
+      "category": "pristine_flatbed",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_aadhaar_0001_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_aadhaar_0031",
+      "class": "aadhaar",
+      "category": "mobile_camera",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_aadhaar_0031_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_aadhaar_0056",
+      "class": "aadhaar",
+      "category": "compressed_transmission",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_aadhaar_0056_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_pan_0001",
+      "class": "pan",
+      "category": "pristine_flatbed",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_pan_0001_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_pan_0031",
+      "class": "pan",
+      "category": "mobile_camera",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_pan_0031_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_pan_0056",
+      "class": "pan",
+      "category": "compressed_transmission",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_pan_0056_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_driving_license_0001",
+      "class": "driving_license",
+      "category": "pristine_flatbed",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_driving_license_0001_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_driving_license_0031",
+      "class": "driving_license",
+      "category": "mobile_camera",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_driving_license_0031_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_driving_license_0056",
+      "class": "driving_license",
+      "category": "compressed_transmission",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_driving_license_0056_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_passport_0001",
+      "class": "passport",
+      "category": "pristine_flatbed",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_passport_0001_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_passport_0031",
+      "class": "passport",
+      "category": "mobile_camera",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_passport_0031_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_passport_0056",
+      "class": "passport",
+      "category": "compressed_transmission",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_passport_0056_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_voter_id_0001",
+      "class": "voter_id",
+      "category": "pristine_flatbed",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_voter_id_0001_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_voter_id_0031",
+      "class": "voter_id",
+      "category": "mobile_camera",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_voter_id_0031_annotated.jpg"
+    },
+    {
+      "sample_id": "eval_dev_voter_id_0056",
+      "class": "voter_id",
+      "category": "compressed_transmission",
+      "split": "dev",
+      "watermark_verified": true,
+      "annotated_preview": "eval_dev_voter_id_0056_annotated.jpg"
+    }
+  ]
+}

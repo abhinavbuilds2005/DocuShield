@@ -1,0 +1,58 @@
+{
+  "dataset_name": "autodoc-kkdka/indian-driving-licence-reader-rlxel-iou5c",
+  "license": "CC BY 4.0",
+  "processed_root": "data\\processed\\dl_field_detection",
+  "total_images": 40,
+  "total_raw_annotations": 120,
+  "annotations_already_standard_5val": 53,
+  "annotations_converted_from_polygon": 67,
+  "polygon_token_counts": {
+    "5": 53,
+    "9": 57,
+    "11": 10
+  },
+  "invalid_rejected_annotations": 0,
+  "rejection_reasons": [],
+  "class_distribution": {
+    "licence_number": 41,
+    "name": 39,
+    "date_of_birth": 40
+  },
+  "splits": {
+    "train": {
+      "image_count": 28,
+      "annotation_count": 84,
+      "classes": {
+        "licence_number": 30,
+        "name": 27,
+        "date_of_birth": 27
+      }
+    },
+    "valid": {
+      "image_count": 8,
+      "annotation_count": 24,
+      "classes": {
+        "licence_number": 7,
+        "name": 8,
+        "date_of_birth": 9
+      }
+    },
+    "test": {
+      "image_count": 4,
+      "annotation_count": 12,
+      "classes": {
+        "licence_number": 4,
+        "name": 4,
+        "date_of_birth": 4
+      }
+    }
+  },
+  "duplicate_images_count": 0,
+  "cross_split_leakage": false,
+  "visual_qa_samples": [
+    "dl_qa_sample_01_train.jpg",
+    "dl_qa_sample_02_train.jpg",
+    "dl_qa_sample_03_valid.jpg",
+    "dl_qa_sample_04_test.jpg"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "total_documents": 20,
-  "elapsed_seconds": 2.03,
+  "elapsed_seconds": 5.93,
   "benchmark_mode": "sidecar_ocr",
   "dataset_composition": {
     "genuine": 9,
@@ -9,27 +9,27 @@
   },
   "qualification": "Results from 20-document synthetic benchmark (with sidecar OCR for controlled testing). This is NOT a claim of real-world accuracy.",
   "metrics": {
-    "accuracy": 90.0,
-    "precision": 100.0,
-    "recall": 81.82,
-    "f1_score": 90.0,
-    "true_positives": 9,
-    "true_negatives": 9,
-    "false_positives": 0,
-    "false_negatives": 2
+    "accuracy": 55.0,
+    "precision": 55.0,
+    "recall": 100.0,
+    "f1_score": 70.97,
+    "true_positives": 11,
+    "true_negatives": 0,
+    "false_positives": 9,
+    "false_negatives": 0
   },
   "confusion_matrix": {
-    "TP": 9,
-    "TN": 9,
-    "FP": 0,
-    "FN": 2
+    "TP": 11,
+    "TN": 0,
+    "FP": 9,
+    "FN": 0
   },
   "details": [
     {
       "document_id": "mock_aadhaar_01_genuine.png",
       "filename": "mock_aadhaar_01_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
@@ -41,7 +41,7 @@
         "fields": [
           {
             "field": "Aadhaar / National ID Number",
-            "value": "5428 9162 3811",
+            "value": "XXXX XXXX 3811",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm)",
             "field_ocr_confidence": 0.99,
@@ -127,7 +127,7 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_GENUINE",
+      "classification_status": "FALSE_POSITIVE",
       "tampering_types": [],
       "flagged_regions_count": 0,
       "critical_triggers": [],
@@ -149,7 +149,7 @@
         "fields": [
           {
             "field": "Aadhaar / National ID Number",
-            "value": "5428 9162 3811",
+            "value": "XXXX XXXX 3811",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm)",
             "field_ocr_confidence": 0.99,
@@ -250,7 +250,7 @@
       "document_id": "mock_aadhaar_02_tampered_checksum.png",
       "filename": "mock_aadhaar_02_tampered_checksum.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "SUSPICIOUS",
+      "final_prediction": "INVALID",
       "final_risk_fraud_score": 42.0,
       "authenticity_score": 58.0,
       "ocr_extraction_status": "SUCCESS",
@@ -262,7 +262,7 @@
         "fields": [
           {
             "field": "Aadhaar / National ID Number",
-            "value": "542891623814",
+            "value": "XXXX XXXX 3814",
             "status": "FAIL",
             "details": "Deterministic Verhoeff Checksum Failure: 12-digit UID was extracted with high field confidence (0.99), but fails mathematical validation even with optical character confusion tolerance.",
             "field_ocr_confidence": 0.99,
@@ -364,7 +364,7 @@
       "document_id": "mock_aadhaar_03_genuine.png",
       "filename": "mock_aadhaar_03_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
@@ -376,7 +376,7 @@
         "fields": [
           {
             "field": "Aadhaar / National ID Number",
-            "value": "8742 1935 6123",
+            "value": "XXXX XXXX 6123",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm)",
             "field_ocr_confidence": 0.99,
@@ -462,7 +462,7 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_GENUINE",
+      "classification_status": "FALSE_POSITIVE",
       "tampering_types": [],
       "flagged_regions_count": 0,
       "critical_triggers": [],
@@ -484,7 +484,7 @@
         "fields": [
           {
             "field": "Aadhaar / National ID Number",
-            "value": "8742 1935 6123",
+            "value": "XXXX XXXX 6123",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm)",
             "field_ocr_confidence": 0.99,
@@ -585,23 +585,41 @@
       "document_id": "mock_pan_01_genuine.png",
       "filename": "mock_pan_01_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "national_id",
+        "document_type": "pan",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
           {
             "field": "Permanent Account Number (PAN)",
-            "value": "ABCPG1234F",
+            "value": "ABCPG****F",
             "status": "PASS",
             "details": "Valid 10-character Tax ID structure (Entity code verified)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Entity Classification",
+            "value": "Individual (P)",
+            "status": "PASS",
+            "details": "Entity code 'P': Individual",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Cardholder Surname Correlation",
+            "value": "PASS",
+            "status": "PASS",
+            "details": "5th character 'G' matches holder surname 'GUPTA' initial",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": false,
             "evidence_level": "CLEAN"
           },
           {
@@ -683,7 +701,7 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_GENUINE",
+      "classification_status": "FALSE_POSITIVE",
       "tampering_types": [],
       "flagged_regions_count": 0,
       "critical_triggers": [],
@@ -699,17 +717,35 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.904,
       "field_validation_checksum_results": {
-        "document_type": "national_id",
+        "document_type": "pan",
         "score": 92,
         "evidence_strength": "WEAK",
         "fields": [
           {
             "field": "Permanent Account Number (PAN)",
-            "value": "ABCPG1234F",
+            "value": "ABCPG****F",
             "status": "PASS",
             "details": "Valid 10-character Tax ID structure (Entity code verified)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Entity Classification",
+            "value": "Individual (P)",
+            "status": "PASS",
+            "details": "Entity code 'P': Individual",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Cardholder Surname Correlation",
+            "value": "PASS",
+            "status": "PASS",
+            "details": "5th character 'G' matches holder surname 'GUPTA' initial",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": false,
             "evidence_level": "CLEAN"
           },
           {
@@ -811,23 +847,41 @@
       "document_id": "mock_pan_03_tampered_copymove.png",
       "filename": "mock_pan_03_tampered_copymove.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "national_id",
+        "document_type": "pan",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
           {
             "field": "Permanent Account Number (PAN)",
-            "value": "ABCPG1234F",
+            "value": "ABCPG****F",
             "status": "PASS",
             "details": "Valid 10-character Tax ID structure (Entity code verified)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Entity Classification",
+            "value": "Individual (P)",
+            "status": "PASS",
+            "details": "Entity code 'P': Individual",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Cardholder Surname Correlation",
+            "value": "PASS",
+            "status": "PASS",
+            "details": "5th character 'G' matches holder surname 'GUPTA' initial",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": false,
             "evidence_level": "CLEAN"
           },
           {
@@ -909,7 +963,7 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "FALSE_NEGATIVE",
+      "classification_status": "CORRECT_DETECTION",
       "tampering_types": [
         "copy_move_cloning"
       ],
@@ -921,21 +975,148 @@
       "document_id": "mock_pan_04_genuine.png",
       "filename": "mock_pan_04_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "national_id",
+        "document_type": "pan",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
           {
             "field": "Permanent Account Number (PAN)",
-            "value": "BZXPS5432K",
+            "value": "BZXPS****K",
             "status": "PASS",
             "details": "Valid 10-character Tax ID structure (Entity code verified)",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Entity Classification",
+            "value": "Individual (P)",
+            "status": "PASS",
+            "details": "Entity code 'P': Individual",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Cardholder Surname Correlation",
+            "value": "PASS",
+            "status": "PASS",
+            "details": "5th character 'S' matches holder surname 'SEN' initial",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": false,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Detected Dates",
+            "value": "05/03/1994",
+            "status": "PASS",
+            "details": "Parsed 1 chronological date(s) successfully"
+          }
+        ],
+        "reasons": []
+      },
+      "ela_score_evidence": {
+        "score": 98.0,
+        "evidence_strength": "CLEAN",
+        "hotspot_count": 0,
+        "metrics": {
+          "mean_error": 2.09,
+          "std_error": 6.6,
+          "max_error": 86.0
+        }
+      },
+      "copy_move_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected": false,
+        "details": "No cloned texture or copy-move forgery patterns identified"
+      },
+      "typography_rendering_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
+      },
+      "metadata_anomaly_score_evidence": {
+        "score": 100.0,
+        "evidence_strength": "CLEAN",
+        "detected_software": null,
+        "reasons": []
+      },
+      "fusion_contributions": {
+        "nlp": {
+          "weight": 0.3,
+          "raw_score": 100,
+          "weighted_score": 30.0,
+          "evidence_strength": "CLEAN"
+        },
+        "ela": {
+          "weight": 0.25,
+          "raw_score": 98.0,
+          "weighted_score": 24.5,
+          "evidence_strength": "CLEAN"
+        },
+        "font": {
+          "weight": 0.2,
+          "raw_score": 100.0,
+          "weighted_score": 20.0,
+          "evidence_strength": "CLEAN"
+        },
+        "copy_move": {
+          "weight": 0.15,
+          "raw_score": 100.0,
+          "weighted_score": 15.0,
+          "evidence_strength": "CLEAN"
+        },
+        "metadata": {
+          "weight": 0.1,
+          "raw_score": 100.0,
+          "weighted_score": 10.0,
+          "evidence_strength": "CLEAN"
+        },
+        "base_weighted_sum": 99.5,
+        "penalties_applied": [
+          "All forensic layers clean and consistent -> AUTHENTIC"
+        ],
+        "diagnostic_status": "CLEAN"
+      },
+      "final_decision_threshold": {
+        "authenticity_threshold": 80.0,
+        "risk_threshold": 20.0,
+        "suspicious_threshold": 50.0,
+        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
+      },
+      "classification_status": "FALSE_POSITIVE",
+      "tampering_types": [],
+      "flagged_regions_count": 0,
+      "critical_triggers": [],
+      "ocr_engine": "sidecar"
+    },
+    {
+      "document_id": "mock_pan_05_tampered_regex.png",
+      "filename": "mock_pan_05_tampered_regex.png",
+      "ground_truth_label": "TAMPERED",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
+      "final_risk_fraud_score": 0.5,
+      "authenticity_score": 99.5,
+      "ocr_extraction_status": "SUCCESS",
+      "ocr_confidence": 0.9728,
+      "field_validation_checksum_results": {
+        "document_type": "voter_id",
+        "score": 100,
+        "evidence_strength": "CLEAN",
+        "fields": [
+          {
+            "field": "Voter ID / EPIC Number",
+            "value": "ABC9999999",
+            "raw_value": "ABC9999999",
+            "status": "PASS",
+            "details": "EPIC format compatible (3 letters + 7 digits: ABC9999999)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
@@ -1019,131 +1200,19 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_GENUINE",
-      "tampering_types": [],
-      "flagged_regions_count": 0,
-      "critical_triggers": [],
-      "ocr_engine": "sidecar"
-    },
-    {
-      "document_id": "mock_pan_05_tampered_regex.png",
-      "filename": "mock_pan_05_tampered_regex.png",
-      "ground_truth_label": "TAMPERED",
-      "final_prediction": "SUSPICIOUS",
-      "final_risk_fraud_score": 42.0,
-      "authenticity_score": 58.0,
-      "ocr_extraction_status": "SUCCESS",
-      "ocr_confidence": 0.9728,
-      "field_validation_checksum_results": {
-        "document_type": "national_id",
-        "score": 65,
-        "evidence_strength": "STRONG",
-        "fields": [
-          {
-            "field": "Permanent Account Number (PAN)",
-            "value": "Missing / Unresolvable",
-            "status": "FAIL",
-            "details": "Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.97). Forensic review required.",
-            "field_ocr_confidence": 0.9728,
-            "is_deterministic": true,
-            "evidence_level": "MODERATE"
-          },
-          {
-            "field": "Detected Dates",
-            "value": "05/03/1994",
-            "status": "PASS",
-            "details": "Parsed 1 chronological date(s) successfully"
-          }
-        ],
-        "reasons": [
-          "Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.97). Forensic review required."
-        ]
-      },
-      "ela_score_evidence": {
-        "score": 98.0,
-        "evidence_strength": "CLEAN",
-        "hotspot_count": 0,
-        "metrics": {
-          "mean_error": 2.09,
-          "std_error": 6.6,
-          "max_error": 86.0
-        }
-      },
-      "copy_move_score_evidence": {
-        "score": 100.0,
-        "evidence_strength": "CLEAN",
-        "detected": false,
-        "details": "No cloned texture or copy-move forgery patterns identified"
-      },
-      "typography_rendering_anomaly_score_evidence": {
-        "score": 100.0,
-        "evidence_strength": "CLEAN",
-        "details": "Typography rendering and stroke gradients are uniformly consistent across document fields."
-      },
-      "metadata_anomaly_score_evidence": {
-        "score": 100.0,
-        "evidence_strength": "CLEAN",
-        "detected_software": null,
-        "reasons": []
-      },
-      "fusion_contributions": {
-        "nlp": {
-          "weight": 0.3,
-          "raw_score": 65,
-          "weighted_score": 19.5,
-          "evidence_strength": "STRONG"
-        },
-        "ela": {
-          "weight": 0.25,
-          "raw_score": 98.0,
-          "weighted_score": 24.5,
-          "evidence_strength": "CLEAN"
-        },
-        "font": {
-          "weight": 0.2,
-          "raw_score": 100.0,
-          "weighted_score": 20.0,
-          "evidence_strength": "CLEAN"
-        },
-        "copy_move": {
-          "weight": 0.15,
-          "raw_score": 100.0,
-          "weighted_score": 15.0,
-          "evidence_strength": "CLEAN"
-        },
-        "metadata": {
-          "weight": 0.1,
-          "raw_score": 100.0,
-          "weighted_score": 10.0,
-          "evidence_strength": "CLEAN"
-        },
-        "base_weighted_sum": 89.0,
-        "penalties_applied": [
-          "Single deterministic integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
-        ],
-        "diagnostic_status": "DOCUMENT_STRONGLY_SUSPECTED_TAMPERED"
-      },
-      "final_decision_threshold": {
-        "authenticity_threshold": 80.0,
-        "risk_threshold": 20.0,
-        "suspicious_threshold": 50.0,
-        "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
-      },
       "classification_status": "CORRECT_DETECTION",
       "tampering_types": [
         "regex_format_violation"
       ],
       "flagged_regions_count": 0,
-      "critical_triggers": [
-        "Deterministic checksum/format failure: Permanent Account Number (PAN): Primary PAN Identifier Missing or Unresolvable: Document is classified as a PAN Card with recognized cardholder body text, but the mandatory 10-character Permanent Account Number is missing or unreadable (baseline OCR conf: 0.97). Forensic review required."
-      ],
+      "critical_triggers": [],
       "ocr_engine": "sidecar"
     },
     {
       "document_id": "mock_dl_01_genuine.png",
       "filename": "mock_dl_01_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
@@ -1155,18 +1224,29 @@
         "fields": [
           {
             "field": "Driving Licence Number Format",
-            "value": "DL-1420110012345",
+            "value": "DL-14***********",
             "status": "PASS",
-            "details": "Valid state code and licence structure (DL-1420110012345)",
+            "details": "Valid licence structure (DL-14***********)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
           {
-            "field": "Driving Licence Number",
-            "value": "DL-1420110012345",
+            "field": "Driving Licence State Jurisdiction",
+            "value": "Delhi (DL)",
             "status": "PASS",
-            "details": "Standard state code & series pattern valid"
+            "details": "Valid Indian state jurisdiction: Delhi",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Driving Licence Chronological Validity",
+            "value": "VALID",
+            "status": "PASS",
+            "details": "Driving licence is valid until 11/03/2031.",
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
           },
           {
             "field": "Detected Dates",
@@ -1247,7 +1327,7 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_GENUINE",
+      "classification_status": "FALSE_POSITIVE",
       "tampering_types": [],
       "flagged_regions_count": 0,
       "critical_triggers": [],
@@ -1257,7 +1337,7 @@
       "document_id": "mock_dl_02_tampered_photoshop_meta.png",
       "filename": "mock_dl_02_tampered_photoshop_meta.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "FLAGGED / TAMPERED",
+      "final_prediction": "LIKELY_TAMPERED",
       "final_risk_fraud_score": 58.0,
       "authenticity_score": 42.0,
       "ocr_extraction_status": "SUCCESS",
@@ -1269,18 +1349,29 @@
         "fields": [
           {
             "field": "Driving Licence Number Format",
-            "value": "DL-1420110012345",
+            "value": "DL-14***********",
             "status": "PASS",
-            "details": "Valid state code and licence structure (DL-1420110012345)",
+            "details": "Valid licence structure (DL-14***********)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
           {
-            "field": "Driving Licence Number",
-            "value": "DL-1420110012345",
+            "field": "Driving Licence State Jurisdiction",
+            "value": "Delhi (DL)",
             "status": "PASS",
-            "details": "Standard state code & series pattern valid"
+            "details": "Valid Indian state jurisdiction: Delhi",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Driving Licence Chronological Validity",
+            "value": "VALID",
+            "status": "PASS",
+            "details": "Driving licence is valid until 11/03/2031.",
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
           },
           {
             "field": "Detected Dates",
@@ -1380,7 +1471,7 @@
       "document_id": "mock_dl_03_tampered_categorysplice.png",
       "filename": "mock_dl_03_tampered_categorysplice.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
@@ -1392,18 +1483,29 @@
         "fields": [
           {
             "field": "Driving Licence Number Format",
-            "value": "DL-1420110012345",
+            "value": "DL-14***********",
             "status": "PASS",
-            "details": "Valid state code and licence structure (DL-1420110012345)",
+            "details": "Valid licence structure (DL-14***********)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
           {
-            "field": "Driving Licence Number",
-            "value": "DL-1420110012345",
+            "field": "Driving Licence State Jurisdiction",
+            "value": "Delhi (DL)",
             "status": "PASS",
-            "details": "Standard state code & series pattern valid"
+            "details": "Valid Indian state jurisdiction: Delhi",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Driving Licence Chronological Validity",
+            "value": "VALID",
+            "status": "PASS",
+            "details": "Driving licence is valid until 11/03/2031.",
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
           },
           {
             "field": "Detected Dates",
@@ -1484,7 +1586,7 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "FALSE_NEGATIVE",
+      "classification_status": "CORRECT_DETECTION",
       "tampering_types": [
         "vehicle_category_splice",
         "font_discrepancy"
@@ -1497,7 +1599,7 @@
       "document_id": "mock_dl_04_genuine.png",
       "filename": "mock_dl_04_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
@@ -1509,18 +1611,29 @@
         "fields": [
           {
             "field": "Driving Licence Number Format",
-            "value": "KL-0720190054321",
+            "value": "KL-07***********",
             "status": "PASS",
-            "details": "Valid state code and licence structure (KL-0720190054321)",
+            "details": "Valid licence structure (KL-07***********)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
           {
-            "field": "Driving Licence Number",
-            "value": "KL-0720190054321",
+            "field": "Driving Licence State Jurisdiction",
+            "value": "Kerala (KL)",
             "status": "PASS",
-            "details": "Standard state code & series pattern valid"
+            "details": "Valid Indian state jurisdiction: Kerala",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Driving Licence Chronological Validity",
+            "value": "VALID",
+            "status": "PASS",
+            "details": "Driving licence is valid until 14/10/2039.",
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
           },
           {
             "field": "Detected Dates",
@@ -1601,7 +1714,7 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_GENUINE",
+      "classification_status": "FALSE_POSITIVE",
       "tampering_types": [],
       "flagged_regions_count": 0,
       "critical_triggers": [],
@@ -1611,30 +1724,41 @@
       "document_id": "mock_dl_05_tampered_chronology.png",
       "filename": "mock_dl_05_tampered_chronology.png",
       "ground_truth_label": "TAMPERED",
-      "final_prediction": "FLAGGED / TAMPERED",
-      "final_risk_fraud_score": 51.0,
-      "authenticity_score": 49.0,
+      "final_prediction": "INVALID",
+      "final_risk_fraud_score": 55.5,
+      "authenticity_score": 44.5,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9607,
       "field_validation_checksum_results": {
         "document_type": "driving_license",
-        "score": 15,
+        "score": 0,
         "evidence_strength": "STRONG",
         "fields": [
           {
             "field": "Driving Licence Number Format",
-            "value": "KL-0720190054321",
+            "value": "KL-07***********",
             "status": "PASS",
-            "details": "Valid state code and licence structure (KL-0720190054321)",
+            "details": "Valid licence structure (KL-07***********)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
           {
-            "field": "Driving Licence Number",
-            "value": "KL-0720190054321",
+            "field": "Driving Licence State Jurisdiction",
+            "value": "Kerala (KL)",
             "status": "PASS",
-            "details": "Standard state code & series pattern valid"
+            "details": "Valid Indian state jurisdiction: Kerala",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Driving Licence Chronological Validity",
+            "value": "VALIDITY_INCONSISTENCY",
+            "status": "FAIL",
+            "details": "Chronological contradiction: Licence validity date is earlier than issue date.",
+            "is_deterministic": true,
+            "evidence_level": "STRONG"
           },
           {
             "field": "Detected Dates",
@@ -1655,11 +1779,21 @@
             "details": "Chronological Contradiction: Expiry date is before or equal to Issue date",
             "is_deterministic": true,
             "evidence_level": "STRONG"
+          },
+          {
+            "field": "Chronological Validity State",
+            "value": "Logic Contradiction",
+            "status": "FAIL",
+            "details": "Chronological contradiction: Licence validity date is earlier than issue date.",
+            "is_deterministic": true,
+            "evidence_level": "STRONG"
           }
         ],
         "reasons": [
+          "Chronological contradiction: Licence validity date is earlier than issue date.",
           "Chronological Contradiction: Expiry date (14/10/2015) is prior to Issue date (15/10/2019)",
-          "Chronological Contradiction: Expiry date is before or equal to Issue date"
+          "Chronological Contradiction: Expiry date is before or equal to Issue date",
+          "Chronological contradiction: Licence validity date is earlier than issue date."
         ]
       },
       "ela_score_evidence": {
@@ -1692,8 +1826,8 @@
       "fusion_contributions": {
         "nlp": {
           "weight": 0.3,
-          "raw_score": 15,
-          "weighted_score": 4.5,
+          "raw_score": 0,
+          "weighted_score": 0.0,
           "evidence_strength": "STRONG"
         },
         "ela": {
@@ -1720,7 +1854,7 @@
           "weighted_score": 10.0,
           "evidence_strength": "CLEAN"
         },
-        "base_weighted_sum": 74.0,
+        "base_weighted_sum": 69.5,
         "penalties_applied": [
           "Single deterministic integrity failure -> Document strongly suspected tampered (Score capped at SUSPICIOUS)"
         ],
@@ -1736,9 +1870,9 @@
       "tampering_types": [
         "chronological_date_contradiction"
       ],
-      "flagged_regions_count": 1,
+      "flagged_regions_count": 2,
       "critical_triggers": [
-        "Deterministic checksum/format failure: Chronology (Issue vs Expiry): Chronological Contradiction: Expiry date is before or equal to Issue date"
+        "Deterministic checksum/format failure: Driving Licence Chronological Validity: Chronological contradiction: Licence validity date is earlier than issue date.; Chronology (Issue vs Expiry): Chronological Contradiction: Expiry date is before or equal to Issue date; Chronological Validity State: Chronological contradiction: Licence validity date is earlier than issue date."
       ],
       "ocr_engine": "sidecar"
     },
@@ -1746,7 +1880,7 @@
       "document_id": "mock_aadhaar_05_genuine.png",
       "filename": "mock_aadhaar_05_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
@@ -1758,7 +1892,7 @@
         "fields": [
           {
             "field": "Aadhaar / National ID Number",
-            "value": "3145 9265 3581",
+            "value": "XXXX XXXX 3581",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm)",
             "field_ocr_confidence": 0.99,
@@ -1844,7 +1978,7 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_GENUINE",
+      "classification_status": "FALSE_POSITIVE",
       "tampering_types": [],
       "flagged_regions_count": 0,
       "critical_triggers": [],
@@ -1866,7 +2000,7 @@
         "fields": [
           {
             "field": "Aadhaar / National ID Number",
-            "value": "3145 9265 3581",
+            "value": "XXXX XXXX 3581",
             "status": "PASS",
             "details": "Verhoeff Checksum Valid (Passed official 12-digit algorithm)",
             "field_ocr_confidence": 0.99,
@@ -1967,23 +2101,41 @@
       "document_id": "mock_pan_06_genuine.png",
       "filename": "mock_pan_06_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "national_id",
+        "document_type": "pan",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
           {
             "field": "Permanent Account Number (PAN)",
-            "value": "AZYPA9876Q",
+            "value": "AZYPA****Q",
             "status": "PASS",
             "details": "Valid 10-character Tax ID structure (Entity code verified)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Entity Classification",
+            "value": "Individual (P)",
+            "status": "PASS",
+            "details": "Entity code 'P': Individual",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Cardholder Surname Correlation",
+            "value": "PASS",
+            "status": "PASS",
+            "details": "5th character 'A' matches holder surname 'AKHTAR' initial",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": false,
             "evidence_level": "CLEAN"
           },
           {
@@ -2065,7 +2217,7 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_GENUINE",
+      "classification_status": "FALSE_POSITIVE",
       "tampering_types": [],
       "flagged_regions_count": 0,
       "critical_triggers": [],
@@ -2081,17 +2233,35 @@
       "ocr_extraction_status": "SUCCESS",
       "ocr_confidence": 0.9728,
       "field_validation_checksum_results": {
-        "document_type": "national_id",
+        "document_type": "pan",
         "score": 100,
         "evidence_strength": "CLEAN",
         "fields": [
           {
             "field": "Permanent Account Number (PAN)",
-            "value": "AZYPA9876Q",
+            "value": "AZYPA****Q",
             "status": "PASS",
             "details": "Valid 10-character Tax ID structure (Entity code verified)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Entity Classification",
+            "value": "Individual (P)",
+            "status": "PASS",
+            "details": "Entity code 'P': Individual",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "PAN Cardholder Surname Correlation",
+            "value": "PASS",
+            "status": "PASS",
+            "details": "5th character 'A' matches holder surname 'AKHTAR' initial",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": false,
             "evidence_level": "CLEAN"
           },
           {
@@ -2187,7 +2357,7 @@
       "document_id": "mock_dl_06_genuine.png",
       "filename": "mock_dl_06_genuine.png",
       "ground_truth_label": "GENUINE",
-      "final_prediction": "AUTHENTIC",
+      "final_prediction": "STRUCTURALLY_VALID_UNVERIFIED",
       "final_risk_fraud_score": 0.5,
       "authenticity_score": 99.5,
       "ocr_extraction_status": "SUCCESS",
@@ -2199,18 +2369,29 @@
         "fields": [
           {
             "field": "Driving Licence Number Format",
-            "value": "PB-0220080078901",
+            "value": "PB-02***********",
             "status": "PASS",
-            "details": "Valid state code and licence structure (PB-0220080078901)",
+            "details": "Valid licence structure (PB-02***********)",
             "field_ocr_confidence": 0.99,
             "is_deterministic": true,
             "evidence_level": "CLEAN"
           },
           {
-            "field": "Driving Licence Number",
-            "value": "PB-0220080078901",
+            "field": "Driving Licence State Jurisdiction",
+            "value": "Punjab (PB)",
             "status": "PASS",
-            "details": "Standard state code & series pattern valid"
+            "details": "Valid Indian state jurisdiction: Punjab",
+            "field_ocr_confidence": 0.99,
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
+          },
+          {
+            "field": "Driving Licence Chronological Validity",
+            "value": "VALID",
+            "status": "PASS",
+            "details": "Driving licence is valid until 19/05/2028.",
+            "is_deterministic": true,
+            "evidence_level": "CLEAN"
           },
           {
             "field": "Detected Dates",
@@ -2291,7 +2472,7 @@
         "suspicious_threshold": 50.0,
         "rule": "score >= 80.0 (risk <= 20.0) -> AUTHENTIC; 50.0 <= score < 80.0 -> SUSPICIOUS; score < 50.0 -> FLAGGED / TAMPERED"
       },
-      "classification_status": "CORRECT_GENUINE",
+      "classification_status": "FALSE_POSITIVE",
       "tampering_types": [],
       "flagged_regions_count": 0,
       "critical_triggers": [],

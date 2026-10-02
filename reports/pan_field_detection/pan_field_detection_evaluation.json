@@ -1,0 +1,81 @@
+{
+  "timestamp": "2026-09-16T08:56:16Z",
+  "model_architecture": "YOLOv8n (nano)",
+  "model_file": "D:\\Document detector\\models\\pan_field_detector.pt",
+  "model_size_mb": 5.96,
+  "target_document": "PAN Card (Permanent Account Number)",
+  "dataset_used": {
+    "source": "smartxtract/pan-card-ygz7o (Roboflow Universe)",
+    "license": "CC BY 4.0",
+    "train_unique_images": 107,
+    "train_annotations": 428,
+    "val_unique_images": 44,
+    "val_annotations": 176,
+    "total_unique_images": 151,
+    "total_annotations": 604,
+    "deduplication_method": "Exact image MD5 hash filter",
+    "letterbox_rect": true
+  },
+  "training_configuration": {
+    "epochs_trained": 20,
+    "batch_size": 8,
+    "imgsz": 640,
+    "optimizer": "AdamW (auto)",
+    "seed": 42,
+    "patience": 10,
+    "device": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "conservative_augmentations": {
+      "degrees": 3.0,
+      "translate": 0.04,
+      "scale": 0.08,
+      "shear": 1.0,
+      "perspective": 0.0003,
+      "mosaic": 0.0,
+      "mixup": 0.0,
+      "flipud": 0.0,
+      "fliplr": 0.0,
+      "rect": true
+    }
+  },
+  "metrics_held_out_validation": {
+    "precision": 0.9902,
+    "recall": 0.9722,
+    "mAP50": 0.9901,
+    "mAP50_95": 0.6212,
+    "per_class": {
+      "pan_number": {
+        "precision": 1.0,
+        "recall": 0.9572,
+        "mAP50": 0.9831,
+        "mAP50_95": 0.6474
+      },
+      "name": {
+        "precision": 0.9893,
+        "recall": 0.9773,
+        "mAP50": 0.9941,
+        "mAP50_95": 0.6277
+      },
+      "father_name": {
+        "precision": 0.9733,
+        "recall": 1.0,
+        "mAP50": 0.9941,
+        "mAP50_95": 0.5693
+      },
+      "date_of_birth": {
+        "precision": 0.9981,
+        "recall": 0.9545,
+        "mAP50": 0.989,
+        "mAP50_95": 0.6404
+      }
+    },
+    "final_losses": {
+      "train/box_loss": 1.0733,
+      "train/cls_loss": 0.8141,
+      "train/dfl_loss": 1.0407,
+      "val/box_loss": 1.3508,
+      "val/cls_loss": 0.8876,
+      "val/dfl_loss": 1.1058
+    }
+  },
+  "forensic_disclaimer": "Field detection metrics reflect bounding box localization performance on the held-out Roboflow validation split. These metrics do NOT represent document genuineness classification, forgery detection accuracy, or official Income Tax Department verification."
+}

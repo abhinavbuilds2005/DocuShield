@@ -44,3 +44,10 @@ desktop.ini
 scratch/
 scratch_extract.py
 
+# Ultralytics & Training Artifacts
+runs/
+weights/
+yolov8n.pt
+/data/
+models/test_*.pt
+

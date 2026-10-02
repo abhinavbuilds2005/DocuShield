@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "dataset_version": "1.0.0",
+  "sample_metadata": {
+    "sample_id": "eval-pan-sample-0001",
+    "document_type": "pan",
+    "is_negative_control": false,
+    "acquisition_category": "mobile_camera",
+    "image_format": "jpeg",
+    "image_dimensions": [1280, 800],
+    "compression_status": "jpeg_q75",
+    "rotation_perspective": "none",
+    "dataset_split": "test",
+    "consent_license_reference": "CONSENT-SYNTHETIC-2026-SAMPLE",
+    "annotator_id": "annotator_01",
+    "annotation_confidence": 1.0
+  },
+  "tampering_ground_truth": {
+    "is_tampered": false,
+    "tampering_types": [],
+    "tampered_regions": []
+  },
+  "fields": {
+    "primary_identifier": {
+      "field_name": "pan_number",
+      "display_masked": "ABCP•••••F",
+      "salted_hmac_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expected_length": 10,
+      "format_regex": "^[A-Z]{5}[0-9]{4}[A-Z]$",
+      "bounding_box": {
+        "x_min": 180,
+        "y_min": 340,
+        "x_max": 480,
+        "y_max": 395
+      },
+      "is_mandatory": true
+    },
+    "cardholder_name": {
+      "field_name": "name",
+      "display_masked": "S••••• K••••",
+      "salted_hmac_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "expected_length": 12,
+      "bounding_box": {
+        "x_min": 180,
+        "y_min": 150,
+        "x_max": 520,
+        "y_max": 190
+      },
+      "is_mandatory": true
+    },
+    "father_name": {
+      "field_name": "father_name",
+      "display_masked": "R••••• K••••",
+      "salted_hmac_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "expected_length": 12,
+      "bounding_box": {
+        "x_min": 180,
+        "y_min": 210,
+        "x_max": 520,
+        "y_max": 250
+      },
+      "is_mandatory": false
+    },
+    "date_of_birth": {
+      "field_name": "date_of_birth",
+      "display_masked": "••/••/1990",
+      "salted_hmac_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "expected_length": 10,
+      "format_regex": "^[0-3][0-9]/[0-1][0-9]/[1-2][0-9]{3}$",
+      "bounding_box": {
+        "x_min": 180,
+        "y_min": 270,
+        "x_max": 360,
+        "y_max": 305
+      },
+      "is_mandatory": true
+    }
+  }
+}

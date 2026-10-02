@@ -61,7 +61,7 @@ def create_synthetic_doc(width=800, height=500, quality="good"):
     cv2.putText(img, "REPUBLIC IDENTITY CARD", (260, 45), font, 0.8, (255, 255, 255), 2)
     cv2.putText(img, "NAME: JANE DOE", (260, 140), font, 0.7, (30, 30, 30), 2)
     cv2.putText(img, "DOB: 15/08/1990", (260, 190), font, 0.7, (30, 30, 30), 2)
-    cv2.putText(img, "ID: 9876 5432 1098", (260, 240), font, 0.7, (30, 30, 30), 2)
+    cv2.putText(img, "ID: 9876 5432 1096", (260, 240), font, 0.7, (30, 30, 30), 2)
 
     if quality == "blurry":
         img = cv2.GaussianBlur(img, (17, 17), 6)

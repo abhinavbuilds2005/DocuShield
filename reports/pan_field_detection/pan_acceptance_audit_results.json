@@ -1,0 +1,262 @@
+[
+  {
+    "test_case_id": "TC-01",
+    "category": "Clear real PAN card scan",
+    "doc_type_requested": "pan",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "trained_yolov8n",
+    "fallback_active": false,
+    "fields_detected_count": 4,
+    "fields_detected_labels": [
+      "pan_number",
+      "date_of_birth",
+      "father_name",
+      "name"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "STRUCTURALLY_VALID_UNVERIFIED",
+    "api_status_code": 200,
+    "evidence_image": "tc-01_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-02",
+    "category": "Mobile-camera PAN image",
+    "doc_type_requested": "auto",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "trained_yolov8n",
+    "fallback_active": false,
+    "fields_detected_count": 4,
+    "fields_detected_labels": [
+      "father_name",
+      "name",
+      "pan_number",
+      "date_of_birth"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "STRUCTURALLY_VALID_UNVERIFIED",
+    "api_status_code": 200,
+    "evidence_image": "tc-02_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-03",
+    "category": "Rotated PAN card (15\u00b0)",
+    "doc_type_requested": "pan",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "layout_heuristic",
+    "fallback_active": true,
+    "fields_detected_count": 4,
+    "fields_detected_labels": [
+      "name",
+      "father_name",
+      "date_of_birth",
+      "pan_number"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "INVALID",
+    "api_status_code": 200,
+    "evidence_image": "tc-03_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-04",
+    "category": "Perspective-distorted card",
+    "doc_type_requested": "pan",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "trained_yolov8n",
+    "fallback_active": false,
+    "fields_detected_count": 4,
+    "fields_detected_labels": [
+      "pan_number",
+      "name",
+      "date_of_birth",
+      "father_name"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "INVALID",
+    "api_status_code": 200,
+    "evidence_image": "tc-04_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-05",
+    "category": "Low-light image",
+    "doc_type_requested": "pan",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "layout_heuristic",
+    "fallback_active": true,
+    "fields_detected_count": 4,
+    "fields_detected_labels": [
+      "name",
+      "father_name",
+      "date_of_birth",
+      "pan_number"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "MANUAL_REVIEW_REQUIRED",
+    "api_status_code": 200,
+    "evidence_image": "tc-05_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-06",
+    "category": "Blurred image",
+    "doc_type_requested": "pan",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "trained_yolov8n",
+    "fallback_active": false,
+    "fields_detected_count": 3,
+    "fields_detected_labels": [
+      "name",
+      "father_name",
+      "date_of_birth"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "MANUAL_REVIEW_REQUIRED",
+    "api_status_code": 200,
+    "evidence_image": "tc-06_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-07",
+    "category": "Low-resolution image",
+    "doc_type_requested": "pan",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "trained_yolov8n",
+    "fallback_active": false,
+    "fields_detected_count": 4,
+    "fields_detected_labels": [
+      "date_of_birth",
+      "pan_number",
+      "father_name",
+      "name"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "STRUCTURALLY_VALID_UNVERIFIED",
+    "api_status_code": 200,
+    "evidence_image": "tc-07_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-08",
+    "category": "Different card backgrounds and cluttered layout",
+    "doc_type_requested": "pan",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "trained_yolov8n",
+    "fallback_active": false,
+    "fields_detected_count": 4,
+    "fields_detected_labels": [
+      "pan_number",
+      "father_name",
+      "name",
+      "date_of_birth"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "INVALID",
+    "api_status_code": 200,
+    "evidence_image": "tc-08_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-09",
+    "category": "NSDL-style layout",
+    "doc_type_requested": "pan",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "trained_yolov8n",
+    "fallback_active": false,
+    "fields_detected_count": 4,
+    "fields_detected_labels": [
+      "name",
+      "father_name",
+      "date_of_birth",
+      "father_name"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "STRUCTURALLY_VALID_UNVERIFIED",
+    "api_status_code": 200,
+    "evidence_image": "tc-09_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-10",
+    "category": "UTIITSL-style layout",
+    "doc_type_requested": "pan",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "trained_yolov8n",
+    "fallback_active": false,
+    "fields_detected_count": 4,
+    "fields_detected_labels": [
+      "pan_number",
+      "date_of_birth",
+      "name",
+      "father_name"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "STRUCTURALLY_VALID_UNVERIFIED",
+    "api_status_code": 200,
+    "evidence_image": "tc-10_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-11",
+    "category": "Flat digital mockup",
+    "doc_type_requested": "pan",
+    "doc_type_classified": "pan",
+    "detector_used": "pan_field_detector",
+    "detector_source": "layout_heuristic",
+    "fallback_active": true,
+    "fields_detected_count": 4,
+    "fields_detected_labels": [
+      "name",
+      "father_name",
+      "date_of_birth",
+      "pan_number"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "PARTIAL/LOW_CONF",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "STRUCTURALLY_VALID_UNVERIFIED",
+    "api_status_code": 200,
+    "evidence_image": "tc-11_redacted.jpg"
+  },
+  {
+    "test_case_id": "TC-12",
+    "category": "Invalid or non-PAN document (Aadhaar negative control)",
+    "doc_type_requested": "auto",
+    "doc_type_classified": "aadhaar",
+    "detector_used": "Trained YOLOv8n Field Detector (Aadhaar Only)",
+    "detector_source": "none",
+    "fallback_active": false,
+    "fields_detected_count": 1,
+    "fields_detected_labels": [
+      "qr_code"
+    ],
+    "bbox_validity": "VALID",
+    "ocr_status": "SKIPPED/NON_PAN",
+    "masked_pan": "[NOT_EXTRACTED]",
+    "verdict": "STRUCTURALLY_VALID_UNVERIFIED",
+    "api_status_code": 200,
+    "evidence_image": "tc-12_redacted.jpg"
+  }
+]

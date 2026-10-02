@@ -21,6 +21,10 @@ Pillow>=10.0.0
 easyocr>=1.7.0
 pytesseract>=0.3.10
 
+# Deep Learning & Object Detection for Field Localization
+ultralytics>=8.3.0
+qrcode>=7.4.2
+
 # Testing (dev only)
 pytest>=7.0.0
 httpx>=0.24.0

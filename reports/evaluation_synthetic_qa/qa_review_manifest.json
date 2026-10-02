@@ -1,0 +1,230 @@
+{
+  "qa_samples_reviewed": 15,
+  "samples": [
+    {
+      "sample_id": "eval_dev_aadhaar_0001",
+      "document_type": "aadhaar",
+      "acquisition_category": "pristine_flatbed",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "qr_code",
+        "name",
+        "dob",
+        "gender",
+        "aadhaar_number",
+        "emblem_header"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_aadhaar_0031",
+      "document_type": "aadhaar",
+      "acquisition_category": "mobile_camera",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "qr_code",
+        "name",
+        "dob",
+        "gender",
+        "aadhaar_number",
+        "emblem_header"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_aadhaar_0056",
+      "document_type": "aadhaar",
+      "acquisition_category": "compressed_transmission",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "qr_code",
+        "name",
+        "dob",
+        "gender",
+        "aadhaar_number",
+        "emblem_header"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_driving_license_0001",
+      "document_type": "driving_license",
+      "acquisition_category": "pristine_flatbed",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "licence_number",
+        "name",
+        "dob",
+        "issue_date",
+        "expiry_date"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_driving_license_0031",
+      "document_type": "driving_license",
+      "acquisition_category": "mobile_camera",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "licence_number",
+        "name",
+        "dob",
+        "issue_date",
+        "expiry_date"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_driving_license_0056",
+      "document_type": "driving_license",
+      "acquisition_category": "compressed_transmission",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "licence_number",
+        "name",
+        "dob",
+        "issue_date",
+        "expiry_date"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_pan_0001",
+      "document_type": "pan",
+      "acquisition_category": "pristine_flatbed",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "name",
+        "father_name",
+        "dob",
+        "pan_number"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_pan_0031",
+      "document_type": "pan",
+      "acquisition_category": "mobile_camera",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "name",
+        "father_name",
+        "dob",
+        "pan_number"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_pan_0056",
+      "document_type": "pan",
+      "acquisition_category": "compressed_transmission",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "name",
+        "father_name",
+        "dob",
+        "pan_number"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_passport_0001",
+      "document_type": "passport",
+      "acquisition_category": "pristine_flatbed",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "passport_number",
+        "surname",
+        "given_names",
+        "dob",
+        "expiry_date",
+        "mrz"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_passport_0031",
+      "document_type": "passport",
+      "acquisition_category": "mobile_camera",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "passport_number",
+        "surname",
+        "given_names",
+        "dob",
+        "expiry_date",
+        "mrz"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_passport_0056",
+      "document_type": "passport",
+      "acquisition_category": "compressed_transmission",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "passport_number",
+        "surname",
+        "given_names",
+        "dob",
+        "expiry_date",
+        "mrz"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_voter_id_0001",
+      "document_type": "voter_id",
+      "acquisition_category": "pristine_flatbed",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "epic_number",
+        "elector_name",
+        "relation_name",
+        "gender"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_voter_id_0031",
+      "document_type": "voter_id",
+      "acquisition_category": "mobile_camera",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "epic_number",
+        "elector_name",
+        "relation_name",
+        "gender"
+      ]
+    },
+    {
+      "sample_id": "eval_dev_voter_id_0056",
+      "document_type": "voter_id",
+      "acquisition_category": "compressed_transmission",
+      "split": "dev",
+      "watermark_present": true,
+      "fields_annotated": [
+        "photo",
+        "epic_number",
+        "elector_name",
+        "relation_name",
+        "gender"
+      ]
+    }
+  ]
+}

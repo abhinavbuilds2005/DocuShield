@@ -248,8 +248,9 @@ DocuShield AI includes ready-to-deploy configuration for [Render](https://render
 4. Under **Advanced Settings**:
    - **Health Check Path**: `/api/health`
    - **Environment Variables**:
-     - `PORT`: `10000`
-     - `ALLOWED_ORIGINS`: `*`
+      - `PORT`: `10000`
+      - `ALLOWED_ORIGINS`: `https://your-frontend-domain.com` (Set to your actual deployed frontend domain; comma-separated for multiple. Wildcard `*` is prohibited in production)
+
 5. Click **Create Web Service**.
 
 > [!TIP]

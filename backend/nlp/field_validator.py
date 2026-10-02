@@ -97,40 +97,400 @@ def validate_verhoeff_with_ocr_tolerance(num_str: str) -> Tuple[bool, str, Optio
     return False, clean, "Verhoeff Checksum Failed - indicates fabricated or altered digit"
 
 
-def validate_pan_format(pan_str: str) -> Tuple[bool, Optional[str]]:
+class PANValidationResult(tuple):
+    """
+    Subclass of tuple ensuring 100% backward compatibility with (is_valid, error_message)
+    unpacking, while providing audit transparency on optical character disambiguation.
+    """
+    def __new__(cls, is_valid: bool, error_message: Optional[str],
+                normalized_value: Optional[str] = None,
+                disambiguated: bool = False,
+                disambiguation_note: Optional[str] = None):
+        return super().__new__(cls, (is_valid, error_message))
+
+    def __init__(self, is_valid: bool, error_message: Optional[str],
+                 normalized_value: Optional[str] = None,
+                 disambiguated: bool = False,
+                 disambiguation_note: Optional[str] = None):
+        self.is_valid = is_valid
+        self.error_message = error_message
+        self.normalized_value = normalized_value
+        self.disambiguated = disambiguated
+        self.disambiguation_note = disambiguation_note
+
+
+def validate_pan_format(pan_str: str) -> PANValidationResult:
     """
     Validates Indian PAN-style format:
     5 uppercase letters, 4 digits, 1 uppercase letter.
-    4th character is usually P (Individual), C (Company), H (HUF), A, B, G, J, L, F, T.
+    4th character is entity code (P, C, H, F, A, T, B, L, J, G).
+
+    Explicitly tracks OCR character normalization so that optical disambiguation
+    (e.g., terminal '0' -> 'O') is recorded with uncertainty metadata rather than
+    being silently altered without an audit trail.
     """
+    if not pan_str or not isinstance(pan_str, str):
+        return PANValidationResult(False, "Empty or invalid PAN input")
+
     clean = re.sub(r"[\s\-]", "", pan_str.strip().upper())
-    # Normalize common OCR character confusions on 10th char (trailing letter)
-    if len(clean) == 10:
-        chars = list(clean)
-        ocr_digit_to_letter = {'0': 'O', '1': 'I', '8': 'B', '5': 'S', '6': 'G'}
-        if chars[9] in ocr_digit_to_letter:
-            chars[9] = ocr_digit_to_letter[chars[9]]
-        clean = "".join(chars)
+    disambiguated = False
+    disambiguation_note = None
+
+    # Check direct match first
+    if len(clean) == 10 and clean[:5].isalpha() and clean[5:9].isdigit() and clean[9].isalpha():
+        pass
+    elif len(clean) == 10 and clean[:5].isalpha() and clean[5:9].isdigit():
+        # Terminal character is a digit confusingly read by OCR for a letter
+        ocr_digit_to_letter = {'0': 'O', '1': 'I', '8': 'B', '5': 'S', '6': 'G', '2': 'Z'}
+        orig_char = clean[9]
+        if orig_char in ocr_digit_to_letter:
+            cand_char = ocr_digit_to_letter[orig_char]
+            clean = clean[:9] + cand_char
+            disambiguated = True
+            disambiguation_note = f"10th character normalized via optical disambiguation ({orig_char} -> {cand_char}); unverified without issuer lookup."
 
     if not re.fullmatch(r"^[A-Z]{5}[0-9]{4}[A-Z]$", clean):
-        return False, "Does not match 10-character alphanumeric structure (ABCDE1234F)"
-    
+        return PANValidationResult(False, "Does not match 10-character alphanumeric structure (ABCDE1234F)")
+
     entity_code = clean[3]
     valid_entities = {"P", "C", "H", "F", "A", "T", "B", "L", "J", "G"}
     if entity_code not in valid_entities:
-        return False, f"Invalid 4th character '{entity_code}' - expected standard tax entity code"
-    
-    return True, None
+        return PANValidationResult(False, f"Invalid 4th character '{entity_code}' - expected standard tax entity code")
+
+    return PANValidationResult(
+        True,
+        None,
+        normalized_value=clean,
+        disambiguated=disambiguated,
+        disambiguation_note=disambiguation_note
+    )
 
 
 def validate_dl_format(dl_str: str) -> Tuple[bool, Optional[str]]:
-    """Validates Driving License format (e.g. DL-1420110012345 or similar)."""
-    clean = re.sub(r"[\s\-]", "", dl_str.strip().upper())
+    """
+    Validates Indian Driving Licence format with support for multiple spacing and separator styles:
+    - Modern Sarathi-4 standard: 2-letter state code + 2-digit RTO + 4-digit year + 7-digit sequence (15 chars)
+      e.g., DL-1420110012345, DL-14 2011 0012345, DL 1420110012345, DL1420110012345
+    - Legacy state formats: 2-letter state code + 9 to 14 numeric/alphanumeric characters (11-16 chars total)
+      e.g., MH0220180004567, WB-0119990001234
+    Normalizes whitespace and common separators (- and /) carefully.
+    Rejects arbitrary or malformed strings.
+    """
+    if not dl_str or not isinstance(dl_str, str):
+        return False, "Empty or invalid DL string"
+
+    s = dl_str.strip().upper()
+    # Normalize separators: spaces, hyphens, and slashes
+    clean = re.sub(r"[\s\-\/]", "", s)
+
     if len(clean) < 10 or len(clean) > 16:
-        return False, f"Invalid DL length ({len(clean)} characters, expected 13-16)"
-    if not re.match(r"^[A-Z]{2}[0-9]{11,14}$", clean):
-        return False, "DL must start with 2-letter state code followed by digits"
-    return True, None
+        return False, f"Invalid DL length ({len(clean)} characters, expected 11-16)"
+
+    # Must start with 2 alphabetic characters (State/UT code)
+    if not clean[:2].isalpha():
+        return False, "DL must start with a 2-letter state code"
+
+    remainder = clean[2:]
+    # Sarathi-4 canonical format: 2-digit RTO + 4-digit year + 7-digit serial (all digits)
+    if len(clean) == 15 and remainder.isdigit():
+        year = int(remainder[2:6])
+        current_year = datetime.now().year + 1
+        if 1950 <= year <= current_year:
+            return True, None
+        return False, f"Invalid issuance year {year} in Sarathi DL structure"
+
+    # General/legacy DL pattern: State code followed by 9-14 digits
+    if re.match(r"^[A-Z]{2}[0-9]{9,14}$", clean):
+        return True, None
+
+    # Legacy format with 1 embedded alphabetic sub-code e.g. KA01E20120001234
+    if re.match(r"^[A-Z]{2}[0-9A-Z]{1}[0-9]{8,13}$", clean):
+        return True, None
+
+    return False, "DL does not match standard Sarathi or recognized state numbering patterns"
+
+
+def get_pan_entity_info(pan_str: str) -> Dict[str, Any]:
+    """Extracts entity type from 4th character of PAN."""
+    clean = re.sub(r"[\s\-]", "", pan_str.strip().upper())
+    if len(clean) >= 4:
+        code = clean[3]
+        entities = {
+            "P": "Individual",
+            "C": "Company",
+            "H": "Hindu Undivided Family (HUF)",
+            "F": "Partnership Firm / LLP",
+            "A": "Association of Persons (AOP)",
+            "T": "Trust",
+            "B": "Body of Individuals (BOI)",
+            "L": "Local Authority",
+            "J": "Artificial Juridical Person",
+            "G": "Government Agency"
+        }
+        if code in entities:
+            return {
+                "entity_code": code,
+                "entity_type": entities[code],
+                "is_individual": code == "P"
+            }
+    return {
+        "entity_code": None,
+        "entity_type": "Unknown",
+        "is_individual": False
+    }
+
+
+def correlate_pan_surname(pan_str: str, holder_name: str) -> Dict[str, Any]:
+    """
+    Correlates 5th character of PAN with holder's surname.
+    Note: Mismatch is a WARNING, never automatic fraud.
+    Non-individuals are NOT_APPLICABLE.
+    """
+    clean_pan = re.sub(r"[\s\-]", "", pan_str.strip().upper())
+    entity_info = get_pan_entity_info(clean_pan)
+
+    if not entity_info["is_individual"]:
+        return {
+            "status": "NOT_APPLICABLE",
+            "details": f"Surname correlation not applicable for non-individual tax entities ({entity_info['entity_type']})",
+            "is_mismatch": False
+        }
+
+    if len(clean_pan) < 5 or not holder_name:
+        return {
+            "status": "UNCERTAIN",
+            "details": "Insufficient name or PAN characters to evaluate surname correlation",
+            "is_mismatch": False
+        }
+
+    pan_5th = clean_pan[4]
+    name_parts = [p.strip().upper() for p in holder_name.strip().split() if p.strip()]
+    if not name_parts:
+        return {
+            "status": "UNCERTAIN",
+            "details": "Cardholder name not parsed",
+            "is_mismatch": False
+        }
+
+    surname = name_parts[-1]
+    if surname and surname[0] == pan_5th:
+        return {
+            "status": "PASS",
+            "details": f"5th character '{pan_5th}' matches holder surname '{surname}' initial",
+            "is_mismatch": False
+        }
+    else:
+        return {
+            "status": "WARNING",
+            "details": f"Surname initial divergence: 5th character '{pan_5th}' differs from extracted surname '{surname}' initial '{surname[0]}'; may indicate OCR misread, middle name ordering, or alternate naming convention (not proof of forgery)",
+            "is_mismatch": True
+        }
+
+
+VALID_INDIAN_DL_STATE_CODES = {
+    "AN": "Andaman and Nicobar Islands",
+    "AP": "Andhra Pradesh",
+    "AR": "Arunachal Pradesh",
+    "AS": "Assam",
+    "BR": "Bihar",
+    "CH": "Chandigarh",
+    "CG": "Chhattisgarh",
+    "DD": "Daman and Diu",
+    "DL": "Delhi",
+    "DN": "Dadra and Nagar Haveli",
+    "GA": "Goa",
+    "GJ": "Gujarat",
+    "HR": "Haryana",
+    "HP": "Himachal Pradesh",
+    "JH": "Jharkhand",
+    "JK": "Jammu and Kashmir",
+    "KA": "Karnataka",
+    "KL": "Kerala",
+    "LA": "Ladakh",
+    "LD": "Lakshadweep",
+    "MP": "Madhya Pradesh",
+    "MH": "Maharashtra",
+    "MN": "Manipur",
+    "ML": "Meghalaya",
+    "MZ": "Mizoram",
+    "NL": "Nagaland",
+    "OD": "Odisha",
+    "PB": "Punjab",
+    "PY": "Puducherry",
+    "RJ": "Rajasthan",
+    "SK": "Sikkim",
+    "TN": "Tamil Nadu",
+    "TS": "Telangana",
+    "TR": "Tripura",
+    "UP": "Uttar Pradesh",
+    "UK": "Uttarakhand",
+    "UA": "Uttarakhand (Legacy)",
+    "WB": "West Bengal"
+}
+
+
+def validate_dl_state_code(dl_str: str) -> Tuple[bool, Optional[str], Optional[str]]:
+    """Validates whether the 2-letter prefix represents a valid Indian State/UT code."""
+    clean = re.sub(r"[\s\-]", "", dl_str.strip().upper())
+    if len(clean) < 2 or not clean[:2].isalpha():
+        return False, None, "Driving licence must start with a 2-letter state/UT code"
+    code = clean[:2]
+    if code in VALID_INDIAN_DL_STATE_CODES:
+        return True, code, None
+    return False, code, f"Invalid State/UT code '{code}' - not a valid Indian licensing jurisdiction"
+
+
+def evaluate_dl_validity(
+    issue_date_str: Optional[str] = None,
+    validity_date_str: Optional[str] = None,
+    dob_str: Optional[str] = None,
+    reference_date: Optional[datetime] = None
+) -> Dict[str, Any]:
+    """
+    Evaluates Driving Licence chronological validity state machine.
+    Returns:
+      - status: 'VALID', 'EXPIRED', 'VALIDITY_INCONSISTENCY', 'VALIDITY_UNDETERMINED'
+      - details: str
+      - is_deterministic: bool
+    """
+    ref = reference_date or datetime.now()
+
+    dt_issue = None
+    dt_validity = None
+    dt_dob = None
+
+    if issue_date_str:
+        ok, dt, _ = parse_and_validate_date(issue_date_str)
+        if ok:
+            dt_issue = dt
+    if validity_date_str:
+        ok, dt, _ = parse_and_validate_date(validity_date_str)
+        if ok:
+            dt_validity = dt
+    if dob_str:
+        ok, dt, _ = parse_and_validate_date(dob_str)
+        if ok:
+            dt_dob = dt
+
+    # 1. Chronological inconsistency checks
+    if dt_issue and dt_dob:
+        age_at_issue = (dt_issue - dt_dob).days / 365.25
+        if age_at_issue < 17.8:
+            return {
+                "status": "VALIDITY_INCONSISTENCY",
+                "details": f"Chronological contradiction: Age at licence issuance was {age_at_issue:.1f} years (minimum legal driving age in India is 18).",
+                "is_deterministic": True
+            }
+        if dt_issue < dt_dob:
+            return {
+                "status": "VALIDITY_INCONSISTENCY",
+                "details": "Chronological contradiction: Licence issue date precedes holder Date of Birth.",
+                "is_deterministic": True
+            }
+
+    if dt_issue and dt_validity and dt_validity < dt_issue:
+        return {
+            "status": "VALIDITY_INCONSISTENCY",
+            "details": "Chronological contradiction: Licence validity date is earlier than issue date.",
+            "is_deterministic": True
+        }
+
+    # 2. Expiry status
+    if dt_validity:
+        if dt_validity < ref:
+            return {
+                "status": "EXPIRED",
+                "details": f"Driving licence expired on {dt_validity.strftime('%d/%m/%Y')}.",
+                "is_deterministic": False
+            }
+        else:
+            return {
+                "status": "VALID",
+                "details": f"Driving licence is valid until {dt_validity.strftime('%d/%m/%Y')}.",
+                "is_deterministic": True
+            }
+
+    return {
+        "status": "VALIDITY_UNDETERMINED",
+        "details": "Licence validity date or vehicle class rule could not be definitively determined from available text.",
+        "is_deterministic": False
+    }
+
+
+def validate_epic_format(epic_str: str) -> Dict[str, Any]:
+    """
+    Validates Indian Voter ID / Electoral Photo Identity Card (EPIC) format.
+    Standard modern structure: 3 uppercase letters followed by 7 numeric digits (e.g. ABC1234567).
+    Note: Evaluated as EPIC_FORMAT_COMPATIBLE, strictly preserving raw OCR vs normalized value.
+    """
+    raw = epic_str.strip().upper()
+    clean = re.sub(r"[\s\-]", "", raw)
+
+    # Check exact match
+    if re.fullmatch(r"^[A-Z]{3}[0-9]{7}$", clean):
+        return {
+            "is_valid": True,
+            "status": "EPIC_FORMAT_COMPATIBLE",
+            "raw_value": raw,
+            "normalized_value": clean,
+            "normalization_note": None,
+            "details": f"EPIC format compatible (3 letters + 7 digits: {clean})"
+        }
+
+    # Check optical confusion tolerance (e.g. letter O/D -> 0 in digits, or 0 -> O in prefix)
+    if len(clean) == 10:
+        prefix = list(clean[:3])
+        suffix = list(clean[3:])
+
+        digit_to_letter = {'0': 'O', '1': 'I', '8': 'B', '5': 'S'}
+        letter_to_digit = {'O': '0', 'I': '1', 'L': '1', 'Z': '2', 'S': '5', 'B': '8', 'D': '0'}
+
+        corrected = False
+        notes = []
+        for i in range(3):
+            if prefix[i] in digit_to_letter:
+                orig = prefix[i]
+                prefix[i] = digit_to_letter[orig]
+                notes.append(f"Prefix char {i}: {orig}->{prefix[i]}")
+                corrected = True
+
+        for i in range(7):
+            if suffix[i] in letter_to_digit:
+                orig = suffix[i]
+                suffix[i] = letter_to_digit[orig]
+                notes.append(f"Suffix char {i+3}: {orig}->{suffix[i]}")
+                corrected = True
+
+        candidate = "".join(prefix) + "".join(suffix)
+        if re.fullmatch(r"^[A-Z]{3}[0-9]{7}$", candidate):
+            return {
+                "is_valid": True,
+                "status": "EPIC_FORMAT_COMPATIBLE",
+                "raw_value": raw,
+                "normalized_value": candidate,
+                "normalization_note": f"Resolved via optical character disambiguation ({', '.join(notes)})",
+                "details": f"EPIC format compatible with OCR disambiguation ({candidate})"
+            }
+
+    # Legacy or regional format check (e.g., state code with slashes)
+    if re.match(r"^[A-Z]{2,4}/[0-9]{2,3}/[0-9]{1,6}$", clean) or (len(clean) >= 8 and len(clean) <= 14 and clean[:2].isalpha()):
+        return {
+            "is_valid": True,
+            "status": "EPIC_LEGACY_FORMAT",
+            "raw_value": raw,
+            "normalized_value": clean,
+            "normalization_note": "Legacy state assembly format recognized",
+            "details": f"Legacy electoral format recognized: {clean}"
+        }
+
+    return {
+        "is_valid": False,
+        "status": "INVALID_EPIC_FORMAT",
+        "raw_value": raw,
+        "normalized_value": clean,
+        "normalization_note": None,
+        "details": f"Invalid EPIC number format: '{clean}' (expected 3 letters + 7 digits, e.g. WBD1234567)"
+    }
 
 
 def parse_and_validate_date(date_str: str) -> Tuple[bool, Optional[datetime], Optional[str]]:
@@ -214,7 +574,7 @@ class DocumentFieldValidator:
     def detect_document_type(self, full_text: str, user_selected_type: Optional[str] = None) -> str:
         """Classifies document type based on key phrases present and comprehensive classifier."""
         if user_selected_type and user_selected_type.lower() != "auto":
-            return user_selected_type.lower()
+            return user_selected_type.lower().replace("-", "_")
 
         classification = self.doc_classifier.classify(full_text, user_selected_type=user_selected_type)
         dt = classification.get("document_type", "unknown")
@@ -258,11 +618,11 @@ class DocumentFieldValidator:
         extracted: Dict[str, Dict[str, Any]] = {}
 
         # Normalization
-        doc_type_clean = document_type.lower()
-        if doc_type_clean in ["aadhaar", "pan"]:
-            doc_type_clean = "national_id"
-        elif doc_type_clean == "dl":
+        doc_type_clean = document_type.lower().replace("-", "_")
+        if doc_type_clean in ["dl", "driving_licence"]:
             doc_type_clean = "driving_license"
+        elif doc_type_clean in ["epic", "voter"]:
+            doc_type_clean = "voter_id"
 
         # 1. PASSPORT SCHEMA
         if doc_type_clean == "passport":
@@ -443,8 +803,8 @@ class DocumentFieldValidator:
                 "status": "valid" if am else "unknown"
             }
 
-        # 3. NATIONAL ID SCHEMA
-        elif doc_type_clean == "national_id":
+        # 3. NATIONAL ID / AADHAAR SCHEMA
+        elif doc_type_clean in ["national_id", "aadhaar"]:
             uid_match = re.search(r"\b(\d{4}[\s,-]?\d{4}[\s,-]?\d{4}|\d{8}[\s,-]?\d{4}|\d{12})\b", full_text)
             pan_match = re.search(r"\b([A-Z]{5}[0-9]{4}[A-Z])\b", full_text.upper())
 
@@ -457,6 +817,7 @@ class DocumentFieldValidator:
                     "confidence": conf,
                     "status": "valid" if is_vh else "invalid"
                 }
+                extracted["aadhaar_number"] = extracted["ID_number"]
             elif pan_match:
                 pan_val = pan_match.group(1)
                 conf, _ = self._get_field_ocr_confidence(pan_val, tokens)
@@ -520,7 +881,82 @@ class DocumentFieldValidator:
                 "status": "valid" if expiry_val != "Not Applicable" else "unknown"
             }
 
-        # 4. DRIVING LICENCE SCHEMA
+        # 4. PAN CARD SCHEMA
+        elif doc_type_clean == "pan":
+            pan_match = re.search(r"\b([A-Z]{5}[0-9]{4}[A-Z])\b", full_text.upper())
+            if not pan_match:
+                cand_m = re.search(r"(?:account\s*number|number|pan)[\s:]*([A-Z0-9]{10})\b", full_text, re.IGNORECASE)
+                if not cand_m:
+                    cand_m = re.search(r"\b([A-Z0-9]{10})\b", full_text.upper())
+                if cand_m:
+                    pan_match = cand_m
+            pan_val = pan_match.group(1).strip() if pan_match else "Not Detected"
+            conf, _ = self._get_field_ocr_confidence(pan_val, tokens)
+            is_p_valid, _ = validate_pan_format(pan_val) if pan_val != "Not Detected" else (False, None)
+            extracted["pan_number"] = {
+                "value": pan_val,
+                "confidence": conf if pan_val != "Not Detected" else 0.0,
+                "status": "valid" if is_p_valid else ("invalid" if pan_val != "Not Detected" else "unknown")
+            }
+            extracted["ID_number"] = extracted["pan_number"]
+
+            hm = re.search(r"(?:name|cardholder)[\s:]+([A-Za-z\s]{2,40}?)(?=\s+(?:father|dob|date|\d|\n|$))", full_text, re.IGNORECASE)
+            if not hm:
+                hm = re.search(r"(?:name|cardholder)[\s:]+([A-Za-z\s]{3,30})", full_text, re.IGNORECASE)
+            name_val = hm.group(1).strip() if hm else ""
+            if not name_val:
+                for line in lines:
+                    lt = line.get("text", "").strip()
+                    if re.match(r"^[A-Z\s]{3,30}$", lt) and not any(kw in lt.lower() for kw in ["income", "tax", "department", "govt", "india", "permanent", "account", "father"]):
+                        name_val = lt
+                        break
+            conf_name, _ = self._get_field_ocr_confidence(name_val, tokens)
+            extracted["name"] = {
+                "value": name_val or "Not Detected",
+                "confidence": conf_name if name_val else 0.0,
+                "status": "valid" if name_val else "unknown"
+            }
+            extracted["holder_name"] = extracted["name"]
+
+            fm = re.search(r"(?:father(?:'s)?\s*name|father)[\s:]+([A-Za-z\s]{2,40}?)(?=\s+(?:dob|date|\d|\n|$))", full_text, re.IGNORECASE)
+            if not fm:
+                fm = re.search(r"(?:father(?:'s)?\s*name|father)[\s:]+([A-Za-z\s]{3,30})", full_text, re.IGNORECASE)
+            fname_val = fm.group(1).strip() if fm else ""
+            conf_fname, _ = self._get_field_ocr_confidence(fname_val, tokens)
+            extracted["father_name"] = {
+                "value": fname_val or "Not Detected",
+                "confidence": conf_fname if fname_val else 0.0,
+                "status": "valid" if fname_val else "unknown"
+            }
+
+            dates = re.findall(r"\b(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})\b", full_text)
+            dob_val = dates[0] if dates else ""
+            conf_dob, _ = self._get_field_ocr_confidence(dob_val, tokens)
+            extracted["date_of_birth"] = {
+                "value": dob_val or "Not Detected",
+                "confidence": conf_dob if dob_val else 0.0,
+                "status": "valid" if dob_val else "unknown"
+            }
+
+            if pan_val != "Not Detected" and is_p_valid:
+                entity_info = get_pan_entity_info(pan_val)
+                extracted["entity_type"] = {
+                    "value": entity_info["entity_type"],
+                    "confidence": 0.95,
+                    "status": "valid"
+                }
+                surname_res = correlate_pan_surname(pan_val, name_val)
+                extracted["surname_correlation"] = {
+                    "value": surname_res["status"],
+                    "details": surname_res["details"],
+                    "confidence": 0.90,
+                    "status": "valid" if surname_res["status"] == "PASS" else ("warning" if surname_res["status"] == "WARNING" else "info")
+                }
+            else:
+                extracted["entity_type"] = {"value": "Unknown", "confidence": 0.0, "status": "unknown"}
+                extracted["surname_correlation"] = {"value": "UNCERTAIN", "details": "PAN not validated", "confidence": 0.0, "status": "unknown"}
+
+        # 5. DRIVING LICENCE SCHEMA
         elif doc_type_clean == "driving_license":
             dl_m = re.search(r"\b([A-Z]{2}[-\s]?[0-9]{2}[-\s]?[0-9]{4}[-\s]?[0-9]{7})\b", full_text.upper())
             if not dl_m:
@@ -580,6 +1016,108 @@ class DocumentFieldValidator:
                 "value": auth_val,
                 "confidence": 0.65,
                 "status": "valid"
+            }
+
+            if dl_num != "Not Detected":
+                is_sc_valid, sc_code, _ = validate_dl_state_code(dl_num)
+                extracted["state_code"] = {
+                    "value": sc_code or "Unknown",
+                    "jurisdiction": VALID_INDIAN_DL_STATE_CODES.get(sc_code, "Unknown"),
+                    "confidence": 0.90 if is_sc_valid else 0.0,
+                    "status": "valid" if is_sc_valid else "invalid"
+                }
+            else:
+                extracted["state_code"] = {"value": "Not Detected", "confidence": 0.0, "status": "unknown"}
+
+            val_eval = evaluate_dl_validity(issue_val, exp_val, dob_val)
+            extracted["validity_status"] = {
+                "value": val_eval["status"],
+                "details": val_eval["details"],
+                "confidence": 0.85,
+                "status": "valid" if val_eval["status"] == "VALID" else ("warning" if val_eval["status"] in ["EXPIRED", "VALIDITY_UNDETERMINED"] else "invalid")
+            }
+
+        # 6. VOTER ID / EPIC SCHEMA
+        elif doc_type_clean == "voter_id":
+            epic_m = re.search(r"\b([A-Z]{3}[0-9]{7})\b", full_text.upper())
+            if not epic_m:
+                epic_m = re.search(r"\b([A-Z0-9]{3}[-\s]?[0-9]{7})\b", full_text.upper())
+            if not epic_m:
+                epic_m = re.search(r"(?:epic|voter\s*id|card)\s*no\.?[\s:]*([A-Z0-9/\-]{8,16})", full_text, re.IGNORECASE)
+
+            raw_epic = epic_m.group(1).strip() if epic_m else ""
+            if raw_epic:
+                epic_eval = validate_epic_format(raw_epic)
+                conf, _ = self._get_field_ocr_confidence(raw_epic, tokens)
+                extracted["epic_number"] = {
+                    "value": epic_eval["normalized_value"],
+                    "raw_value": epic_eval["raw_value"],
+                    "normalization_note": epic_eval.get("normalization_note"),
+                    "confidence": conf,
+                    "status": "valid" if epic_eval["is_valid"] else "invalid"
+                }
+            else:
+                extracted["epic_number"] = {
+                    "value": "Not Detected",
+                    "raw_value": "Not Detected",
+                    "normalization_note": None,
+                    "confidence": 0.0,
+                    "status": "unknown"
+                }
+            extracted["ID_number"] = extracted["epic_number"]
+
+            nm = re.search(r"(?:elector(?:'s)?\s*name|name)[\s:]+([A-Za-z\s]{3,30})", full_text, re.IGNORECASE)
+            elector_name = nm.group(1).strip() if nm else ""
+            conf_name, _ = self._get_field_ocr_confidence(elector_name, tokens)
+            extracted["elector_name"] = {
+                "value": elector_name or "Not Detected",
+                "confidence": conf_name if elector_name else 0.0,
+                "status": "valid" if elector_name else "unknown"
+            }
+            extracted["name"] = extracted["elector_name"]
+
+            rel_m = re.search(r"(?:father(?:'s)?|husband(?:'s)?|relation)\s*name[\s:]+([A-Za-z\s]{3,30})", full_text, re.IGNORECASE)
+            rel_name = rel_m.group(1).strip() if rel_m else ""
+            conf_rel, _ = self._get_field_ocr_confidence(rel_name, tokens)
+            extracted["relation_name"] = {
+                "value": rel_name or "Not Detected",
+                "confidence": conf_rel if rel_name else 0.0,
+                "status": "valid" if rel_name else "unknown"
+            }
+
+            gm = re.search(r"\b(MALE|FEMALE|TRANSGENDER|M|F)\b", full_text.upper())
+            gender_val = "MALE" if (gm and gm.group(1) in ["MALE", "M"]) else ("FEMALE" if (gm and gm.group(1) in ["FEMALE", "F"]) else "Not Specified")
+            extracted["gender"] = {
+                "value": gender_val,
+                "confidence": 0.80 if gender_val != "Not Specified" else 0.0,
+                "status": "valid" if gender_val != "Not Specified" else "unknown"
+            }
+
+            dates = re.findall(r"\b(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})\b", full_text)
+            dob_val = dates[0] if dates else ""
+            if not dob_val:
+                age_m = re.search(r"(?:age|आयु)[\s:]*(\d{2})", full_text, re.IGNORECASE)
+                dob_val = f"Age {age_m.group(1)}" if age_m else ""
+            extracted["dob_or_age"] = {
+                "value": dob_val or "Not Detected",
+                "confidence": 0.70 if dob_val else 0.0,
+                "status": "valid" if dob_val else "unknown"
+            }
+            extracted["date_of_birth"] = extracted["dob_or_age"]
+
+            ac_m = re.search(r"(?:assembly\s*constituency|constituency|ac|no\.?\s*and\s*name)[\s:]*([A-Za-z0-9\s\-]{3,35})", full_text, re.IGNORECASE)
+            ac_val = ac_m.group(1).strip() if ac_m else "Not Detected"
+            extracted["assembly_constituency"] = {
+                "value": ac_val,
+                "confidence": 0.65 if ac_val != "Not Detected" else 0.0,
+                "status": "valid" if ac_val != "Not Detected" else "unknown"
+            }
+
+            eci_found = bool(re.search(r"(?:election\s*commission\s*of\s*india|भारत\s*निर्वाचन\s*आयोग)", full_text, re.IGNORECASE))
+            extracted["issuer_header"] = {
+                "value": "Election Commission of India" if eci_found else "Not Detected",
+                "confidence": 0.90 if eci_found else 0.0,
+                "status": "valid" if eci_found else "unknown"
             }
 
         # 5. PERMIT SCHEMA
@@ -814,8 +1352,8 @@ class DocumentFieldValidator:
             else:
                 checks.append({"rule": "Visa Identifier Presence", "status": "PASS", "details": f"Visa identifier identified: {v_num}"})
 
-        elif document_type == "national_id":
-            id_val = extracted_fields.get("ID_number", {}).get("value", "")
+        elif document_type in ["national_id", "aadhaar"]:
+            id_val = extracted_fields.get("ID_number", {}).get("value", "") or extracted_fields.get("aadhaar_number", {}).get("value", "")
             clean_digits = re.sub(r"\D", "", id_val)
             if len(clean_digits) == 12:
                 is_vh_valid, resolved, note = validate_verhoeff_with_ocr_tolerance(clean_digits)
@@ -840,16 +1378,89 @@ class DocumentFieldValidator:
             else:
                 checks.append({"rule": "National ID Format Verification", "status": "INFO", "details": "Standard national identity format check; no proprietary national database connection."})
 
+        elif document_type == "pan":
+            pan_val = extracted_fields.get("pan_number", {}).get("value", "") or extracted_fields.get("ID_number", {}).get("value", "")
+            if pan_val and pan_val != "Not Detected":
+                p_res = validate_pan_format(pan_val)
+                is_p_valid, p_err = p_res[0], p_res[1]
+                if is_p_valid:
+                    det = f"Valid 10-character Tax ID structure ({pan_val})"
+                    if getattr(p_res, "disambiguated", False):
+                        det += f" [{p_res.disambiguation_note}]"
+                        checks.append({"rule": "PAN Optical Disambiguation", "status": "INFO", "details": p_res.disambiguation_note})
+                    checks.append({"rule": "Tax ID (PAN) Structure", "status": "PASS", "details": det})
+                    ent_info = get_pan_entity_info(pan_val)
+                    checks.append({"rule": "PAN Entity Code", "status": "PASS", "details": f"Entity code '{ent_info['entity_code']}': {ent_info['entity_type']}"})
+                    
+                    h_name = extracted_fields.get("name", {}).get("value", "") or extracted_fields.get("holder_name", {}).get("value", "")
+                    s_res = correlate_pan_surname(pan_val, h_name)
+                    checks.append({"rule": "PAN Surname Correlation", "status": s_res["status"], "details": s_res["details"]})
+                else:
+                    penalties += 45
+                    reasons.append(f"Tax ID format error: {p_err}")
+                    checks.append({"rule": "Tax ID (PAN) Structure", "status": "FAIL", "details": p_err})
+            else:
+                penalties += 35
+                reasons.append("PAN identifier missing or unreadable")
+                checks.append({"rule": "Tax ID (PAN) Structure", "status": "FAIL", "details": "PAN identifier missing or unreadable"})
+
         elif document_type == "driving_license":
             dl_val = extracted_fields.get("licence_number", {}).get("value", "")
             if dl_val and dl_val != "Not Detected":
                 is_dl_valid, err_msg = validate_dl_format(dl_val)
                 if is_dl_valid:
                     checks.append({"rule": "Driving Licence Format", "status": "PASS", "details": f"Valid licence pattern: {dl_val}"})
+                    is_sc_valid, sc_code, sc_err = validate_dl_state_code(dl_val)
+                    if is_sc_valid:
+                        checks.append({"rule": "State Jurisdiction Code", "status": "PASS", "details": f"Valid State/UT jurisdiction: {VALID_INDIAN_DL_STATE_CODES.get(sc_code, sc_code)} ({sc_code})"})
+                    else:
+                        penalties += 40
+                        reasons.append(f"Invalid State/UT code: {sc_err}")
+                        checks.append({"rule": "State Jurisdiction Code", "status": "FAIL", "details": sc_err})
                 else:
                     penalties += 25
                     reasons.append(f"Driving licence format issue: {err_msg}")
                     checks.append({"rule": "Driving Licence Format", "status": "FAIL", "details": err_msg})
+                
+                iss_v = extracted_fields.get("issue_date", {}).get("value")
+                exp_v = extracted_fields.get("expiry_date", {}).get("value")
+                dob_v = extracted_fields.get("date_of_birth", {}).get("value")
+                v_res = evaluate_dl_validity(iss_v, exp_v, dob_v)
+                if v_res["status"] == "VALIDITY_INCONSISTENCY":
+                    penalties += 35
+                    reasons.append(v_res["details"])
+                    checks.append({"rule": "Chronological Validity State", "status": "FAIL", "details": v_res["details"]})
+                elif v_res["status"] == "EXPIRED":
+                    penalties += 15
+                    checks.append({"rule": "Chronological Validity State", "status": "EXPIRED", "details": v_res["details"]})
+                elif v_res["status"] == "VALID":
+                    checks.append({"rule": "Chronological Validity State", "status": "PASS", "details": v_res["details"]})
+                else:
+                    checks.append({"rule": "Chronological Validity State", "status": "WARNING", "details": v_res["details"]})
+
+        elif document_type == "voter_id":
+            epic_val = extracted_fields.get("epic_number", {}).get("value", "")
+            raw_val = extracted_fields.get("epic_number", {}).get("raw_value", epic_val)
+            if raw_val and raw_val != "Not Detected":
+                epic_res = validate_epic_format(raw_val)
+                if epic_res["is_valid"]:
+                    checks.append({"rule": "Voter ID (EPIC) Format Compatibility", "status": "PASS", "details": epic_res["details"]})
+                    if epic_res.get("normalization_note"):
+                        checks.append({"rule": "EPIC OCR Disambiguation", "status": "INFO", "details": epic_res["normalization_note"]})
+                else:
+                    penalties += 30
+                    reasons.append(epic_res["details"])
+                    checks.append({"rule": "Voter ID (EPIC) Format Compatibility", "status": "FAIL", "details": epic_res["details"]})
+            else:
+                penalties += 25
+                reasons.append("EPIC number missing or unreadable")
+                checks.append({"rule": "Voter ID (EPIC) Format Compatibility", "status": "FAIL", "details": "EPIC number not detected"})
+
+            header_val = extracted_fields.get("issuer_header", {}).get("value", "")
+            if header_val == "Election Commission of India":
+                checks.append({"rule": "ECI Header Template", "status": "PASS", "details": "Official Election Commission of India header detected"})
+            else:
+                checks.append({"rule": "ECI Header Template", "status": "WARNING", "details": "Standard Election Commission header not detected with high confidence"})
 
         validation_score = max(0.0, min(100.0, 100.0 - penalties))
         return {
@@ -891,10 +1502,18 @@ class DocumentFieldValidator:
             lower = full_text.lower()
             if any(kw in lower for kw in self.doc_signatures.get("pan", [])) or re.search(r"\b([A-Z]{5}[0-9]{4}[A-Z])\b", full_text):
                 doc_type = "pan"
+            elif re.search(r"\b[A-Z]{3}[0-9]{7}\b", full_text.upper()) or "election" in lower:
+                doc_type = "voter_id"
             else:
                 doc_type = "aadhaar"
-        elif sih_type == "driving_license":
+        elif sih_type in ["driving_license", "dl"]:
             doc_type = "dl"
+        elif sih_type in ["voter_id", "epic"]:
+            doc_type = "voter_id"
+        elif sih_type == "pan":
+            doc_type = "pan"
+        elif sih_type == "aadhaar":
+            doc_type = "aadhaar"
         
         field_evaluations: List[Dict[str, Any]] = []
         overall_nlp_penalty = 0
@@ -1007,21 +1626,74 @@ class DocumentFieldValidator:
 
         elif doc_type == "pan":
             pan_match = re.search(r"\b([A-Z]{5}[\s-]?[0-9]{4}[\s-]?[A-Z0-9])\b", full_text.upper())
+            if not pan_match:
+                cand_m = re.search(r"(?:account\s*number|number|pan)[\s:]*([A-Z0-9]{10})\b", full_text, re.IGNORECASE)
+                if not cand_m:
+                    cand_m = re.search(r"\b([A-Z0-9]{10})\b", full_text.upper())
+                if cand_m:
+                    pan_match = cand_m
             if pan_match:
                 raw_pan = pan_match.group(1)
                 pan_val = re.sub(r"[\s-]", "", raw_pan)
-                field_conf, is_field_confident = self._get_field_ocr_confidence(pan_val, tokens)
-                is_valid, err_msg = validate_pan_format(pan_val)
+                field_conf, is_field_confident = self._get_field_ocr_confidence(raw_pan, tokens)
+                p_res = validate_pan_format(pan_val)
+                is_valid, err_msg = p_res[0], p_res[1]
                 if is_valid:
+                    det = "Valid 10-character Tax ID structure (Entity code verified)"
+                    if getattr(p_res, "disambiguated", False):
+                        det += f" [{p_res.disambiguation_note}]"
+                        field_evaluations.append({
+                            "field": "PAN Optical Disambiguation",
+                            "value": "Normalized via Heuristic",
+                            "status": "INFO",
+                            "details": p_res.disambiguation_note,
+                            "field_ocr_confidence": field_conf,
+                            "is_deterministic": False,
+                            "evidence_level": "WEAK"
+                        })
                     field_evaluations.append({
                         "field": "Permanent Account Number (PAN)",
                         "value": pan_val,
                         "status": "PASS",
-                        "details": "Valid 10-character Tax ID structure (Entity code verified)",
+                        "details": det,
                         "field_ocr_confidence": field_conf,
                         "is_deterministic": True,
                         "evidence_level": "CLEAN"
                     })
+                    ent_info = get_pan_entity_info(pan_val)
+                    field_evaluations.append({
+                        "field": "PAN Entity Classification",
+                        "value": f"{ent_info['entity_type']} ({ent_info['entity_code']})",
+                        "status": "PASS",
+                        "details": f"Entity code '{ent_info['entity_code']}': {ent_info['entity_type']}",
+                        "field_ocr_confidence": field_conf,
+                        "is_deterministic": True,
+                        "evidence_level": "CLEAN"
+                    })
+                    # Surname correlation check (mismatch is WARNING, never automatic fraud)
+                    h_name = None
+                    hm = re.search(r"(?:name|cardholder)[\s:]+([A-Za-z\s]{2,40}?)(?=\s+(?:father|dob|date|\d|\n|$))", full_text, re.IGNORECASE)
+                    if not hm:
+                        hm = re.search(r"(?:name|cardholder)[\s:]+([A-Za-z\s]{3,30})", full_text, re.IGNORECASE)
+                    if hm:
+                        h_name = hm.group(1).strip()
+                    if not h_name:
+                        for line in lines:
+                            lt = line.get("text", "").strip()
+                            if re.match(r"^[A-Z\s]{3,30}$", lt) and not any(kw in lt.lower() for kw in ["income", "tax", "department", "govt", "india", "permanent", "account", "father"]):
+                                h_name = lt
+                                break
+                    if h_name:
+                        surname_res = correlate_pan_surname(pan_val, h_name)
+                        field_evaluations.append({
+                            "field": "PAN Cardholder Surname Correlation",
+                            "value": surname_res["status"],
+                            "status": "PASS" if surname_res["status"] == "PASS" else ("WARNING" if surname_res["status"] == "WARNING" else "INFO"),
+                            "details": surname_res["details"],
+                            "field_ocr_confidence": field_conf,
+                            "is_deterministic": False,
+                            "evidence_level": "CLEAN" if surname_res["status"] == "PASS" else "WEAK"
+                        })
                 else:
                     if is_field_confident or field_conf >= 0.55:
                         overall_nlp_penalty += 40
@@ -1252,8 +1924,8 @@ class DocumentFieldValidator:
                     "evidence_level": "WEAK"
                 })
 
-        elif doc_type == "dl":
-            dl_m = re.search(r"\b([A-Z]{2}[-\s]?[0-9]{2}[-\s]?[0-9]{4}[-\s]?[0-9]{7}|[A-Z]{2}[0-9]{13,14})\b", full_text.upper())
+        elif doc_type in ["dl", "driving_license"]:
+            dl_m = re.search(r"\b([A-Z]{2}[-\s]?[0-9]{2}[-\s]?[0-9]{4}[-\s]?[0-9]{7}|[A-Z]{2}[0-9]{11,14})\b", full_text.upper())
             if not dl_m:
                 dl_m = re.search(r"(?:dl|licence|license)\s*no\.?[\s:]*([A-Z0-9\-]{8,18})", full_text, re.IGNORECASE)
             dl_num = dl_m.group(1).strip() if dl_m else ""
@@ -1265,11 +1937,34 @@ class DocumentFieldValidator:
                         "field": "Driving Licence Number Format",
                         "value": dl_num,
                         "status": "PASS",
-                        "details": f"Valid state code and licence structure ({dl_num})",
+                        "details": f"Valid licence structure ({dl_num})",
                         "field_ocr_confidence": conf,
                         "is_deterministic": True,
                         "evidence_level": "CLEAN"
                     })
+                    is_sc_valid, sc_code, sc_err = validate_dl_state_code(dl_num)
+                    if is_sc_valid:
+                        field_evaluations.append({
+                            "field": "Driving Licence State Jurisdiction",
+                            "value": f"{VALID_INDIAN_DL_STATE_CODES.get(sc_code, sc_code)} ({sc_code})",
+                            "status": "PASS",
+                            "details": f"Valid Indian state jurisdiction: {VALID_INDIAN_DL_STATE_CODES.get(sc_code, sc_code)}",
+                            "field_ocr_confidence": conf,
+                            "is_deterministic": True,
+                            "evidence_level": "CLEAN"
+                        })
+                    else:
+                        overall_nlp_penalty += 40
+                        reasons.append(f"Deterministic State/UT Code Failure: {sc_err}")
+                        field_evaluations.append({
+                            "field": "Driving Licence State Jurisdiction",
+                            "value": dl_num[:2],
+                            "status": "FAIL",
+                            "details": f"Deterministic State/UT Code Failure: {sc_err}",
+                            "field_ocr_confidence": conf,
+                            "is_deterministic": True,
+                            "evidence_level": "STRONG"
+                        })
                 else:
                     if conf >= 0.65:
                         overall_nlp_penalty += 35
@@ -1295,12 +1990,115 @@ class DocumentFieldValidator:
                             "evidence_level": "WEAK"
                         })
 
+                # Check chronological validity
+                dates = re.findall(r"\b(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})\b", full_text)
+                dob_val = dates[0] if len(dates) >= 1 else None
+                issue_val = dates[1] if len(dates) >= 2 else None
+                exp_val = dates[2] if len(dates) >= 3 else (dates[1] if len(dates) == 2 else None)
+                v_res = evaluate_dl_validity(issue_val, exp_val, dob_val)
+                if v_res["status"] == "VALIDITY_INCONSISTENCY":
+                    overall_nlp_penalty += 35
+                    reasons.append(v_res["details"])
+                    field_evaluations.append({
+                        "field": "Driving Licence Chronological Validity",
+                        "value": v_res["status"],
+                        "status": "FAIL",
+                        "details": v_res["details"],
+                        "is_deterministic": True,
+                        "evidence_level": "STRONG"
+                    })
+                elif v_res["status"] == "EXPIRED":
+                    overall_nlp_penalty += 15
+                    field_evaluations.append({
+                        "field": "Driving Licence Chronological Validity",
+                        "value": "EXPIRED",
+                        "status": "WARNING",
+                        "details": v_res["details"],
+                        "is_deterministic": False,
+                        "evidence_level": "MODERATE"
+                    })
+                elif v_res["status"] == "VALID":
+                    field_evaluations.append({
+                        "field": "Driving Licence Chronological Validity",
+                        "value": "VALID",
+                        "status": "PASS",
+                        "details": v_res["details"],
+                        "is_deterministic": True,
+                        "evidence_level": "CLEAN"
+                    })
+
+        elif doc_type == "voter_id":
+            epic_m = re.search(r"\b([A-Z]{3}[0-9]{7})\b", full_text.upper())
+            if not epic_m:
+                epic_m = re.search(r"\b([A-Z0-9]{3}[-\s]?[0-9]{7})\b", full_text.upper())
+            if not epic_m:
+                epic_m = re.search(r"(?:epic|voter\s*id|card)\s*no\.?[\s:]*([A-Z0-9/\-]{8,16})", full_text, re.IGNORECASE)
+
+            raw_epic = epic_m.group(1).strip() if epic_m else ""
+            if raw_epic:
+                conf, _ = self._get_field_ocr_confidence(raw_epic, tokens)
+                epic_eval = validate_epic_format(raw_epic)
+                if epic_eval["is_valid"]:
+                    det_msg = epic_eval["details"]
+                    if epic_eval.get("normalization_note"):
+                        det_msg += f" [{epic_eval['normalization_note']}]"
+                    field_evaluations.append({
+                        "field": "Voter ID / EPIC Number",
+                        "value": epic_eval["normalized_value"],
+                        "raw_value": epic_eval["raw_value"],
+                        "status": "PASS",
+                        "details": det_msg,
+                        "field_ocr_confidence": conf,
+                        "is_deterministic": True,
+                        "evidence_level": "CLEAN"
+                    })
+                else:
+                    overall_nlp_penalty += 35
+                    reasons.append(epic_eval["details"])
+                    field_evaluations.append({
+                        "field": "Voter ID / EPIC Number",
+                        "value": raw_epic,
+                        "status": "FAIL",
+                        "details": epic_eval["details"],
+                        "field_ocr_confidence": conf,
+                        "is_deterministic": True,
+                        "evidence_level": "STRONG"
+                    })
+            else:
+                overall_nlp_penalty += 25
+                msg = "Expected Voter ID (EPIC) pattern missing or unreadable"
+                reasons.append(msg)
+                field_evaluations.append({
+                    "field": "Voter ID / EPIC Number",
+                    "value": "Missing / Illegible",
+                    "status": "FAIL",
+                    "details": msg,
+                    "field_ocr_confidence": 0.0,
+                    "is_deterministic": False,
+                    "evidence_level": "MODERATE"
+                })
+
+            # Check ECI Header
+            eci_found = bool(re.search(r"(?:election\s*commission\s*of\s*india|भारत\s*निर्वाचन\s*आयोग)", full_text, re.IGNORECASE))
+            if eci_found:
+                field_evaluations.append({
+                    "field": "ECI Official Header",
+                    "value": "Verified",
+                    "status": "PASS",
+                    "details": "Election Commission of India official header recognized",
+                    "field_ocr_confidence": 0.90,
+                    "is_deterministic": False,
+                    "evidence_level": "CLEAN"
+                })
+
         # Issuer Header Template Verification (catches counterfeit templates with misspelled issuer names)
         suspicious_header_phrases = [
             ("lncohe", "INCOME"),
             ("departmemt", "DEPARTMENT"),
             ("indla", "INDIA"),
-            ("pehchah", "PEHCHAN")
+            ("pehchah", "PEHCHAN"),
+            ("electlon", "ELECTION"),
+            ("commisslon", "COMMISSION")
         ]
         lower_full_text = full_text.lower()
         found_counterfeit_headers = []
@@ -1321,31 +2119,6 @@ class DocumentFieldValidator:
                 "is_deterministic": True,
                 "evidence_level": "MODERATE"
             })
-
-        elif doc_type == "dl":
-            dl_match = re.search(r"\b([A-Z]{2}[-\s]?[0-9]{2}[-\s]?[0-9]{4}[-\s]?[0-9]{7})\b", full_text.upper())
-            if not dl_match:
-                dl_match = re.search(r"\b([A-Z]{2}[0-9]{11,14})\b", full_text.upper())
-                
-            if dl_match:
-                dl_val = dl_match.group(1)
-                is_valid, err_msg = validate_dl_format(dl_val)
-                if is_valid:
-                    field_evaluations.append({
-                        "field": "Driving Licence Number",
-                        "value": dl_val,
-                        "status": "PASS",
-                        "details": "Standard state code & series pattern valid"
-                    })
-                else:
-                    overall_nlp_penalty += 40
-                    field_evaluations.append({
-                        "field": "Driving Licence Number",
-                        "value": dl_val,
-                        "status": "FAIL",
-                        "details": err_msg
-                    })
-                    reasons.append(err_msg)
 
         # 2. Date checks (DOB, Issue Date, Expiry)
         date_matches = re.findall(r"\b(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})\b", full_text)

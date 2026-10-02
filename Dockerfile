@@ -63,8 +63,9 @@ RUN python -c "import easyocr; easyocr.Reader(['en'], gpu=False)"
 # Copy built frontend static bundle
 COPY --chown=user:user --from=frontend-builder /app/frontend/dist ./frontend/dist
 
-# Copy backend application source code and dataset
+# Copy backend application source code, models, and dataset
 COPY --chown=user:user backend/ ./backend/
+COPY --chown=user:user models/ ./models/
 
 # Copy benchmark reports and presentation materials
 COPY --chown=user:user reports/ ./reports/

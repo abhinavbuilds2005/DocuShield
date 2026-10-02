@@ -156,7 +156,8 @@ class DocumentConditionAnalyzer:
             quality_explanation = "Degraded capture quality (blur, compression, or low resolution). Digital forensics attenuated to prevent false alarms."
         else:
             quality_tier = "VERY_LOW"
-            quality_explanation = "Image quality is severely degraded and insufficient for reliable autonomous verification. Manual human inspection required."
+            quality_explanation = "Image quality is severely degraded and insufficient for reliable autonomous screening. Manual human inspection required."
+
 
         # Map to legacy condition profile
         if quality_tier == "VERY_LOW":

@@ -104,3 +104,39 @@ def test_path_traversal_image_endpoint():
     for payload in traversal_payloads:
         response = client.get(f"/api/image/{payload}")
         assert response.status_code in [404, 400]
+
+
+def test_cors_allowed_local_origin():
+    """Verifies that requests from allowed development origins receive valid CORS headers."""
+    response = client.options(
+        "/api/health",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "GET"
+        }
+    )
+    assert response.headers.get("access-control-allow-origin") == "http://localhost:5173"
+
+
+def test_cors_rejected_unauthorized_origin():
+    """Verifies that requests from untrusted origins are NOT granted access-control-allow-origin."""
+    response = client.options(
+        "/api/health",
+        headers={
+            "Origin": "https://unauthorized-malicious-domain.com",
+            "Access-Control-Request-Method": "GET"
+        }
+    )
+    # Starlette CORS middleware omits the header for unauthorized origins
+    assert response.headers.get("access-control-allow-origin") != "https://unauthorized-malicious-domain.com"
+
+
+def test_cors_origin_parser():
+    """Tests normalisation and whitespace/trailing-slash stripping of comma-separated origins."""
+    from backend.app import parse_allowed_origins
+    parsed = parse_allowed_origins(" https://frontend.example.com/ , http://localhost:5173/ , ")
+    assert parsed == ["https://frontend.example.com", "http://localhost:5173"]
+    # Empty / whitespace fallback
+    default_parsed = parse_allowed_origins("")
+    assert "http://localhost:5173" in default_parsed
+

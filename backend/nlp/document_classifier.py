@@ -18,10 +18,13 @@ import re
 from typing import Dict, Any, Optional, List
 
 DOCUMENT_TYPES = [
-    "passport",
-    "visa",
-    "national_id",
+    "aadhaar",
+    "pan",
     "driving_license",
+    "passport",
+    "voter_id",
+    "national_id",
+    "visa",
     "permit"
 ]
 
@@ -31,6 +34,9 @@ DOCUMENT_TYPE_LABELS = {
     "national_id": "National Identity Card",
     "driving_license": "Driving Licence",
     "permit": "Permit / Travel Authorization",
+    "voter_id": "Voter ID / EPIC Card",
+    "pan": "PAN Card",
+    "aadhaar": "Aadhaar Card",
     "unknown": "Unknown Document Type"
 }
 
@@ -65,6 +71,22 @@ KEYWORD_SIGNATURES = {
         "entry permit", "authorisation", "permit no", "stay permit",
         "employment authorization", "travel permit", "alien registration",
         "border pass", "cross-border permit", "special permit"
+    ],
+    "voter_id": [
+        "election commission of india", "election commission", "elector",
+        "electoral photo identity card", "epic no", "epic", "voter id",
+        "pehchan patra", "assembly constituency", "parliamentary constituency",
+        "निर्वाचन आयोग", "भारत निर्वाचन आयोग", "मतदाता पहचान पत्र", "elector's name"
+    ],
+    "pan": [
+        "permanent account number", "income tax department", "govt. of india",
+        "father's name", "pan card", "income tax", "permanent account",
+        "आयकर विभाग"
+    ],
+    "aadhaar": [
+        "unique identification authority of india", "uidai", "aadhaar",
+        "मेरा आधार", "मेरी पहचान", "enrollment no", "help@uidai.gov.in",
+        "www.uidai.gov.in", "government of india"
     ]
 }
 
@@ -97,15 +119,29 @@ class DocumentClassifier:
                 - scores: Dict[str, int]
         """
         # 1. User override takes priority if valid
-        if user_selected_type and user_selected_type.lower() in DOCUMENT_TYPES:
-            clean_user_type = user_selected_type.lower()
-            return {
-                "document_type": clean_user_type,
-                "confidence": 1.0,
-                "method": "user_selected",
-                "explanation": f"Explicitly specified by user as '{DOCUMENT_TYPE_LABELS.get(clean_user_type, clean_user_type)}'.",
-                "scores": {}
+        if user_selected_type and user_selected_type.lower().strip() != "auto":
+            raw_type = user_selected_type.lower().strip().replace("-", "_")
+            aliases = {
+                "dl": "driving_license",
+                "driving_licence": "driving_license",
+                "driver_license": "driving_license",
+                "epic": "voter_id",
+                "voter": "voter_id",
+                "pancard": "pan",
+                "pan_card": "pan",
+                "aadhaar_card": "aadhaar",
+                "adhaar": "aadhaar",
+                "aadhar": "aadhaar",
             }
+            clean_user_type = aliases.get(raw_type, raw_type)
+            if clean_user_type in DOCUMENT_TYPES:
+                return {
+                    "document_type": clean_user_type,
+                    "confidence": 1.0,
+                    "method": "user_selected",
+                    "explanation": f"Explicitly specified by user as '{DOCUMENT_TYPE_LABELS.get(clean_user_type, clean_user_type)}'.",
+                    "scores": {}
+                }
 
         clean_text = full_text or ""
         lower_text = clean_text.lower()
@@ -121,12 +157,19 @@ class DocumentClassifier:
             scores["visa"] += 8
 
         # 3. Check for specific national identifiers
+        # Voter ID / EPIC format (3 uppercase letters followed by 7 digits)
+        if re.search(r"\b[A-Z]{3}[0-9]{7}\b", clean_text.upper()):
+            scores["voter_id"] += 7
+            scores["national_id"] += 3
+
         # 12-digit Indian Aadhaar or UID patterns
         if re.search(r"\b(\d{4}[\s-]?\d{4}[\s-]?\d{4})\b", clean_text):
+            scores["aadhaar"] += 6
             scores["national_id"] += 5
 
         # PAN card format (5 uppercase letters, 4 digits, 1 uppercase letter)
         if re.search(r"\b[A-Z]{5}[0-9]{4}[A-Z]\b", clean_text.upper()):
+            scores["pan"] += 7
             scores["national_id"] += 5
 
         # DL format pattern

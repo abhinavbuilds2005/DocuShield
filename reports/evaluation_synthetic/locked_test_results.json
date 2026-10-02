@@ -1,0 +1,142 @@
+{
+  "evaluation_scope": "Performance on the frozen synthetic evaluation benchmark.",
+  "evaluation_timestamp": "2026-09-18 16:22:30 UTC",
+  "splits_evaluated": [
+    "test"
+  ],
+  "total_samples": 150,
+  "document_classification": {
+    "total": 150,
+    "correct": 144,
+    "accuracy": 0.96,
+    "confusion_matrix": {
+      "aadhaar": {
+        "aadhaar": 30,
+        "pan": 0,
+        "driving_license": 0,
+        "passport": 0,
+        "voter_id": 0
+      },
+      "pan": {
+        "aadhaar": 0,
+        "pan": 30,
+        "driving_license": 0,
+        "passport": 0,
+        "voter_id": 0
+      },
+      "driving_license": {
+        "aadhaar": 0,
+        "pan": 0,
+        "driving_license": 30,
+        "passport": 0,
+        "voter_id": 0
+      },
+      "passport": {
+        "aadhaar": 0,
+        "pan": 0,
+        "driving_license": 0,
+        "passport": 26,
+        "voter_id": 0
+      },
+      "voter_id": {
+        "aadhaar": 2,
+        "pan": 0,
+        "driving_license": 0,
+        "passport": 0,
+        "voter_id": 28
+      }
+    }
+  },
+  "field_detection": {
+    "total_ground_truth_boxes": 887,
+    "true_positives_iou50": 0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "mean_iou": 0.0
+  },
+  "ocr_extraction": {
+    "fields_evaluated": 681,
+    "exact_matches": 213,
+    "exact_match_ratio": 0.3128,
+    "mean_character_error_rate": 0.6968,
+    "mean_levenshtein_similarity": 0.396
+  },
+  "forensic_screening_and_controls": {
+    "clean_samples_total": 100,
+    "clean_false_positives": 0,
+    "false_positive_rate": 0.0,
+    "negative_control_samples_total": 50,
+    "negative_control_rejections": 0,
+    "negative_control_false_acceptances": 50,
+    "false_acceptance_rate": 1.0,
+    "manual_review_rate": 0.2133,
+    "screening_verdicts": {
+      "STRUCTURALLY_VALID_UNVERIFIED": 82,
+      "INVALID": 32,
+      "SUSPICIOUS": 4,
+      "MANUAL_REVIEW_REQUIRED": 32
+    }
+  },
+  "operational_profile": {
+    "mean_latency_ms": 11054.01,
+    "median_latency_ms": 10802.07,
+    "p95_latency_ms": 15310.14,
+    "peak_memory_mb": 182.18,
+    "inference_errors": 0
+  },
+  "per_class_breakdown": {
+    "aadhaar": {
+      "sample_count": 30,
+      "classification_accuracy": 1.0,
+      "ocr_emr": 0.661,
+      "mean_cer": 0.3391,
+      "mean_latency_ms": 10065.64
+    },
+    "driving_license": {
+      "sample_count": 30,
+      "classification_accuracy": 1.0,
+      "ocr_emr": 0.2789,
+      "mean_cer": 0.75,
+      "mean_latency_ms": 14714.72
+    },
+    "pan": {
+      "sample_count": 30,
+      "classification_accuracy": 1.0,
+      "ocr_emr": 0.1949,
+      "mean_cer": 0.6803,
+      "mean_latency_ms": 12133.36
+    },
+    "passport": {
+      "sample_count": 30,
+      "classification_accuracy": 0.8667,
+      "ocr_emr": 0.1444,
+      "mean_cer": 0.9339,
+      "mean_latency_ms": 10950.38
+    },
+    "voter_id": {
+      "sample_count": 30,
+      "classification_accuracy": 0.9333,
+      "ocr_emr": 0.3814,
+      "mean_cer": 0.6431,
+      "mean_latency_ms": 7405.96
+    }
+  },
+  "per_category_breakdown": {
+    "compressed_transmission": {
+      "sample_count": 25,
+      "ocr_emr": 0.4261,
+      "mean_cer": 0.4752
+    },
+    "degraded_physical": {
+      "sample_count": 75,
+      "ocr_emr": 0.1884,
+      "mean_cer": 0.9116
+    },
+    "negative_control": {
+      "sample_count": 50,
+      "ocr_emr": 0.448,
+      "mean_cer": 0.4768
+    }
+  },
+  "phase_1_comparison_status": "Phase 1 comparative benchmark unavailable."
+}

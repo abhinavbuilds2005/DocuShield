@@ -15,7 +15,10 @@ services:
       - key: PORT
         value: 10000
       - key: ALLOWED_ORIGINS
-        value: "*"
+        # Optional: Additional frontend domain(s) or custom domains, comma-separated.
+        # Note: onrender.com subdomains and RENDER_EXTERNAL_URL are auto-permitted by backend.
+        value: "https://your-production-frontend-domain.com"
+
       - key: PYTHONUNBUFFERED
         value: "1"
       - key: MALLOC_ARENA_MAX
@@ -25,6 +28,13 @@ services:
       - key: MKL_NUM_THREADS
         value: "1"
       - key: OCR_ENGINE
+        # Deep-learning OCR engine with high character accuracy on Indian ID documents
         value: "easyocr"
+      - key: USE_FIELD_DETECTOR
+        value: "true"
+      - key: FIELD_DETECTOR_MODEL_PATH
+        value: "models/aadhaar_field_detector.pt"
+      - key: FIELD_DETECTOR_CONF_THRESHOLD
+        value: "0.25"
 
 

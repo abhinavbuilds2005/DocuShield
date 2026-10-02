@@ -1,0 +1,65 @@
+{
+  "dataset_name": "Aadhaar Card Field Detection Dataset",
+  "dataset_purpose": "Field Detection and Localization ONLY",
+  "forensic_authenticity_notice": "This dataset is for field detection/localization and does not contain sufficient genuine/tampered labels for authenticity classification.",
+  "total_images": 150,
+  "total_annotations": 1050,
+  "invalid_bounding_boxes": 0,
+  "corrupt_images": 0,
+  "duplicate_images": 0,
+  "splits": {
+    "train": {
+      "images": 105,
+      "annotations": 735,
+      "corrupt": 0,
+      "missing_label_file": 0
+    },
+    "valid": {
+      "images": 30,
+      "annotations": 210,
+      "corrupt": 0,
+      "missing_label_file": 0
+    },
+    "test": {
+      "images": 15,
+      "annotations": 105,
+      "corrupt": 0,
+      "missing_label_file": 0
+    }
+  },
+  "classes": {
+    "0": {
+      "name": "aadhaar_number",
+      "annotation_count": 150
+    },
+    "1": {
+      "name": "name",
+      "annotation_count": 150
+    },
+    "2": {
+      "name": "dob",
+      "annotation_count": 150
+    },
+    "3": {
+      "name": "gender",
+      "annotation_count": 150
+    },
+    "4": {
+      "name": "photo",
+      "annotation_count": 150
+    },
+    "5": {
+      "name": "qr_code",
+      "annotation_count": 150
+    },
+    "6": {
+      "name": "emblem_header",
+      "annotation_count": 150
+    }
+  },
+  "privacy_compliance": {
+    "numbers_masked_in_samples": true,
+    "unmasked_credentials_in_repo": false,
+    "masking_pattern": "XXXX XXXX 1234"
+  }
+}

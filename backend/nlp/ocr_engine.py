@@ -25,6 +25,8 @@ import cv2
 import numpy as np
 from typing import Dict, Any, List, Optional
 
+from backend.vision.crop_utils import upscale_crop_if_needed, get_crop_preprocessing_variants
+
 
 # ---------------------------------------------------------------------------
 # Custom exception — raised when no OCR engine is available in real mode
@@ -125,10 +127,8 @@ def get_ocr_status() -> Dict[str, Any]:
     pref = os.environ.get("OCR_ENGINE", "auto").strip().lower()
     if pref == "tesseract":
         primary = "tesseract" if tesseract_ok else ("easyocr" if easyocr_ok else None)
-    elif pref == "easyocr":
-        primary = "easyocr" if easyocr_ok else ("tesseract" if tesseract_ok else None)
     else:
-        # Default 'auto': prioritize EasyOCR if available, then fallback to Tesseract
+        # Prioritize deep-learning EasyOCR for high character accuracy on Indian ID documents
         primary = "easyocr" if easyocr_ok else ("tesseract" if tesseract_ok else None)
     return {
         "ocr_available": easyocr_ok or tesseract_ok,
@@ -202,13 +202,13 @@ class OCREngine:
         pref = os.environ.get("OCR_ENGINE", "auto").strip().lower()
         force_tesseract = (pref == "tesseract")
 
-        # Try Tesseract first only if explicitly requested
+        # Try Tesseract first ONLY if explicitly requested via OCR_ENGINE=tesseract
         if force_tesseract and self.tesseract_available:
             result = self._run_tesseract(img, w, h)
             if result is not None:
                 return result
 
-        # Try EasyOCR (primary engine)
+        # Try EasyOCR (primary deep-learning engine for maximum ID accuracy)
         if self.easyocr_available:
             try:
                 if self.easyocr_reader is not None:
@@ -252,8 +252,9 @@ class OCREngine:
             else:
                 rgb_img = img
 
-            # Downscale dynamically to max 960px to keep PyTorch CRAFT feature maps <100MB
-            max_ocr_dim = 960
+            # Standardize max dimension to avoid double-downscaling (800px on Render 512MB RAM, 1280px elsewhere)
+            is_render = os.environ.get("RENDER", "").lower() == "true"
+            max_ocr_dim = 800 if is_render else 1280
             max_curr = max(w, h)
             if max_curr > max_ocr_dim:
                 scale = float(max_ocr_dim) / float(max_curr)
@@ -277,9 +278,16 @@ class OCREngine:
                     ocr_input,
                     batch_size=1,
                     workers=0,
-                    canvas_size=960,
+                    canvas_size=800 if is_render else 1280,
                     mag_ratio=1.0
                 )
+
+            # Reclaim intermediate memory buffers on memory-constrained cloud hosts
+            try:
+                import gc
+                gc.collect()
+            except Exception:
+                pass
 
             lines = []
             tokens = []
@@ -315,7 +323,7 @@ class OCREngine:
                 })
                 full_parts.append(t_str)
 
-                # Split into word-level tokens
+                # Split into word-level tokens (flagged as estimated when multi-word)
                 words = t_str.split()
                 if words:
                     avg_w = max(1, bw // len(words))
@@ -330,7 +338,9 @@ class OCREngine:
                                 "y": round(by / h, 4),
                                 "width": round(avg_w / w, 4),
                                 "height": round(bh / h, 4)
-                            }
+                            },
+                            "is_estimated_box": len(words) > 1,
+                            "line_box": pixel_box
                         })
 
             return {
@@ -386,7 +396,9 @@ class OCREngine:
                     "text": text,
                     "confidence": round(conf_norm, 3),
                     "box": pixel_box,
-                    "bbox_normalized": norm_box
+                    "bbox_normalized": norm_box,
+                    "is_estimated_box": False,
+                    "line_box": pixel_box
                 })
                 full_parts.append(text)
 
@@ -437,6 +449,159 @@ class OCREngine:
         except Exception as e:
             print(f"[OCR] Tesseract processing error: {e}")
             return None
+
+    def extract_field_crop_text(
+        self,
+        crop_img: np.ndarray,
+        field_type: str = "generic",
+        expected_pattern: Optional[str] = None,
+        validator_fn: Optional[Any] = None,
+        max_variants: int = 3,
+        benchmark_mode: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Dedicated OCR path for localized field crops:
+        crop -> controlled upscaling (2x/3x if small) -> bounded variants (original, CLAHE, sharpening)
+        -> multi-factor candidate selection (confidence + format validity + length).
+
+        Guarantees:
+        - Never logs raw extracted PII text.
+        - Maximum 3 preprocessing variants evaluated.
+        - Fast-path early exit when high-confidence valid extraction is achieved.
+        """
+        import re
+
+        empty_res = {
+            "text": "",
+            "confidence": 0.0,
+            "status": "EMPTY_CROP",
+            "variant": "none",
+            "is_valid": False,
+            "validation_note": "Empty or invalid crop",
+            "source": "field_crop_ocr",
+            "scale_applied": 1.0,
+            "all_attempts": 0
+        }
+
+        if crop_img is None or not isinstance(crop_img, np.ndarray) or crop_img.size == 0 or len(crop_img.shape) < 2:
+            return empty_res
+
+        ch, cw = crop_img.shape[:2]
+        if ch <= 0 or cw <= 0:
+            return empty_res
+
+        # 1. Controlled aspect-ratio-preserving upscaling for small text crops
+        upscaled_crop, scale_applied = upscale_crop_if_needed(
+            crop_img, min_height=64, max_scale=3.0, max_dimension=800
+        )
+
+        # 2. Bounded preprocessing variants (max 3)
+        variants = get_crop_preprocessing_variants(upscaled_crop, max_variants=max_variants)
+        if not variants:
+            return empty_res
+
+        candidates: List[Dict[str, Any]] = []
+
+        for variant_name, var_img in variants:
+            try:
+                ocr_res = self.process_image(var_img, benchmark_mode=benchmark_mode)
+            except Exception:
+                continue
+
+            if not ocr_res:
+                continue
+
+            t_text = str(ocr_res.get("full_text", "")).strip()
+            tokens = ocr_res.get("tokens", [])
+            t_conf = round(sum(t.get("confidence", 0.0) for t in tokens) / max(1, len(tokens)), 3) if tokens else 0.0
+
+            if not t_text:
+                continue
+
+            # Format validation
+            is_valid_candidate = True
+            val_note = None
+
+            if validator_fn is not None:
+                try:
+                    val_res = validator_fn(t_text)
+                    if isinstance(val_res, tuple):
+                        is_valid_candidate = bool(val_res[0])
+                        val_note = val_res[1] if len(val_res) > 1 else None
+                    else:
+                        is_valid_candidate = bool(val_res)
+                except Exception:
+                    is_valid_candidate = False
+            elif expected_pattern is not None:
+                try:
+                    m = re.search(expected_pattern, t_text)
+                    is_valid_candidate = bool(m)
+                    if m:
+                        t_text = m.group(1) if m.groups() else m.group(0)
+                except Exception:
+                    is_valid_candidate = False
+
+            # Fast path: High confidence valid extraction
+            if is_valid_candidate and t_conf >= 0.85:
+                candidates.append({
+                    "text": t_text,
+                    "confidence": t_conf,
+                    "variant": variant_name,
+                    "is_valid": True,
+                    "validation_note": val_note,
+                    "scale_applied": scale_applied,
+                    "tokens": tokens,
+                    "comp_score": 1.0
+                })
+                break
+
+            # Composite scoring:
+            # - Format validity: 0.40
+            # - Character length sanity (>= 4): 0.20
+            # - OCR confidence: 0.40
+            fmt_score = 0.40 if is_valid_candidate else 0.0
+            len_score = 0.20 if len(t_text) >= 4 else 0.10
+            conf_score = 0.40 * min(1.0, max(0.0, t_conf))
+            comp_score = round(fmt_score + len_score + conf_score, 3)
+
+            candidates.append({
+                "text": t_text,
+                "confidence": t_conf,
+                "variant": variant_name,
+                "is_valid": is_valid_candidate,
+                "validation_note": val_note,
+                "scale_applied": scale_applied,
+                "tokens": tokens,
+                "comp_score": comp_score
+            })
+
+        if candidates:
+            # Sort candidates by composite score, then confidence
+            candidates.sort(key=lambda c: (c["comp_score"], c["confidence"]), reverse=True)
+            best = candidates[0]
+            return {
+                "text": best["text"],
+                "confidence": best["confidence"],
+                "status": "SUCCESS",
+                "variant": best["variant"],
+                "is_valid": best["is_valid"],
+                "validation_note": best.get("validation_note"),
+                "scale_applied": best.get("scale_applied", 1.0),
+                "source": "field_crop_ocr",
+                "all_attempts": len(candidates)
+            }
+
+        return {
+            "text": "",
+            "confidence": 0.0,
+            "status": "NO_TEXT_DETECTED",
+            "variant": "none",
+            "is_valid": False,
+            "validation_note": "No text detected across variants",
+            "source": "field_crop_ocr",
+            "scale_applied": scale_applied,
+            "all_attempts": len(variants)
+        }
 
     def _try_sidecar_ocr(self, image_path: str, w: int, h: int) -> Optional[Dict[str, Any]]:
         """
